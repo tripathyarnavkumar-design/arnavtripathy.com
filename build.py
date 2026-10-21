@@ -4,7 +4,7 @@ templates/ (page layouts) and assets/ (styles and scripts).
 
 Run:  python3 build.py            (BASE_PATH env var sets a sub-folder, e.g. /repo)
 """
-import os, re, shutil, datetime, glob
+import os, re, shutil, datetime, glob, hashlib
 import yaml, markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
@@ -114,7 +114,12 @@ def main():
     env = Environment(loader=FileSystemLoader(os.path.join(ROOT, 'templates')),
                       autoescape=select_autoescape(['html']), trim_blocks=False, lstrip_blocks=False)
     env.filters.update(md=md, mdinline=mdinline, url=url)
-    common = dict(site=site, nav=NAV, base=BASE, categories=CATEGORIES,
+    # Version tags on the stylesheet and script, so browsers fetch new copies after every change
+    def ver(name):
+        with open(os.path.join(ROOT, 'assets', name), 'rb') as f:
+            return hashlib.md5(f.read()).hexdigest()[:8]
+    asset_v = {'css': ver('styles.css'), 'js': ver('script.js')}
+    common = dict(site=site, asset_v=asset_v, nav=NAV, base=BASE, categories=CATEGORIES,
                   year=datetime.date.today().year,
                   home=load_yaml('home.yml'), about=load_yaml('about.yml'),
                   teaching=load_yaml('teaching.yml'), research=load_yaml('research.yml'),
