@@ -10,10 +10,10 @@
   <section class="section page-research">
     <div class="wrap section-inner">
 {{ page_head('Research') }}
-      {% set kinds = [] %}{% if research.journal %}{% set _ = kinds.append(('journal','Journal Publications')) %}{% endif %}{% if research.conference %}{% set _ = kinds.append(('conference','Conference Publications')) %}{% endif %}{% if research.presentations %}{% set _ = kinds.append(('presentations','Conference Presentations')) %}{% endif %}
+      {% set kinds = [] %}{% if research.journal %}{% set _ = kinds.append(('journal','Journal Publications','Journals')) %}{% endif %}{% if research.conference %}{% set _ = kinds.append(('conference','Conference Publications','Conference papers')) %}{% endif %}{% if research.presentations %}{% set _ = kinds.append(('presentations','Conference Presentations','Presentations')) %}{% endif %}
       {% if kinds | length > 1 %}<div class="tag-filter research-filter" id="researchFilter" role="group" aria-label="Show">
         <button type="button" class="tag-chip active" data-kind="all" aria-pressed="true">All</button>
-{% for k, label in kinds %}        <button type="button" class="tag-chip" data-kind="{{ k }}" aria-pressed="false">{{ label }}</button>
+{% for k, label, short in kinds %}        <button type="button" class="tag-chip" data-kind="{{ k }}" aria-pressed="false"><span class="chip-long">{{ label }}</span><span class="chip-short" aria-hidden="true">{{ short }}</span></button>
 {% endfor %}      </div>{% endif %}
       <div class="research-blocks">
 

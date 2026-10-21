@@ -803,3 +803,12 @@ html, body{ color-scheme:only light; }
 
 /* Filters sit close to the content they filter */
 .tag-filter{ margin-bottom:var(--s4); }
+
+/* Filters on phones: compact buttons, short labels on the Research page */
+.chip-short{ display:none; }
+@media (max-width:640px){
+  .tag-filter{ gap:6px; }
+  .tag-chip{ min-height:36px; padding:0 10px; }
+  .research-filter .chip-long{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .research-filter .chip-short{ display:inline; }
+}
