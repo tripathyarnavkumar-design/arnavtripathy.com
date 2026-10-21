@@ -906,7 +906,9 @@ html, body{ color-scheme:only light; }
   flex:var(--r) 1 0%; min-width:0; margin:0; width:auto; max-width:none; justify-self:auto;
   grid-area:auto; display:block;
 }
-.art-justified .art-row.is-open .art-plate{ flex:0 1 calc((100% - var(--s5) * 3) * var(--r) / 4); }
+/* A short last row is not stretched: its pieces keep a generous height (--hl) */
+.art-justified{ --hl:clamp(320px, 42vw, 560px); }
+.art-justified .art-row.is-open .art-plate{ flex:0 1 calc(var(--r) * var(--hl)); max-width:100%; }
 .art-justified .art-plate .art-thumb, .art-justified .art-plate:nth-child(n) .art-thumb{ aspect-ratio:var(--r); margin-bottom:var(--s3); }
 .art-justified .art-plate .art-title{ padding-top:var(--s3); }
 .art-justified .art-plate .art-meta{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

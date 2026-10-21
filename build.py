@@ -122,12 +122,13 @@ def art_layout(works):
     bottom edge (each picture's width follows its proportions). Rows alternate between
     a few large pieces and more, smaller pieces, so the rhythm changes down the page
     while every edge stays aligned. A short last row is not stretched."""
-    targets = [2.3, 4.0]                  # summed width÷height per row: feature row, then lighter row
+    targets = [1.9, 2.8]                  # summed width÷height per row: feature row, then a lighter row
     rows, row, total, t = [], [], 0.0, 0
     for w in works:
         r = w['ratio']
         target = targets[t % 2]
-        if row and total + r > target * 1.2:
+        limit = target * (1.45 if len(row) == 1 else 1.2)   # a single piece would rather pair up
+        if row and total + r > limit:
             rows.append(row); row, total = [], 0.0; t += 1
             target = targets[t % 2]
         row.append(w); total += r
@@ -135,13 +136,6 @@ def art_layout(works):
             rows.append(row); row, total = [], 0.0; t += 1
     if row:
         rows.append(row)
-    # Avoid a lonely short last row: fold it into the row above when that still reads well
-    if len(rows) > 1:
-        last_sum = sum(w['ratio'] for w in rows[-1])
-        prev_sum = sum(w['ratio'] for w in rows[-2])
-        if last_sum < targets[(len(rows) - 1) % 2] * 0.8 and last_sum + prev_sum <= 5.4:
-            tail = rows.pop()
-            rows[-1] = rows[-1] + tail
     # Phones: rows of one or two pieces, each row edge to edge with equal heights
     flat = [w for row in rows for w in row]
     k = 0
@@ -161,7 +155,8 @@ def art_layout(works):
         total = sum(w['ratio'] for w in row)
         last = k == len(rows) - 1
         out.append({'items': row, 'sum': round(total, 4),
-                    'open': last and total < targets[k % 2] * 0.8})
+                    # never stretch a row so few pieces become huge (also the last row when short)
+                    'open': total < 1.5 or (last and total < targets[k % 2] * 0.8)})
     return out
 
 
