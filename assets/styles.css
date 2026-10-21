@@ -800,3 +800,6 @@ html, body{ color-scheme:only light; }
 .research-blocks > .research-block:first-child, .research-blocks > .research-block.is-first{ padding-top:0; }
 .research-blocks > .research-block:not(.is-first):first-child{ padding-top:var(--s8); }
 .research-blocks:not(:has(.is-first)) > .research-block:first-child{ padding-top:0; }
+
+/* Filters sit close to the content they filter */
+.tag-filter{ margin-bottom:var(--s4); }
