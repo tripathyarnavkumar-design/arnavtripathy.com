@@ -857,7 +857,7 @@ body.landing .pick{padding:28px 0 32px;gap:24px}
 .pick-opts.single .opt-m{grid-column:2;align-self:end}
 .pick-opts.single .opt::before{left:-1px;right:-1px}
 .mast-note{flex:1;font-size:13px;color:#A1A1AA}
-@media (max-width:860px){ .pick-opts.single .opt{grid-template-columns:minmax(0,1fr)} .pick-opts.single .opt-ill{display:none} .pick-opts.single .opt-t,.pick-opts.single .opt-d,.pick-opts.single .opt-m{grid-column:1} .mast-note{display:none} }
+@media (max-width:860px){ .mast-note{display:none} }
 
 #leaveScrim{z-index:94}
 
@@ -1483,6 +1483,21 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 @media (prefers-reduced-motion:reduce){ body.rail-out .chooser .rail,body.ex-rail #startDataForm .df-side,body.ws-rail .work-grid .col-r{transition:none!important} }
 .pbar-hist{display:none;margin-left:auto;gap:4px}
 @media (max-width:1100px){ body.ws-rail .pbar-hist{display:flex} }
+/* Start card on tablets and phones: full width, illustration beside the text on tablets, stacked on phones */
+@media (max-width:1100px){
+  .pick-opts.single{width:100%}
+  .pick-opts.single .opt{grid-template-columns:clamp(180px,32%,260px) minmax(0,1fr);column-gap:20px;padding:18px}
+  .pick-opts.single .opt-ill{display:flex;grid-column:1;grid-row:1/5}
+  .pick-opts.single .opt-t,.pick-opts.single .opt-d,.pick-opts.single .opt-m{grid-column:2}
+}
+@media (max-width:600px){
+  .pick-opts.single .opt{grid-template-columns:minmax(0,1fr);row-gap:8px;padding:16px}
+  .pick-opts.single .opt-ill{display:none}
+  .pick-opts.single .opt-t,.pick-opts.single .opt-d,.pick-opts.single .opt-m{grid-column:1;grid-row:auto}
+  .pick-opts.single .opt-t{margin-top:0;font-size:20px}
+  .pick-opts.single .opt-m{margin-top:10px}
+}
+@media (max-width:1100px){ body.landing .pick{min-height:100dvh;justify-content:center;padding-top:32px;padding-bottom:40px} }
 
 </style>
 <header class="mast" id="mast" hidden>
