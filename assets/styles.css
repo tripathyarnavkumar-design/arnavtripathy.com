@@ -41,7 +41,7 @@
   /* Motion */
   --ease:cubic-bezier(.23,1,.32,1);
   --t-fast:.16s; --t-ui:.24s;
-  color-scheme:light;
+  color-scheme:only light;
 }
 /* Always light: the site never switches to a dark theme */
 
@@ -793,3 +793,4 @@ html.is-loading body{ overflow:hidden; }
 /* Project facts: four across (Timeline, Role, Category, Tools) */
 .page-project .project-facts{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
 @media (max-width:1080px){ .page-project .project-facts{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+html, body{ color-scheme:only light; }
