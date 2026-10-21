@@ -27,7 +27,7 @@ sections:
       brand’s contemporary appeal.
     prompt: What the form and letterforms refer to, and why.
     hidden: false
-gallery_heading: Explorations and final mark
+gallery_heading: The logo
 images:
   - image: /media/stylefav-fashion-branding-moodboard.png
     hidden: false
