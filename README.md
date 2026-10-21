@@ -33,6 +33,7 @@ Click **Save**. The site rebuilds and is live about a minute later. You can foll
 | `media/` | Uploaded images and files |
 | `templates/` | Page layouts (Jinja2 HTML) |
 | `assets/` | `styles.css`, `script.js` |
+| `apps/` | Stand-alone web tools, each published at its own address, e.g. `apps/dataviz-now/` → www.arnavtripathy.com/dataviz-now/ |
 | `build.py` | Turns the above into the finished site in `_site/`: `pip install -r requirements.txt && python3 build.py` |
 | `.pages.yml` | The admin forms |
 | `.github/workflows/deploy.yml` | Builds and publishes to GitHub Pages on every change |

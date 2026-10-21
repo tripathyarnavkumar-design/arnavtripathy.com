@@ -251,6 +251,13 @@ def main():
         shutil.copytree(os.path.join(ROOT, 'media'), os.path.join(OUT, 'media'),
                         ignore=shutil.ignore_patterns('.gitkeep'))
         optimise_media(os.path.join(OUT, 'media'))
+    # Stand-alone web apps: apps/<name>/ is published as-is at /<name>/
+    apps = os.path.join(ROOT, 'apps')
+    if os.path.isdir(apps):
+        for name in sorted(os.listdir(apps)):
+            src = os.path.join(apps, name)
+            if os.path.isdir(src):
+                shutil.copytree(src, os.path.join(OUT, name))
     if os.path.exists(os.path.join(ROOT, 'CNAME')):
         shutil.copy(os.path.join(ROOT, 'CNAME'), OUT)
     open(os.path.join(OUT, '.nojekyll'), 'w').close()

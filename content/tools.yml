@@ -1,5 +1,12 @@
 # Tools page: web tools in three groups
 # Edit this file in the website admin (Pages CMS), or here directly.
-design: []
+design:
+- name: DataViz Now
+  description: Turn any table into the right chart. Upload or paste your data, pick from 115+ visualization techniques, style every element and export for web, print or publication.
+  url: dataviz-now/
+  thumbnail: /media/dataviz-now.png
+  thumbnail_position: ''
+  thumbnail_zoom: 100%
+  hidden: false
 research: []
 other: []
