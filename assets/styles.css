@@ -812,3 +812,12 @@ html, body{ color-scheme:only light; }
   .research-filter .chip-long{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .research-filter .chip-short{ display:inline; }
 }
+
+/* Image framing chosen in the admin: focus point, zoom, fill or show whole */
+.project-thumb img, .shot-frame img, .art-thumb img, .tool-thumb img{
+  object-position:var(--pos, center); transform:scale(var(--zoom, 1)); transform-origin:var(--pos, center);
+}
+.tool-thumb img{ object-position:var(--pos, top center); transform-origin:var(--pos, top center); }
+@media (hover:hover) and (pointer:fine){ .tool-item:hover .tool-thumb img{ transform:scale(calc(var(--zoom, 1) * 1.02)); } }
+.project-thumb img.fit-whole, .shot-frame img.fit-whole, .art-thumb img.fit-whole{ object-fit:contain; background:var(--surface); }
+.project-thumb img.fit-fill, .shot-frame img.fit-fill, .art-thumb img.fit-fill{ object-fit:cover; }

@@ -6,7 +6,7 @@
     <div class="wrap section-inner">
 {{ page_head('Art & Craft') }}
       <div class="art-grid" id="artGrid">
-{% for w in art.works %}{% set meta = [w.medium, w.year] | select | join(', ') %}        <button class="art-plate size-{{ w.size }}{% if w.phone_full %} phone-full{% endif %}" data-index="{{ loop.index0 }}" data-title="{{ w.title }}" data-meta="{{ meta }}"{% if w.image %} data-image="{{ w.image | url }}"{% endif %}><div class="art-thumb">{% if w.image %}{{ img(w.image, w.title) }}{% else %}{{ placeholder() }}{% endif %}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
+{% for w in art.works %}{% set meta = [w.medium, w.year] | select | join(', ') %}        <button class="art-plate size-{{ w.size }}{% if w.phone_full %} phone-full{% endif %}" data-index="{{ loop.index0 }}" data-title="{{ w.title }}" data-meta="{{ meta }}"{% if w.image %} data-image="{{ w.image | url }}"{% endif %}><div class="art-thumb">{% if w.image %}{{ img(w.image, w.title, pos=w.position, zoom=w.zoom, fit=w.fit) }}{% else %}{{ placeholder() }}{% endif %}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
 {% endfor %}      </div>
     </div>
   </section>

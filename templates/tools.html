@@ -15,7 +15,7 @@
                 {% if t.description %}<p class="tool-desc">{{ t.description }}</p>{% endif %}
                 {% if t.url %}<a class="tool-link" href="{{ t.url }}" target="_blank" rel="noopener">Open the tool<span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>{% endif %}
               </div>
-              {% if t.url %}<a class="tool-thumb" href="{{ t.url }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">{% else %}<div class="tool-thumb">{% endif %}{% if t.thumbnail %}{{ img(t.thumbnail, '') }}{% else %}{{ placeholder('Tool thumbnail') }}{% endif %}{% if t.url %}</a>{% else %}</div>{% endif %}
+              {% if t.url %}<a class="tool-thumb" href="{{ t.url }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">{% else %}<div class="tool-thumb">{% endif %}{% if t.thumbnail %}{{ img(t.thumbnail, '', pos=t.thumbnail_position, zoom=t.thumbnail_zoom) }}{% else %}{{ placeholder('Tool thumbnail') }}{% endif %}{% if t.url %}</a>{% else %}</div>{% endif %}
             </li>
 {% else %}            <li class="tool-item is-todo">
               <div class="tool-body">

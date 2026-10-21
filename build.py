@@ -64,7 +64,15 @@ def load_projects():
         data['sections'] = data.get('sections') or []
         data['images'] = data.get('images') or []
         images = [i for i in data['images'] if i and i.get('image')]
-        data['card_image'] = data.get('thumbnail') or (images[0]['image'] if images else '')
+        if data.get('thumbnail'):
+            data['card_image'] = data['thumbnail']
+            data['card_position'] = data.get('thumbnail_position') or ''
+            data['card_zoom'] = data.get('thumbnail_zoom') or ''
+        else:
+            first = images[0] if images else {}
+            data['card_image'] = first.get('image', '')
+            data['card_position'] = first.get('position') or ''
+            data['card_zoom'] = first.get('zoom') or ''
         items.append(data)
     items.sort(key=lambda p: (p.get('order') if p.get('order') is not None else 999, p['title'].lower()))
     return items

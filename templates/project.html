@@ -30,7 +30,7 @@
       {% if shots %}<div class="project-gallery-wrap">
         {% if p.gallery_heading %}<h2 class="gallery-heading">{{ p.gallery_heading }}</h2>{% endif %}
       <section class="project-gallery gallery-3" aria-label="Project images">
-{% for s in shots %}        <figure class="shot{% if loop.first %} shot-lead{% endif %}"><div class="shot-frame">{% if s.image %}{{ img(s.image, s.caption or '', '', not loop.first) }}{% else %}{{ placeholder('Image ' ~ loop.index ~ ' of ' ~ loop.length) }}{% endif %}</div>{% if s.caption %}<figcaption>{{ s.caption }}</figcaption>{% elif site.show_prompts %}<figcaption class="todo-inline">To add: caption for image {{ loop.index }}</figcaption>{% endif %}</figure>
+{% for s in shots %}        <figure class="shot{% if loop.first %} shot-lead{% endif %}"><div class="shot-frame">{% if s.image %}{{ img(s.image, s.caption or '', '', not loop.first, s.position, s.zoom, s.fit) }}{% else %}{{ placeholder('Image ' ~ loop.index ~ ' of ' ~ loop.length) }}{% endif %}</div>{% if s.caption %}<figcaption>{{ s.caption }}</figcaption>{% elif site.show_prompts %}<figcaption class="todo-inline">To add: caption for image {{ loop.index }}</figcaption>{% endif %}</figure>
 {% endfor %}      </section>
       </div>{% endif %}
       <nav class="project-pager" aria-label="More projects">

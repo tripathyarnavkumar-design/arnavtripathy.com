@@ -9,6 +9,7 @@
 {% macro pills(cats) -%}
 {% for c in cats %}{% if c in categories %}<span class="tag-pill t-{{ c }}">{{ categories[c].pill }}</span>{% endif %}{% endfor %}
 {%- endmacro %}
-{% macro img(src, alt='', cls='', lazy=True) -%}
-<img src="{{ src | url }}" alt="{{ alt }}"{% if cls %} class="{{ cls }}"{% endif %}{% if lazy %} loading="lazy"{% endif %} decoding="async">
+{% macro img(src, alt='', cls='', lazy=True, pos='', zoom='', fit='') -%}
+{% set z = (zoom | string | replace('%','') | float(100)) / 100 if zoom else 1 %}{% set classes = [cls, ('fit-' ~ fit) if fit else ''] | select | join(' ') %}
+<img src="{{ src | url }}" alt="{{ alt }}"{% if classes %} class="{{ classes }}"{% endif %}{% if pos or z != 1 %} style="{% if pos %}--pos:{{ pos }};{% endif %}{% if z != 1 %}--zoom:{{ z }};{% endif %}"{% endif %}{% if lazy %} loading="lazy"{% endif %} decoding="async">
 {%- endmacro %}

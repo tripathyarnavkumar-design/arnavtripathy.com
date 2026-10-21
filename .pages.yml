@@ -69,6 +69,48 @@ content:
     label: Card image on the Design page
     type: image
     description: Optional. If empty, the first project image is used.
+  - name: thumbnail_position
+    label: Card image focus point
+    type: select
+    description: Which part of the image stays in view when the frame crops it.
+    options:
+      values:
+      - name: ''
+        label: Centre (default)
+      - name: top
+        label: Top
+      - name: bottom
+        label: Bottom
+      - name: left
+        label: Left
+      - name: right
+        label: Right
+      - name: top left
+        label: Top left
+      - name: top right
+        label: Top right
+      - name: bottom left
+        label: Bottom left
+      - name: bottom right
+        label: Bottom right
+  - name: thumbnail_zoom
+    label: Zoom
+    type: select
+    description: Enlarges the image inside its frame, cropping in towards the focus point.
+    options:
+      values:
+      - name: 100%
+        label: 100% (none)
+      - name: 110%
+        label: 110%
+      - name: 125%
+        label: 125%
+      - name: 150%
+        label: 150%
+      - name: 175%
+        label: 175%
+      - name: 200%
+        label: 200%
   - name: sections
     label: Text sections
     type: object
@@ -105,6 +147,60 @@ content:
     - name: image
       label: Image
       type: image
+    - name: fit
+      label: Fit in the frame
+      type: select
+      description: Default shows the whole image.
+      options:
+        values:
+        - name: ''
+          label: Default
+        - name: fill
+          label: Fill the frame (crops edges)
+        - name: whole
+          label: Show the whole image
+    - name: position
+      label: Focus point
+      type: select
+      description: Which part of the image stays in view when the frame crops it.
+      options:
+        values:
+        - name: ''
+          label: Centre (default)
+        - name: top
+          label: Top
+        - name: bottom
+          label: Bottom
+        - name: left
+          label: Left
+        - name: right
+          label: Right
+        - name: top left
+          label: Top left
+        - name: top right
+          label: Top right
+        - name: bottom left
+          label: Bottom left
+        - name: bottom right
+          label: Bottom right
+    - name: zoom
+      label: Zoom
+      type: select
+      description: Enlarges the image inside its frame, cropping in towards the focus point.
+      options:
+        values:
+        - name: 100%
+          label: 100% (none)
+        - name: 110%
+          label: 110%
+        - name: 125%
+          label: 125%
+        - name: 150%
+          label: 150%
+        - name: 175%
+          label: 175%
+        - name: 200%
+          label: 200%
     - name: caption
       label: Caption
       type: string
@@ -427,6 +523,60 @@ content:
     - name: image
       label: Image
       type: image
+    - name: fit
+      label: Fit in the frame
+      type: select
+      description: Default fills the tile.
+      options:
+        values:
+        - name: ''
+          label: Default
+        - name: fill
+          label: Fill the frame (crops edges)
+        - name: whole
+          label: Show the whole image
+    - name: position
+      label: Focus point
+      type: select
+      description: Which part of the image stays in view when the frame crops it.
+      options:
+        values:
+        - name: ''
+          label: Centre (default)
+        - name: top
+          label: Top
+        - name: bottom
+          label: Bottom
+        - name: left
+          label: Left
+        - name: right
+          label: Right
+        - name: top left
+          label: Top left
+        - name: top right
+          label: Top right
+        - name: bottom left
+          label: Bottom left
+        - name: bottom right
+          label: Bottom right
+    - name: zoom
+      label: Zoom
+      type: select
+      description: Enlarges the image inside its frame, cropping in towards the focus point.
+      options:
+        values:
+        - name: 100%
+          label: 100% (none)
+        - name: 110%
+          label: 110%
+        - name: 125%
+          label: 125%
+        - name: 150%
+          label: 150%
+        - name: 175%
+          label: 175%
+        - name: 200%
+          label: 200%
     - name: size
       label: Tile size in the collage
       type: select
@@ -472,6 +622,48 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: thumbnail_position
+      label: Thumbnail focus point
+      type: select
+      description: Which part of the image stays in view when the frame crops it.
+      options:
+        values:
+        - name: ''
+          label: Top (default)
+        - name: top
+          label: Top
+        - name: bottom
+          label: Bottom
+        - name: left
+          label: Left
+        - name: right
+          label: Right
+        - name: top left
+          label: Top left
+        - name: top right
+          label: Top right
+        - name: bottom left
+          label: Bottom left
+        - name: bottom right
+          label: Bottom right
+    - name: thumbnail_zoom
+      label: Zoom
+      type: select
+      description: Enlarges the image inside its frame, cropping in towards the focus point.
+      options:
+        values:
+        - name: 100%
+          label: 100% (none)
+        - name: 110%
+          label: 110%
+        - name: 125%
+          label: 125%
+        - name: 150%
+          label: 150%
+        - name: 175%
+          label: 175%
+        - name: 200%
+          label: 200%
     - name: hidden
       label: Hide on the website
       type: boolean
@@ -497,6 +689,48 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: thumbnail_position
+      label: Thumbnail focus point
+      type: select
+      description: Which part of the image stays in view when the frame crops it.
+      options:
+        values:
+        - name: ''
+          label: Top (default)
+        - name: top
+          label: Top
+        - name: bottom
+          label: Bottom
+        - name: left
+          label: Left
+        - name: right
+          label: Right
+        - name: top left
+          label: Top left
+        - name: top right
+          label: Top right
+        - name: bottom left
+          label: Bottom left
+        - name: bottom right
+          label: Bottom right
+    - name: thumbnail_zoom
+      label: Zoom
+      type: select
+      description: Enlarges the image inside its frame, cropping in towards the focus point.
+      options:
+        values:
+        - name: 100%
+          label: 100% (none)
+        - name: 110%
+          label: 110%
+        - name: 125%
+          label: 125%
+        - name: 150%
+          label: 150%
+        - name: 175%
+          label: 175%
+        - name: 200%
+          label: 200%
     - name: hidden
       label: Hide on the website
       type: boolean
@@ -522,6 +756,48 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: thumbnail_position
+      label: Thumbnail focus point
+      type: select
+      description: Which part of the image stays in view when the frame crops it.
+      options:
+        values:
+        - name: ''
+          label: Top (default)
+        - name: top
+          label: Top
+        - name: bottom
+          label: Bottom
+        - name: left
+          label: Left
+        - name: right
+          label: Right
+        - name: top left
+          label: Top left
+        - name: top right
+          label: Top right
+        - name: bottom left
+          label: Bottom left
+        - name: bottom right
+          label: Bottom right
+    - name: thumbnail_zoom
+      label: Zoom
+      type: select
+      description: Enlarges the image inside its frame, cropping in towards the focus point.
+      options:
+        values:
+        - name: 100%
+          label: 100% (none)
+        - name: 110%
+          label: 110%
+        - name: 125%
+          label: 125%
+        - name: 150%
+          label: 150%
+        - name: 175%
+          label: 175%
+        - name: 200%
+          label: 200%
     - name: hidden
       label: Hide on the website
       type: boolean
