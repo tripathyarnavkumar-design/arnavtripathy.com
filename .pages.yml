@@ -87,6 +87,10 @@ content:
     - name: prompt
       label: Reminder shown while Text is empty
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: gallery_heading
     label: Heading above the images
     type: string
@@ -104,6 +108,10 @@ content:
     - name: caption
       label: Caption
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: hidden
     label: Hide this project from the website
     type: boolean
@@ -161,6 +169,10 @@ content:
     - name: indexing
       label: Indexing
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: conference
     label: Conference publications (newest first)
     type: object
@@ -207,6 +219,10 @@ content:
     - name: pages
       label: Pages (for citations)
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: presentations
     label: Conference presentations (newest first)
     type: object
@@ -222,6 +238,10 @@ content:
       label: Conference
       place and dates: null
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
 - name: teaching
   label: Teaching
   type: file
@@ -282,6 +302,18 @@ content:
           label: Points
           type: text
           list: true
+        - name: hidden
+          label: Hide on the website
+          type: boolean
+          description: Keeps this item saved here but removes it from the site.
+      - name: hidden
+        label: Hide on the website
+        type: boolean
+        description: Keeps this item saved here but removes it from the site.
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
 - name: about
   label: About
   type: file
@@ -313,6 +345,10 @@ content:
       label: Bullet points
       type: string
       list: true
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: experience
     label: Industry work experience
     type: object
@@ -338,6 +374,10 @@ content:
       label: Bullet points
       type: string
       list: true
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: awards
     label: Awards
     type: object
@@ -356,6 +396,10 @@ content:
       label: Awarded by
       place and date: null
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
 - name: art
   label: Art & Craft
   type: file
@@ -397,6 +441,10 @@ content:
           label: Medium
         - name: small
           label: Small
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
 - name: tools
   label: Tools
   type: file
@@ -424,6 +472,10 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: research
     label: Research tools
     type: object
@@ -445,6 +497,10 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
   - name: other
     label: Other tools
     type: object
@@ -466,6 +522,10 @@ content:
     - name: thumbnail
       label: Thumbnail (screenshot)
       type: image
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.
 - name: home
   label: Home page
   type: file
@@ -502,6 +562,25 @@ content:
     label: Show “To add” reminders on the website
     type: boolean
     description: 'Turn off before sharing the site: empty sections, captions and image slots are then hidden.'
+  - name: hidden_pages
+    label: Hide whole pages
+    type: select
+    description: Selected pages disappear from the menu and the site. Hiding Design also hides every project page.
+    options:
+      multiple: true
+      values:
+      - name: about
+        label: About
+      - name: teaching
+        label: Teaching
+      - name: research
+        label: Research
+      - name: design
+        label: Design
+      - name: art
+        label: Art & Craft
+      - name: tools
+        label: Tools
   - name: profiles
     label: Profile links (home page and footer)
     type: object
@@ -513,3 +592,7 @@ content:
     - name: url
       label: Link
       type: string
+    - name: hidden
+      label: Hide on the website
+      type: boolean
+      description: Keeps this item saved here but removes it from the site.

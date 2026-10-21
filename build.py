@@ -32,9 +32,18 @@ CATEGORIES = {
 }
 
 
+def drop_hidden(value):
+    """Remove every list item marked 'hidden: true' (at any depth)."""
+    if isinstance(value, dict):
+        return {k: drop_hidden(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [drop_hidden(v) for v in value if not (isinstance(v, dict) and v.get('hidden'))]
+    return value
+
+
 def load_yaml(name):
     with open(os.path.join(ROOT, 'content', name), encoding='utf-8') as f:
-        return yaml.safe_load(f) or {}
+        return drop_hidden(yaml.safe_load(f) or {})
 
 
 def load_projects():
@@ -42,7 +51,7 @@ def load_projects():
     for path in sorted(glob.glob(os.path.join(ROOT, 'content', 'projects', '*.md'))):
         text = open(path, encoding='utf-8').read()
         m = re.match(r'^---\s*\n(.*?)\n---\s*\n?(.*)$', text, re.S)
-        data = (yaml.safe_load(m.group(1)) if m else {}) or {}
+        data = drop_hidden((yaml.safe_load(m.group(1)) if m else {}) or {})
         body = (m.group(2) if m else text).strip()
         if body and not data.get('description'):
             data['description'] = body
@@ -119,7 +128,9 @@ def main():
         with open(os.path.join(ROOT, 'assets', name), 'rb') as f:
             return hashlib.md5(f.read()).hexdigest()[:8]
     asset_v = {'css': ver('styles.css'), 'js': ver('script.js')}
-    common = dict(site=site, asset_v=asset_v, nav=NAV, base=BASE, categories=CATEGORIES,
+    hidden_pages = set(site.get('hidden_pages') or [])
+    nav = [n for n in NAV if n['key'] not in hidden_pages]
+    common = dict(site=site, asset_v=asset_v, nav=nav, base=BASE, categories=CATEGORIES,
                   year=datetime.date.today().year,
                   home=load_yaml('home.yml'), about=load_yaml('about.yml'),
                   teaching=load_yaml('teaching.yml'), research=load_yaml('research.yml'),
@@ -132,6 +143,8 @@ def main():
     os.makedirs(OUT)
 
     def render(template, outfile, **ctx):
+        if ctx.get('section') in hidden_pages:
+            return
         html = env.get_template(template).render(**common, **ctx)
         with open(os.path.join(OUT, outfile), 'w', encoding='utf-8') as f:
             f.write(html)
@@ -167,7 +180,7 @@ def main():
     if os.path.exists(os.path.join(ROOT, 'CNAME')):
         shutil.copy(os.path.join(ROOT, 'CNAME'), OUT)
     open(os.path.join(OUT, '.nojekyll'), 'w').close()
-    print(f'Built {8 + n} pages into _site/')
+    print(f"Built {len([f for f in os.listdir(OUT) if f.endswith('.html')])} pages into _site/")
 
 
 if __name__ == '__main__':
