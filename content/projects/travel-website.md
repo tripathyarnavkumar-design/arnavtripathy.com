@@ -3,11 +3,11 @@ title: Travel Website
 order: 4
 categories:
   - uiux
-description: The project involved the design of a website for a travel and tours service.
+description: The project involved designing a website for a tours and travel tour service.
 timeline: 2021–22
 role: UI and UX Designer in a team of 1
 tools: Figma, Adobe Illustrator
-thumbnail: /media/yo-tours-travel-website-mockup.png
+thumbnail: /media/yo-tours-travel-website-mockup-3.png
 sections:
   - heading: The brief
     text: YO TOURS is a travel platform that helps users discover destinations, book
@@ -24,6 +24,23 @@ sections:
     hidden: false
 gallery_heading: Key screens
 images:
-  - hidden: false
+  - image: /media/yo-tours-travel-website-mockup-2.png
+    caption: "Home Page "
+    hidden: false
+  - image: /media/kerala-tropical-travel-hero.png
+    caption: Location details
+    hidden: false
+  - image: /media/yo-tours-travel-website-mockup-1.png
+    caption: Exploring locations
+    hidden: false
+  - image: /media/yo-tours-holiday-packages-mockup.png
+    caption: Holiday packages selection
+    hidden: false
+  - image: /media/yotours-customer-testimonials-mockup.png
+    caption: Customer Testimonial
+    hidden: false
+  - image: /media/kayak-adventures-travel-website-mockup.png
+    caption: Home Page Image Carousel
+    hidden: false
 hidden: false
 ---
