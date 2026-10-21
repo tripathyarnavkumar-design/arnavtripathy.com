@@ -78,6 +78,63 @@ def load_projects():
     return items
 
 
+def image_ratio(path):
+    """Width ÷ height of an uploaded image (1.5 if it can't be read)."""
+    try:
+        from PIL import Image
+        with Image.open(os.path.join(ROOT, str(path).lstrip('/'))) as im:
+            w, h = im.size
+        return round(w / h, 4) if h else 1.5
+    except Exception:
+        return 1.5
+
+
+def gallery_rows(shots):
+    """Arrange any number of images into rows: a wide lead image when the count is odd,
+    then pairs; three portrait images in a row share one line."""
+    rows, i, n = [], 0, len(shots)
+    portrait = lambda k: shots[k]['ratio'] < 1
+    if n % 2 == 1 and not (n >= 3 and all(portrait(k) for k in range(3))):
+        rows.append(shots[:1]); i = 1
+    while i < n:
+        left = n - i
+        if left >= 3 and all(portrait(i + k) for k in range(3)) and (left - 3) % 2 == 0:
+            take = 3
+        elif left >= 2:
+            take = 2
+        else:
+            take = 1
+        rows.append(shots[i:i + take]); i += take
+    return rows
+
+
+def optimise_media(folder):
+    """Shrink very large photos in the published copy (originals in media/ stay untouched)."""
+    try:
+        from PIL import Image
+    except Exception:
+        return
+    for dirpath, _, files in os.walk(folder):
+        for name in files:
+            ext = name.lower().rsplit('.', 1)[-1]
+            if ext not in ('jpg', 'jpeg', 'png', 'webp'):
+                continue
+            path = os.path.join(dirpath, name)
+            try:
+                with Image.open(path) as im:
+                    if max(im.size) <= 2400:
+                        continue
+                    im.thumbnail((2400, 2400))
+                    if ext in ('jpg', 'jpeg'):
+                        im.convert('RGB').save(path, quality=84, optimize=True, progressive=True)
+                    elif ext == 'png':
+                        im.save(path, optimize=True)
+                    else:
+                        im.save(path, quality=84)
+            except Exception:
+                pass
+
+
 def md(text):
     if not text:
         return Markup('')
@@ -108,7 +165,8 @@ def main():
     projects = load_projects()
     for p in projects:
         p['sections_visible'] = [s for s in p['sections'] if s and s.get('heading') and (s.get('text') or (show and s.get('prompt')))]
-        p['images_visible'] = [i for i in p['images'] if i and (i.get('image') or show)]
+        shots = [dict(i, ratio=image_ratio(i['image'])) for i in p['images'] if i and i.get('image')]
+        p['gallery_rows'] = gallery_rows(shots)
 
     # Art collage on phones is two columns: a half-width work left alone on its row goes full width
     art = load_yaml('art.yml')
@@ -185,6 +243,7 @@ def main():
     if os.path.isdir(os.path.join(ROOT, 'media')):
         shutil.copytree(os.path.join(ROOT, 'media'), os.path.join(OUT, 'media'),
                         ignore=shutil.ignore_patterns('.gitkeep'))
+        optimise_media(os.path.join(OUT, 'media'))
     if os.path.exists(os.path.join(ROOT, 'CNAME')):
         shutil.copy(os.path.join(ROOT, 'CNAME'), OUT)
     open(os.path.join(OUT, '.nojekyll'), 'w').close()

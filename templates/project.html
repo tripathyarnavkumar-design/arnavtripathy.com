@@ -26,11 +26,12 @@
           <div class="row-body">{% if s.text %}{{ s.text | md }}{% else %}<p class="todo"><span class="todo-label">To add</span> {{ s.prompt }}</p>{% endif %}</div>
         </div>
 {% endfor %}      </section>{% endif %}
-      {% set shots = p.images_visible %}
-      {% if shots %}<div class="project-gallery-wrap">
+      {% if p.gallery_rows %}<div class="project-gallery-wrap">
         {% if p.gallery_heading %}<h2 class="gallery-heading">{{ p.gallery_heading }}</h2>{% endif %}
-      <section class="project-gallery gallery-3" aria-label="Project images">
-{% for s in shots %}        <figure class="shot{% if loop.first %} shot-lead{% endif %}"><div class="shot-frame">{% if s.image %}{{ img(s.image, s.caption or '', '', not loop.first, s.position, s.zoom, s.fit) }}{% else %}{{ placeholder('Image ' ~ loop.index ~ ' of ' ~ loop.length) }}{% endif %}</div>{% if s.caption %}<figcaption>{{ s.caption }}</figcaption>{% elif site.show_prompts %}<figcaption class="todo-inline">To add: caption for image {{ loop.index }}</figcaption>{% endif %}</figure>
+      <section class="project-gallery auto-gallery" aria-label="Project images">
+{% for row in p.gallery_rows %}{% set outer = loop %}        <div class="shot-row count-{{ row | length }}">
+{% for s in row %}          <figure class="shot" style="--r:{{ s.ratio }}"><div class="shot-frame">{{ img(s.image, s.caption or '', '', not (outer.first and loop.first), s.position, s.zoom) }}</div>{% if s.caption %}<figcaption>{{ s.caption }}</figcaption>{% endif %}</figure>
+{% endfor %}        </div>
 {% endfor %}      </section>
       </div>{% endif %}
       <nav class="project-pager" aria-label="More projects">

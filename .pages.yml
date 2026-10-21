@@ -136,6 +136,7 @@ content:
   - name: gallery_heading
     label: Heading above the images
     type: string
+    description: Shown only when the project has images.
   - name: images
     label: Project images
     type: object
@@ -147,22 +148,10 @@ content:
     - name: image
       label: Image
       type: image
-    - name: fit
-      label: Fit in the frame
-      type: select
-      description: Default shows the whole image.
-      options:
-        values:
-        - name: ''
-          label: Default
-        - name: fill
-          label: Fill the frame (crops edges)
-        - name: whole
-          label: Show the whole image
     - name: position
       label: Focus point
       type: select
-      description: Which part of the image stays in view when the frame crops it.
+      description: Only matters with Zoom above 100%, or when this image becomes the Design page card.
       options:
         values:
         - name: ''
@@ -208,6 +197,7 @@ content:
       label: Hide on the website
       type: boolean
       description: Keeps this item saved here but removes it from the site.
+    description: Add as many as you like, in the order they should appear. They arrange themselves on the page; captions are optional.
   - name: hidden
     label: Hide this project from the website
     type: boolean

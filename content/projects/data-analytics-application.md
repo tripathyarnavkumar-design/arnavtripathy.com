@@ -23,15 +23,5 @@ sections:
   text: ''
   prompt: 'The steps from research to final screens: research, user flows, wireframes, visual design, testing.'
 gallery_heading: Key screens
-images:
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
+images: []
 ---

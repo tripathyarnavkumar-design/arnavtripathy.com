@@ -26,17 +26,5 @@ sections:
   text: ''
   prompt: 'Where the mark appears: signage, stationery, packaging, screens.'
 gallery_heading: Explorations and final mark
-images:
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
-- image: ''
-  caption: ''
+images: []
 ---
