@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* Open every page at the top, before anything is drawn. */
+(function(){
+  try{ history.scrollRestoration = 'manual'; }catch(e){}
+  /* Site loader: shown once per visit, on the first page opened */
+  (function(){
+    var d = document.documentElement, first = true;
+    try{ first = !sessionStorage.getItem('akt-seen'); sessionStorage.setItem('akt-seen', '1'); }catch(e){ first = true; }
+    if(!first) return;
+    d.classList.add('is-loading');
+    var t0 = Date.now(), done = false;
+    function finish(){
+      if(done) return; done = true;
+      setTimeout(function(){
+        d.classList.add('loader-out');
+        setTimeout(function(){ d.classList.remove('is-loading', 'loader-out'); }, 450);
+      }, Math.max(0, 900 - (Date.now() - t0)));
+    }
+    addEventListener('load', function(){ (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(finish, finish); });
+    setTimeout(finish, 3000);
+  })();
+  if(location.hash) return;
+  var d = document.documentElement, user = false, guardUntil = Infinity;
+  /* With native page transitions the new page is captured before it is shown, so it must not be hidden */
+  if(!('onpagereveal' in window)) d.classList.add('nav-reset');
+  function top(){ if(!user && window.scrollY !== 0) window.scrollTo(0, 0); }
+  function show(){ top(); requestAnimationFrame(function(){ d.classList.remove('nav-reset'); }); }
+  ['wheel','touchstart','keydown','pointerdown'].forEach(function(t){
+    addEventListener(t, function(){ user = true; }, { passive:true, once:true });
+  });
+  addEventListener('scroll', function guard(){
+    if(!user && Date.now() < guardUntil){ top(); } else { removeEventListener('scroll', guard); }
+  }, { passive:true });
+  document.addEventListener('DOMContentLoaded', show);
+  addEventListener('load', function(){ top(); guardUntil = Date.now() + 500; });
+  addEventListener('pageshow', function(e){ if(e.persisted){ user = false; top(); } });
+  setTimeout(function(){ d.classList.remove('nav-reset'); }, 1500);
+})();
+</script>
+<title>{% block title %}{{ page_title }} — {{ site.name }}{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="{{ description }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 fill=%27%23111%27/%3E%3Ctext x=%2732%27 y=%2742%27 font-family=%27Arial,sans-serif%27 font-size=%2726%27 font-weight=%27800%27 fill=%27white%27 text-anchor=%27middle%27%3EAT%3C/text%3E%3Crect x=%2746%27 y=%2736%27 width=%276%27 height=%276%27 fill=%27%23E0381C%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ base }}/assets/styles.css">
+{% if noindex %}<meta name="robots" content="noindex">{% endif %}
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="progress" id="progressBar" aria-hidden="true"></div>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="{{ base }}/" class="brand">{{ site.name }}</a>
+    <nav class="mainnav" aria-label="Primary"><ul>
+{% for item in nav %}        <li><a href="{{ base }}{{ item.url }}"{% if item.key == section %} class="active" aria-current="page"{% endif %}>{{ item.label }}</a></li>
+{% endfor %}      </ul></nav>
+    <div class="topbar-actions">
+      {% if site.resume %}<a class="btn btn-ink" href="{{ site.resume | url }}" download>Download Résumé</a>{% endif %}
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileNav"><span></span></button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
+  <ul>
+{% for item in nav %}        <li><a href="{{ base }}{{ item.url }}"{% if item.key == section %} class="active" aria-current="page"{% endif %}>{{ item.label }}</a></li>
+{% endfor %}  </ul>
+  {% if site.resume %}<a class="btn btn-ink" href="{{ site.resume | url }}" download>Download Résumé</a>{% endif %}
+</nav>
+
+{% block main %}{% endblock %}
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <p>© {{ year }} {{ site.name }}</p>
+    <ul class="footer-links">
+{% for p in site.profiles %}      <li><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.label }}<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+{% endfor %}    </ul>
+  </div>
+</footer>
+{% block dialogs %}{% endblock %}
+<script src="{{ base }}/assets/script.js"></script>
+</body>
+</html>

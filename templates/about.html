@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head with context %}
+{% macro entry(e) -%}
+            <div class="entry">
+              <div class="entry-role">{{ e.title }}</div>
+              {% if e.place %}<div class="entry-org">{{ e.place }}</div>{% endif %}
+              {% if e.dates %}<div class="entry-meta">{{ e.dates }}</div>{% endif %}
+              {% if e.detail or e.points %}<div class="entry-detail">{{ e.detail | mdinline }}
+                {% if e.points %}<ul>
+{% for p in e.points %}                  <li>{{ p | mdinline }}</li>
+{% endfor %}                </ul>{% endif %}
+              </div>{% endif %}
+            </div>
+{%- endmacro %}
+{% block main %}
+<main id="main">
+  <section class="section page-about">
+    <div class="wrap section-inner">
+{{ page_head('About') }}
+      <div class="about-grid">
+          {% if about.education %}<div class="about-block">
+            <h2>Education</h2>
+{% for e in about.education %}{{ entry(e) }}
+{% endfor %}          </div>{% endif %}
+
+          {% if about.experience %}<div class="about-block">
+            <h2>Industry Work Experience</h2>
+{% for e in about.experience %}{{ entry(e) }}
+{% endfor %}          </div>{% endif %}
+
+          {% if about.awards %}<div class="about-block awards-block">
+            <h2>Awards <span class="count">({{ about.awards | length }})</span></h2>
+            <ol class="pub-list">
+{% for a in about.awards %}              <li><span class="pub-year" aria-hidden="true">{{ a.year }}</span><strong>{{ a.title }}</strong>{{ a.detail | mdinline }}</li>
+{% endfor %}            </ol>
+          </div>{% endif %}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

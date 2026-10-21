@@ -1,0 +1,59 @@
+# Teaching page: positions, each with its courses
+# Edit this file in the website admin (Pages CMS), or here directly.
+positions:
+- title: Assistant Professor, Communication Design Department
+  place: Pearl Academy, Delhi-West, India
+  dates: August 2026 – Present
+  intro: As an Assistant Professor at Pearl Academy (Delhi), I have conducted classes for B.Des. and M.Des. students on the following courses.
+  groups:
+  - label: ''
+    courses:
+    - code: CACDU5TPE375
+      title: Data Visualization
+      info: 3 Credits · UG & PG (Elective Course, Class strength 20)
+      points:
+      - The course provided students with the necessary techniques for analysing various data types and translating them into informative, compelling, and interactive visualizations.
+      - Students learned how to apply various visual encoders to effectively convey complex information to diverse audiences, recognizing how design choices are influenced by context and culture.
+      - They also implemented interactive softwares and Gen-AI based applications to explore innovative approaches to data visualization in digital media.
+    - code: CACDP3THM601
+      title: Context Setting
+      info: 3 Credits · PG (Compulsory Course, Class strength 20)
+      points:
+      - The objective of this course was to enhance students' comprehension of diverse research methodologies, encompassing both quantitative and qualitative approaches, and to facilitate the practical application of these methodologies.
+      - As a part of this course, students collected user data using various data collection methods, analyzed the data and discovered user needs and painpoints.
+      - The outcomes of the research activity in this course was to be used for their major design project in the subsequent semester.
+- title: Teaching Assistant
+  place: Department of Design, Indian Institute of Technology Delhi, New Delhi, India
+  dates: 2020–2026
+  intro: As a Teaching Assistant at DoD, IIT-Delhi, I have contributed to the following academic activities.
+  groups:
+  - label: Course Taught
+    courses:
+    - code: DDL 126
+      title: Typography and Layout
+      info: 3 Credits · UG & PG (Compulsory Course, Class strength 20)
+      points:
+      - Covered topics in History of Typography, Anatomical Features of Letterforms, Composition and Hierarchy, Grids and Layout Systems.
+  - label: Demonstrations Conducted
+    courses:
+    - code: DDL 217
+      title: Photography, Illustration and Moving Images
+      info: 3 Credits · UG
+      points:
+      - Covered basics and few advanced features through Adobe Photoshop, Adobe Illustrator, Adobe InDesign.
+    - code: DDL 223
+      title: Cognitive Ergonomics
+      info: 3 Credits · PG
+      points:
+      - Covered topics in Human Factors in Visual Design, Wayfinding Systems, Signage Design.
+  - label: Assessment Conducted
+    courses:
+    - code: ''
+      title: DDL 111 — Visualization Techniques, DDL 125 — Elements of Design, DDP 731 — Communication and Presentation Skills
+      info: ''
+      points: []
+- title: Guest Faculty
+  place: Woxen University, Hyderabad, India
+  dates: August 2024
+  intro: Taught a week-long course, "Exploration of Typography and Techniques," to B.Des. students, concluding with a showcase on Modular Typography, Expressive Typography, Typographic Trans-literation, and a 4-page publication design.
+  groups: []

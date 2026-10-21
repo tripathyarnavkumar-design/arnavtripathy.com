@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head, placeholder, pills, img with context %}
+{% macro todo_inline(text) %}{% if site.show_prompts %}<dd class="todo-inline">To add: {{ text }}</dd>{% endif %}{% endmacro %}
+{% block main %}
+<main id="main">
+  <article class="section page-project">
+    <div class="wrap section-inner">
+{{ page_head('Design Projects', 'p') }}
+      <p class="back-link"><a href="{{ base }}/design.html"><span aria-hidden="true">←</span> All design projects</a></p>
+      <h1 class="project-heading">{{ p.title }}</h1>
+      <div class="project-intro">
+        <div class="project-text">{{ p.description | md }}
+          {% if p.prototype %}<p class="project-cta"><a class="btn btn-ink" href="{{ p.prototype }}" target="_blank" rel="noopener">Open the prototype <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a></p>{% endif %}
+        </div>
+        <dl class="project-facts">
+          {% if p.timeline %}<div class="fact"><dt>Timeline</dt><dd>{{ p.timeline }}</dd></div>{% endif %}
+          {% if p.role %}<div class="fact"><dt>Role</dt><dd>{{ p.role }}</dd></div>{% endif %}
+          <div class="fact"><dt>Category</dt><dd class="project-meta">{{ pills(p.categories) }}</dd></div>
+          {% if p.tools %}<div class="fact"><dt>Tools</dt><dd>{{ p.tools }}</dd></div>{% elif site.show_prompts %}<div class="fact"><dt>Tools</dt>{{ todo_inline('software used') }}</div>{% endif %}
+          {% if p.outcome %}<div class="fact"><dt>{{ p.outcome_label or 'Outcome' }}</dt><dd>{{ p.outcome }}</dd></div>{% elif site.show_prompts %}<div class="fact"><dt>{{ p.outcome_label or 'Outcome' }}</dt>{{ todo_inline(p.outcome_prompt or 'What happened next.') }}</div>{% endif %}
+        </dl>
+      </div>
+      {% set secs = p.sections_visible %}
+      {% if secs %}<section class="project-sections" aria-label="About the project">
+{% for s in secs %}        <div class="row">
+          <h2 class="row-label">{{ s.heading }}</h2>
+          <div class="row-body">{% if s.text %}{{ s.text | md }}{% else %}<p class="todo"><span class="todo-label">To add</span> {{ s.prompt }}</p>{% endif %}</div>
+        </div>
+{% endfor %}      </section>{% endif %}
+      {% set shots = p.images_visible %}
+      {% if shots %}<div class="project-gallery-wrap">
+        {% if p.gallery_heading %}<h2 class="gallery-heading">{{ p.gallery_heading }}</h2>{% endif %}
+      <section class="project-gallery gallery-3" aria-label="Project images">
+{% for s in shots %}        <figure class="shot{% if loop.first %} shot-lead{% endif %}"><div class="shot-frame">{% if s.image %}{{ img(s.image, s.caption or '', '', not loop.first) }}{% else %}{{ placeholder('Image ' ~ loop.index ~ ' of ' ~ loop.length) }}{% endif %}</div>{% if s.caption %}<figcaption>{{ s.caption }}</figcaption>{% elif site.show_prompts %}<figcaption class="todo-inline">To add: caption for image {{ loop.index }}</figcaption>{% endif %}</figure>
+{% endfor %}      </section>
+      </div>{% endif %}
+      <nav class="project-pager" aria-label="More projects">
+        <a class="pager-prev" href="{{ base }}/{{ prev.url }}"><span class="pager-label">Previous project</span><span class="pager-title">{{ prev.title }}</span><span class="project-meta pager-meta">{{ pills(prev.categories) }}</span></a>
+        <a class="pager-next" href="{{ base }}/{{ next.url }}"><span class="pager-label">Next project</span><span class="pager-title">{{ next.title }}</span><span class="project-meta pager-meta">{{ pills(next.categories) }}</span></a>
+      </nav>
+    </div>
+  </article>
+</main>
+{% endblock %}

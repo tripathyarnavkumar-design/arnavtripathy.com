@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ site.name }} — {{ home.practice | join(', ') }}{% endblock %}
+{% block main %}
+<main id="main" class="home">
+  <section class="wrap hero">
+    <div class="hero-top">
+      {% set parts = site.name.rsplit(' ', 1) %}
+      <h1 class="hero-name"><span class="line"><span>{{ parts[0] }}</span></span><span class="line"><span>{{ parts[1] }}<span class="dot">.</span></span></span></h1>
+    </div>
+    <div class="rows">
+      <div class="row">
+        <p class="row-label">Practice</p>
+        <ul class="areas">{% for a in home.practice %}<li>{{ a }}</li>{% endfor %}</ul>
+      </div>
+      <div class="row">
+        <p class="row-label">About</p>
+        <div class="row-body">
+          {% if home.lead %}<p class="lead">{{ home.lead }}</p>{% endif %}
+          {{ home.about | md }}
+        </div>
+      </div>
+      <div class="row">
+        <p class="row-label">Contact</p>
+        <div class="row-body contact">
+          <p class="mail"><a href="mailto:{{ site.email }}">{{ site.email | replace('@', '<wbr>@') | safe }}</a><button type="button" class="copy-email" data-email="{{ site.email }}">Copy</button></p>
+          <div class="contact-links">
+          <ul class="profiles">
+{% for p in site.profiles %}            <li><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.label }}<span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+{% endfor %}          </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

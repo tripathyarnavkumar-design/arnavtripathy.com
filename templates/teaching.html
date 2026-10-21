@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head with context %}
+{% block main %}
+<main id="main">
+  <section class="section page-teaching">
+    <div class="wrap section-inner">
+{{ page_head('Teaching') }}
+      <div class="about-grid">
+          <div class="about-block">
+{% for pos in teaching.positions %}            <div class="entry">
+              <div class="entry-role">{{ pos.title }}</div>
+              {% if pos.place %}<div class="entry-org">{{ pos.place }}</div>{% endif %}
+              {% if pos.dates %}<div class="entry-meta">{{ pos.dates }}</div>{% endif %}
+              <div class="entry-detail">
+                {{ pos.intro | mdinline }}
+{% for g in pos.groups or [] %}                {% if g.label %}<span class="course-group-label">{{ g.label }}</span>{% endif %}
+                <ul class="course-list">
+{% for c in g.courses or [] %}                  <li>
+                    {% if c.code or c.info %}<span class="course-name">{% if c.code %}<span class="course-code">{{ c.code }}</span> {% endif %}<span class="course-title">{{ c.title }}</span>{% if c.info %} <span class="course-info">{{ c.info }}</span>{% endif %}</span>{% else %}<span class="course-name">{{ c.title }}</span>{% endif %}
+                    {% if c.points %}<ul>
+{% for p in c.points %}                      <li>{{ p | mdinline }}</li>
+{% endfor %}                    </ul>{% endif %}
+                  </li>
+{% endfor %}                </ul>
+{% endfor %}              </div>
+            </div>
+{% endfor %}          </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

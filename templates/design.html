@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head, placeholder, pills, img with context %}
+{% block main %}
+<main id="main">
+  <section class="section page-design">
+    <div class="wrap section-inner">
+{{ page_head('Design Projects') }}
+      <div class="tag-filter" id="tagFilter">
+        <button class="tag-chip active" data-tag="all">All</button>
+{% for key, c in categories.items() if key in used_categories %}        <button class="tag-chip" data-tag="{{ key }}">{{ c.chip }}</button>
+{% endfor %}      </div>
+      <ul class="project-grid" id="projectIndex">
+{% for p in projects %}        <li class="project-card" data-tags="{{ p.categories | join(' ') }}"><div><a href="{{ base }}/{{ p.url }}"><div class="project-thumb">{% if p.card_image %}{{ img(p.card_image, '') }}{% else %}{{ placeholder('Project image') }}{% endif %}</div><span class="project-title">{{ p.title }}</span><span class="project-meta">{{ pills(p.categories) }}</span></a></div></li>
+{% endfor %}      </ul>
+    </div>
+  </section>
+</main>
+{% endblock %}

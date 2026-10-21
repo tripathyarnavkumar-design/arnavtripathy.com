@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head with context %}
+{% block main %}
+<main id="main">
+  <section class="section page-404">
+    <div class="wrap section-inner">
+{{ page_head('Page not found') }}
+      <div class="rows">
+        <div class="row">
+          <p class="row-label">Error 404</p>
+          <div class="row-body">
+            <p class="lead">This page doesn’t exist, or it has moved.</p>
+            <p>The link may be mistyped or out of date. Try one of the sections below.</p>
+          </div>
+        </div>
+        <div class="row">
+          <p class="row-label">Go to</p>
+          <div class="row-body">
+            <ul class="profiles notfound-links">
+{% for item in nav %}              <li><a href="{{ base }}{{ item.url }}">{{ item.label }}<span aria-hidden="true">→</span></a></li>
+{% endfor %}            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

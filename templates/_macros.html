@@ -1,0 +1,14 @@
+{% macro placeholder(label='Add image') -%}
+<div class="img-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5.5-5.5a2 2 0 0 0-2.8 0L3 20"/></svg><span>{{ label }}</span></div>
+{%- endmacro %}
+{% macro page_head(title, tag='h1') -%}
+      <div class="page-head">
+        <{{ tag }} class="page-title"{% if tag != 'h1' %} aria-hidden="true"{% endif %}><span class="reveal-heading"><span class="reveal-text">{{ title }}<span class="dot">.</span></span></span></{{ tag }}>
+      </div>
+{%- endmacro %}
+{% macro pills(cats) -%}
+{% for c in cats %}{% if c in categories %}<span class="tag-pill t-{{ c }}">{{ categories[c].pill }}</span>{% endif %}{% endfor %}
+{%- endmacro %}
+{% macro img(src, alt='', cls='', lazy=True) -%}
+<img src="{{ src | url }}" alt="{{ alt }}"{% if cls %} class="{{ cls }}"{% endif %}{% if lazy %} loading="lazy"{% endif %} decoding="async">
+{%- endmacro %}

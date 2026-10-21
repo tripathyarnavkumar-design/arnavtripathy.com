@@ -1,0 +1,528 @@
+# Website admin (Pages CMS): https://app.pagescms.org
+# Every Save here commits to GitHub; the site rebuilds and goes live in about a minute.
+
+
+media:
+  input: media
+  output: /media
+  rename: safe
+content:
+- name: projects
+  label: Design projects
+  type: collection
+  path: content/projects
+  format: yaml-frontmatter
+  filename: '{primary}.md'
+  view:
+    primary: title
+    fields:
+    - title
+    - order
+    - categories
+    sort: order
+    order: asc
+  fields:
+  - name: title
+    label: Project title
+    type: string
+    required: true
+    description: The page address comes from the file name, created from the title when you first save.
+  - name: order
+    label: Position on the Design page
+    type: number
+    description: 1 appears first. Projects with the same number sort alphabetically.
+  - name: categories
+    label: Categories
+    type: select
+    options:
+      multiple: true
+      values:
+      - name: uiux
+        label: UI/UX
+      - name: data
+        label: Data Visualization
+      - name: logo
+        label: Logo Design
+      - name: pub
+        label: Publication Design
+      - name: event
+        label: Event Branding
+  - name: description
+    label: Short description
+    type: text
+    description: Shown under the project title. Leave a blank line between paragraphs.
+  - name: prototype
+    label: Prototype link
+    type: string
+    description: Optional. Shows an “Open the prototype” button.
+  - name: timeline
+    label: Timeline
+    type: string
+  - name: role
+    label: Role
+    type: string
+  - name: tools
+    label: Tools
+    type: string
+    description: Software used, e.g. Figma, Adobe Illustrator.
+  - name: outcome_label
+    label: Outcome heading
+    type: select
+    options:
+      values:
+      - Outcome
+      - Result
+  - name: outcome
+    label: Outcome or result
+    type: string
+  - name: outcome_prompt
+    label: Reminder shown while Outcome is empty
+    type: string
+  - name: thumbnail
+    label: Card image on the Design page
+    type: image
+    description: Optional. If empty, the first project image is used.
+  - name: sections
+    label: Text sections
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{heading}'
+    fields:
+    - name: heading
+      label: Heading
+      type: string
+    - name: text
+      label: Text
+      type: text
+      description: Leave a blank line between paragraphs. **bold** and *italic* work.
+    - name: prompt
+      label: Reminder shown while Text is empty
+      type: string
+  - name: gallery_heading
+    label: Heading above the images
+    type: string
+  - name: images
+    label: Project images
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: 'Image {index}: {caption}'
+    fields:
+    - name: image
+      label: Image
+      type: image
+    - name: caption
+      label: Caption
+      type: string
+  - name: hidden
+    label: Hide this project from the website
+    type: boolean
+- name: research
+  label: Research
+  type: file
+  path: content/research.yml
+  format: yaml
+  fields:
+  - name: journal
+    label: Journal publications (newest first)
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{year} · {title}'
+    fields:
+    - name: authors
+      label: Authors
+      type: string
+      description: e.g. Tripathy, A. K., & Dey, S.
+    - name: year
+      label: Year
+      type: string
+    - name: title
+      label: Title
+      type: string
+    - name: journal
+      label: Journal
+      type: string
+    - name: volume
+      label: Volume
+      type: string
+    - name: issue
+      label: Issue
+      type: string
+    - name: pages
+      label: Pages
+      type: string
+      description: e.g. 298–315
+    - name: doi
+      label: DOI
+      type: string
+      description: Only the DOI, e.g. 10.1080/15551393.2026.2669476. Adds the link and the Cite button.
+    - name: publisher
+      label: Publisher
+      type: string
+    - name: impact_factor
+      label: Impact factor
+      type: string
+    - name: quartile
+      label: Quartile
+      type: string
+      description: e.g. Q1 (2025)
+    - name: indexing
+      label: Indexing
+      type: string
+  - name: conference
+    label: Conference publications (newest first)
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{year} · {title}'
+    fields:
+    - name: authors
+      label: Authors
+      type: string
+    - name: year
+      label: Year
+      type: string
+    - name: title
+      label: Title
+      type: string
+    - name: editors
+      label: Editors
+      type: string
+      description: Optional, e.g. A. Chakrabarti & V. Singh
+    - name: venue
+      label: Book or conference
+      type: string
+      description: Shown in italics.
+    - name: details
+      label: Details after the book or conference
+      type: string
+      description: Optional, e.g. Vol. 2. ICoRD 2025 (pp. 55–67). Springer
+    - name: status
+      label: Status
+      type: string
+      description: Optional, e.g. Accepted
+    - name: doi
+      label: DOI
+      type: string
+    - name: citation_book_title
+      label: Book title for citations
+      type: string
+      description: Optional. Used by the Cite button; defaults to Book or conference.
+    - name: publisher
+      label: Publisher (for citations)
+      type: string
+    - name: pages
+      label: Pages (for citations)
+      type: string
+  - name: presentations
+    label: Conference presentations (newest first)
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+    fields:
+    - name: title
+      label: Title of the talk
+      type: string
+    - name: event
+      label: Conference
+      place and dates: null
+      type: string
+- name: teaching
+  label: Teaching
+  type: file
+  path: content/teaching.yml
+  format: yaml
+  fields:
+  - name: positions
+    label: Teaching positions (newest first)
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+    fields:
+    - name: title
+      label: Role
+      type: string
+    - name: place
+      label: Institution
+      type: string
+    - name: dates
+      label: Dates
+      type: string
+    - name: intro
+      label: Introduction
+      type: text
+    - name: groups
+      label: Course groups
+      type: object
+      list:
+        collapsible:
+          collapsed: true
+          summary: '{label}'
+      fields:
+      - name: label
+        label: Group heading
+        type: string
+        description: Optional, e.g. Course Taught
+      - name: courses
+        label: Courses
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{code} {title}'
+        fields:
+        - name: code
+          label: Course code
+          type: string
+        - name: title
+          label: Course title
+          type: string
+        - name: info
+          label: Credits and level
+          type: string
+          description: e.g. 3 Credits · UG & PG (Elective Course, Class strength 20)
+        - name: points
+          label: Points
+          type: text
+          list: true
+- name: about
+  label: About
+  type: file
+  path: content/about.yml
+  format: yaml
+  fields:
+  - name: education
+    label: Education
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+    fields:
+    - name: title
+      label: Title
+      type: string
+    - name: place
+      label: Institution and place
+      type: string
+    - name: dates
+      label: Dates
+      type: string
+    - name: detail
+      label: Details
+      type: text
+      description: Optional. **bold** works.
+    - name: points
+      label: Bullet points
+      type: string
+      list: true
+  - name: experience
+    label: Industry work experience
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+    fields:
+    - name: title
+      label: Title
+      type: string
+    - name: place
+      label: Institution and place
+      type: string
+    - name: dates
+      label: Dates
+      type: string
+    - name: detail
+      label: Details
+      type: text
+      description: Optional. **bold** works.
+    - name: points
+      label: Bullet points
+      type: string
+      list: true
+  - name: awards
+    label: Awards
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{year} · {title}'
+    fields:
+    - name: year
+      label: Year
+      type: string
+    - name: title
+      label: Award
+      type: string
+    - name: detail
+      label: Awarded by
+      place and date: null
+      type: string
+- name: art
+  label: Art & Craft
+  type: file
+  path: content/art.yml
+  format: yaml
+  fields:
+  - name: works
+    label: Works (in display order)
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+    fields:
+    - name: title
+      label: Title
+      type: string
+    - name: medium
+      label: Medium
+      type: string
+      description: e.g. Acrylic on canvas
+    - name: year
+      label: Year
+      type: string
+    - name: image
+      label: Image
+      type: image
+    - name: size
+      label: Tile size in the collage
+      type: select
+      description: Large = tall feature tile; Wide = landscape band; Medium and Small = regular tiles.
+      options:
+        values:
+        - name: large
+          label: Large
+        - name: wide
+          label: Wide
+        - name: medium
+          label: Medium
+        - name: small
+          label: Small
+- name: tools
+  label: Tools
+  type: file
+  path: content/tools.yml
+  format: yaml
+  fields:
+  - name: design
+    label: Design tools
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{name}'
+    fields:
+    - name: name
+      label: Tool name
+      type: string
+    - name: description
+      label: Description
+      type: text
+      description: One or two lines on what it does and who it is for.
+    - name: url
+      label: Link to the tool
+      type: string
+    - name: thumbnail
+      label: Thumbnail (screenshot)
+      type: image
+  - name: research
+    label: Research tools
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{name}'
+    fields:
+    - name: name
+      label: Tool name
+      type: string
+    - name: description
+      label: Description
+      type: text
+      description: One or two lines on what it does and who it is for.
+    - name: url
+      label: Link to the tool
+      type: string
+    - name: thumbnail
+      label: Thumbnail (screenshot)
+      type: image
+  - name: other
+    label: Other tools
+    type: object
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{name}'
+    fields:
+    - name: name
+      label: Tool name
+      type: string
+    - name: description
+      label: Description
+      type: text
+      description: One or two lines on what it does and who it is for.
+    - name: url
+      label: Link to the tool
+      type: string
+    - name: thumbnail
+      label: Thumbnail (screenshot)
+      type: image
+- name: home
+  label: Home page
+  type: file
+  path: content/home.yml
+  format: yaml
+  fields:
+  - name: practice
+    label: Practice areas
+    type: string
+    list: true
+  - name: lead
+    label: Opening line
+    type: string
+  - name: about
+    label: About paragraph
+    type: text
+- name: site
+  label: Site settings
+  type: file
+  path: content/site.yml
+  format: yaml
+  fields:
+  - name: name
+    label: Your name
+    type: string
+  - name: email
+    label: Email
+    type: string
+  - name: resume
+    label: Résumé (PDF)
+    type: file
+    description: Upload a new PDF here to replace the one behind the Download Résumé button.
+  - name: show_prompts
+    label: Show “To add” reminders on the website
+    type: boolean
+    description: 'Turn off before sharing the site: empty sections, captions and image slots are then hidden.'
+  - name: profiles
+    label: Profile links (home page and footer)
+    type: object
+    list: true
+    fields:
+    - name: label
+      label: Name
+      type: string
+    - name: url
+      label: Link
+      type: string

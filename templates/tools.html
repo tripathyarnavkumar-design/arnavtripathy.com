@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head, placeholder, img with context %}
+{% block main %}
+<main id="main">
+  <section class="section page-tools">
+    <div class="wrap section-inner">
+{{ page_head('Tools') }}
+      <div class="rows">
+{% for key, label in [('design','Design'),('research','Research'),('other','Other')] %}{% set list = tools[key] or [] %}{% if list or site.show_prompts %}        <div class="row">
+          <h2 class="row-label">{{ label }}</h2>
+          <ul class="tool-list">
+{% for t in list %}            <li class="tool-item">
+              <div class="tool-body">
+                <p class="tool-name">{{ t.name }}</p>
+                {% if t.description %}<p class="tool-desc">{{ t.description }}</p>{% endif %}
+                {% if t.url %}<a class="tool-link" href="{{ t.url }}" target="_blank" rel="noopener">Open the tool<span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>{% endif %}
+              </div>
+              {% if t.url %}<a class="tool-thumb" href="{{ t.url }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">{% else %}<div class="tool-thumb">{% endif %}{% if t.thumbnail %}{{ img(t.thumbnail, '') }}{% else %}{{ placeholder('Tool thumbnail') }}{% endif %}{% if t.url %}</a>{% else %}</div>{% endif %}
+            </li>
+{% else %}            <li class="tool-item is-todo">
+              <div class="tool-body">
+                <p class="tool-name todo-inline">To add: tool name</p>
+                <p class="tool-desc todo-inline">To add: one or two lines on what the {{ (label | lower ~ ' ') if key != 'other' }}tool does and who it is for.</p>
+                <p class="tool-link todo-inline">To add: link to the tool</p>
+              </div>
+              <div class="tool-thumb">{{ placeholder('Tool thumbnail') }}</div>
+            </li>
+{% endfor %}          </ul>
+        </div>
+{% endif %}{% endfor %}      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_head with context %}
+{% macro endp(t) %}{{ t }}{% if t[-1:] not in '.?!' %}.{% endif %}{% endmacro %}
+{% macro doi_actions(p, attrs) -%}
+{% if p.doi %}
+            <span class="pub-actions"><a href="https://doi.org/{{ p.doi }}" target="_blank" rel="noopener">doi.org/{{ p.doi }}</a><button type="button" class="cite-btn"{{ attrs }}>Cite this</button></span>{% endif %}
+{%- endmacro %}
+{% block main %}
+<main id="main">
+  <section class="section page-research">
+    <div class="wrap section-inner">
+{{ page_head('Research') }}
+
+{% if research.journal %}      <div class="research-block">
+        <h2>Journal Publications <span class="count">({{ research.journal | length }})</span></h2>
+        <ol class="pub-list">
+{% for p in research.journal %}{% set det = [] %}{% if p.volume %}{% set _ = det.append(p.volume ~ ('(' ~ p.issue ~ ')' if p.issue else '')) %}{% endif %}{% if p.pages %}{% set _ = det.append(p.pages) %}{% endif %}
+          <li>
+            <span class="pub-year pub-num" aria-hidden="true">{{ '%02d' % loop.index }}</span>{{ p.authors }} ({{ p.year }}). <strong>{{ endp(p.title) }}</strong> {% if det %}<em>{{ p.journal }}</em>, {{ det | join(', ') }}.{% else %}<em>{{ endp(p.journal) }}</em>{% endif %}
+{%- set attrs %} data-type="article" data-authors="{{ p.authors }}" data-year="{{ p.year }}" data-title="{{ p.title }}" data-journal="{{ p.journal }}"{% if p.volume %} data-volume="{{ p.volume }}"{% endif %}{% if p.issue %} data-issue="{{ p.issue }}"{% endif %}{% if p.pages %} data-pages="{{ p.pages }}"{% endif %} data-doi="{{ p.doi }}"{% endset %}
+{{ doi_actions(p, attrs) }}
+            {% if p.publisher or p.impact_factor or p.quartile or p.indexing %}<ul class="pub-meta">
+              {% if p.publisher %}<li><span class="pub-meta-label">Publisher</span><span class="pub-meta-value">{{ p.publisher }}</span></li>{% endif %}
+              {% if p.impact_factor %}<li><span class="pub-meta-label">Impact Factor</span><span class="pub-meta-value">{{ p.impact_factor }}</span></li>{% endif %}
+              {% if p.quartile %}<li><span class="pub-meta-label">Quartile</span><span class="pub-meta-value">{{ p.quartile }}</span></li>{% endif %}
+              {% if p.indexing %}<li><span class="pub-meta-label">Indexing</span><span class="pub-meta-value">{{ p.indexing }}</span></li>{% endif %}
+            </ul>{% endif %}
+          </li>
+{% endfor %}        </ol>
+      </div>
+{% endif %}
+{% if research.conference %}      <div class="research-block">
+        <h2>Conference Publications <span class="count">({{ research.conference | length }})</span></h2>
+        <ol class="pub-list">
+{% for p in research.conference %}
+          <li>
+            <span class="pub-year pub-num" aria-hidden="true">{{ '%02d' % loop.index }}</span>{{ p.authors }} ({{ p.year }}). <strong>{{ endp(p.title) }}</strong> {% if p.editors %}In {{ p.editors }} (Eds.), {% endif %}<em>{{ p.venue }}</em>{% if p.details %}, {{ p.details }}{% endif %}{% if p.status %} ({{ p.status }}){% endif %}.
+{%- set attrs %} data-type="chapter" data-authors="{{ p.authors }}" data-year="{{ p.year }}" data-title="{{ p.title }}" data-booktitle="{{ p.citation_book_title or p.venue }}"{% if p.editors %} data-editors="{{ p.editors }}"{% endif %}{% if p.publisher %} data-publisher="{{ p.publisher }}"{% endif %}{% if p.pages %} data-pages="{{ p.pages }}"{% endif %} data-doi="{{ p.doi }}"{% endset %}
+{{ doi_actions(p, attrs) }}
+          </li>
+{% endfor %}        </ol>
+      </div>
+{% endif %}
+{% if research.presentations %}      <div class="research-block">
+        <h2>Conference Presentations <span class="count">({{ research.presentations | length }})</span></h2>
+        <ol class="pub-list">
+{% for p in research.presentations %}          <li><span class="pub-year pub-num" aria-hidden="true">{{ '%02d' % loop.index }}</span><strong>"{{ p.title }}"</strong>{{ endp(p.event) }}</li>
+{% endfor %}        </ol>
+      </div>
+{% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}
+{% block dialogs %}{% include "_cite_modal.html" %}{% endblock %}

@@ -1,0 +1,36 @@
+# About page: education, work experience, awards
+# Edit this file in the website admin (Pages CMS), or here directly.
+education:
+- title: PhD in Design
+  place: Department of Design, Indian Institute of Technology Delhi, New Delhi, India
+  dates: 2020–2026 · Thesis submitted
+  detail: 'Topic: **Systematic assessment of children''s Odia handwriting legibility** — developing a systematic, analytic, script-specific method to evaluate the legibility of children''s Odia handwriting, to enable timely feedback and intervention for their writing issues.'
+  points: []
+- title: B.Tech. in Industrial Design
+  place: Department of Industrial Design, National Institute of Technology Rourkela, Odisha, India
+  dates: 2014–2018
+  detail: ''
+  points: []
+- title: Senior Certification II, Art & Craft
+  place: Odisha Lalit Kala Academy, Bhubaneswar, Odisha, India
+  dates: ''
+  detail: ''
+  points: []
+experience:
+- title: UX and UI Designer
+  place: Think Design Collaborative, Bengaluru, India
+  dates: 2018–2020
+  detail: 'Contributed to interactive systems, branding, and identity design across health, finance, banking, e-commerce, education, and data analytics, including:'
+  points:
+  - Understanding user needs for digital interactions
+  - Integrating business requirements into design
+  - Interactive prototype design
+  - Visual design of user interfaces
+  - Design system and asset creation
+awards:
+- year: '2025'
+  title: Distinguished Paper Award
+  detail: International Conference on Research into Design (ICoRD) 2025, Indian Institute of Technology Hyderabad, 8–10 January 2025.
+- year: '2025'
+  title: Research Excellence Travel Award
+  detail: Industrial Research and Development Unit, Indian Institute of Technology Delhi, 2025.

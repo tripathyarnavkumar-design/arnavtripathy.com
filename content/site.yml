@@ -1,0 +1,15 @@
+# Site settings: name, email, résumé, profile links
+# Edit this file in the website admin (Pages CMS), or here directly.
+name: Arnav Kumar Tripathy
+email: arnavkumar.tripathy@gmail.com
+resume: /media/files/Arnav_Kumar_Tripathy_Resume.pdf
+show_prompts: true
+profiles:
+- label: LinkedIn
+  url: https://www.linkedin.com/in/arnav-kumar-tripathy/
+- label: Google Scholar
+  url: https://scholar.google.com/citations?user=6_UEEDIAAAAJ&hl=en
+- label: ResearchGate
+  url: https://www.researchgate.net/profile/Arnav_Tripathy
+- label: Instagram
+  url: https://www.instagram.com/arnav_tripathy/
