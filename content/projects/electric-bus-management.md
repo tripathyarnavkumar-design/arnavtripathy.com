@@ -36,10 +36,16 @@ sections:
 gallery_heading: Key screens
 images:
   - image: /media/landing-page.png
+    caption: Fleet management view
   - image: /media/landing-page-1.png
+    caption: Driver Roaster view
   - image: /media/landing-page-2.jpg
+    caption: Bus route tracking
   - image: /media/maint-op-5-1.jpg
+    caption: Overview of alerts from buses
   - image: /media/maint-op-39.png
+    caption: Remote diagnostic service flow
   - image: /media/maint-op-48.png
+    caption: Alerts arranged by severity
 hidden: false
 ---
