@@ -12,6 +12,7 @@ timeline: June – December 2019
 role: UI and UX Designer in a team of 2
 tools: Adobe XD, Illustrator
 thumbnail: /media/o33qw51.jpg
+thumbnail_position: right
 thumbnail_zoom: 150%
 sections:
   - heading: The brief
