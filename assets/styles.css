@@ -843,3 +843,20 @@ html, body{ color-scheme:only light; }
 /* Items without an image: no empty box */
 .tool-item.no-thumb{ grid-template-columns:minmax(0, 1fr); }
 .project-card a > .project-title:first-child{ padding-top:var(--s3); }
+
+/* ===== Art & Craft collage: rows packed from each picture's proportions =====
+   Every tile is as wide as its picture at the row height (--h) and grows by the same
+   proportion, so each row fills the width and all pictures in a row share one height. */
+.art-collage{ display:flex; flex-wrap:wrap; gap:var(--s6) var(--s5); grid-template-columns:none; grid-template-areas:none; grid-auto-rows:auto; --h:320px; }
+.art-collage .art-plate, .art-collage .art-plate:nth-child(n){
+  flex:var(--r, 1) 1 calc(var(--r, 1) * var(--h)); grid-area:auto; grid-column:auto; grid-row:auto; min-width:0; display:block;
+}
+.art-collage .art-plate .art-thumb, .art-collage .art-plate:nth-child(n) .art-thumb{ aspect-ratio:var(--r, 1); height:auto; flex:none; }
+.art-collage .art-plate .art-thumb img{ object-fit:cover; }
+.art-collage .art-plate .art-title, .art-collage .art-plate:nth-child(n) .art-title{ font-size:var(--fs-md); }
+.art-collage .art-filler{ flex:1000 1 0%; height:0; }
+@media (max-width:1080px){ .art-collage{ --h:240px; } }
+@media (max-width:640px){ .art-collage{ --h:150px; gap:var(--s5) var(--s4); } .art-collage .art-plate .art-title{ font-size:var(--fs-base); } }
+/* A picture alone on its row grows only so far, so tall pieces never become huge */
+.art-collage .art-plate, .art-collage .art-plate:nth-child(n){ max-width:calc(var(--r, 1) * var(--h) * 1.7); }
+@media (max-width:640px){ .art-collage{ --h:170px; } }

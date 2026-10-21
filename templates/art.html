@@ -5,9 +5,10 @@
   <section class="section page-art">
     <div class="wrap section-inner">
 {{ page_head('Art & Craft') }}
-      <div class="art-grid" id="artGrid">
-{% for w in art.works %}{% set meta = [w.medium, w.year] | select | join(', ') %}        <button class="art-plate size-{{ w.size }}{% if w.phone_full %} phone-full{% endif %}" data-index="{{ loop.index0 }}" data-title="{{ w.title }}" data-meta="{{ meta }}"{% if w.image %} data-image="{{ w.image | url }}"{% endif %}><div class="art-thumb">{% if w.image %}{{ img(w.image, w.title, pos=w.position, zoom=w.zoom, fit=w.fit) }}{% else %}{{ placeholder() }}{% endif %}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
-{% endfor %}      </div>
+      <div class="art-grid art-collage" id="artGrid">
+{% for w in art.works %}{% set meta = [w.medium, w.year] | select | join(', ') %}        <button class="art-plate" style="--r:{{ w.ratio }}" data-index="{{ loop.index0 }}" data-title="{{ w.title }}" data-meta="{{ meta }}"{% if w.image %} data-image="{{ w.image | url }}"{% endif %}><div class="art-thumb">{% if w.image %}{{ img(w.image, w.title, '', not loop.first, w.position, w.zoom) }}{% else %}{{ placeholder() }}{% endif %}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
+{% endfor %}        <span class="art-filler" aria-hidden="true"></span>
+      </div>
     </div>
   </section>
 </main>

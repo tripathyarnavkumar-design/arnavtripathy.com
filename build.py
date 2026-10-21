@@ -180,19 +180,8 @@ def main():
     # Art collage on phones is two columns: a half-width work left alone on its row goes full width
     art = load_yaml('art.yml')
     works = [w for w in (art.get('works') or []) if w and w.get('image')]
-    for i, w in enumerate(works):
-        w['size'] = w.get('size') or 'medium'
-    col = 0
-    for i, w in enumerate(works):
-        full = w['size'] in ('large', 'wide')
-        if full:
-            col = 0
-            continue
-        nxt = works[i + 1] if i + 1 < len(works) else None
-        if col == 0 and (nxt is None or nxt['size'] in ('large', 'wide')):
-            w['phone_full'] = True
-            continue
-        col = (col + 1) % 2
+    for w in works:
+        w['ratio'] = image_ratio(w['image'])
     art['works'] = works
 
     env = Environment(loader=FileSystemLoader(os.path.join(ROOT, 'templates')),
