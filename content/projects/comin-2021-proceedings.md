@@ -35,7 +35,7 @@ sections:
 gallery_heading: Cover and spreads
 images:
   - image: /media/comin-21-conference-proceedings-book.png
-    caption: .Front and back cover
+    caption: Front and back cover
     hidden: false
   - image: /media/academic-conference-proceedings-spread.png
     caption: Paper first page and graphical content
