@@ -11,8 +11,6 @@ prototype: https://depot-drive-daddy.lovable.app
 timeline: 2024–25
 role: UI and UX Designer in a team of 3
 tools: Figma, Adobe Illustrator, Lovable
-outcome_label: Outcome
-outcome_prompt: "What happened next: shipped, used, published."
 thumbnail: /media/electricbusthumbnail.jpg
 sections:
   - heading: The brief

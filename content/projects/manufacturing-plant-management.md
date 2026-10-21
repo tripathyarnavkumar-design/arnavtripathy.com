@@ -9,9 +9,6 @@ prototype: https://pro-plant-view.lovable.app
 timeline: June – December 2019
 role: UI and UX Designer in a team of 2
 tools: ''
-outcome_label: Outcome
-outcome: ''
-outcome_prompt: 'What happened next: shipped, used, published.'
 thumbnail: ''
 sections:
 - heading: The brief

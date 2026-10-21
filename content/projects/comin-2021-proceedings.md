@@ -8,9 +8,6 @@ prototype: ''
 timeline: January – March 2022
 role: Publication Designer in a team of 2
 tools: ''
-outcome_label: Outcome
-outcome: ''
-outcome_prompt: 'What happened next: shipped, used, published.'
 thumbnail: ''
 sections:
 - heading: The brief

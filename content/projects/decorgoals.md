@@ -11,9 +11,6 @@ prototype: ''
 timeline: April – June 2023
 role: Graphic Designer in a team of 1
 tools: ''
-outcome_label: Outcome
-outcome: ''
-outcome_prompt: 'What happened next: shipped, used, published.'
 thumbnail: ''
 sections:
 - heading: The brief

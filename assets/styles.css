@@ -43,20 +43,7 @@
   --t-fast:.16s; --t-ui:.24s;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0F0F0F; --surface:#1A1A19; --ink:#F2F2EF; --ink-2:#C2C2BC; --ink-3:#9A9A94; --line:#2A2A28; --rule:#F2F2EF;
-    --red:#FF5A3D; --red-text:#FF6A4D; --red-ink:#140603; --teal:#8AA6FF; --teal-ink:#0A1230; --scrim:rgba(0,0,0,0.7);
-    --t-uiux:#4FC2A6; --t-data:#7C9BFF; --t-logo:#F0B04A; --t-pub:#9A9A94; --t-event:#FF5A3D;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0F0F0F; --surface:#1A1A19; --ink:#F2F2EF; --ink-2:#C2C2BC; --ink-3:#9A9A94; --line:#2A2A28; --rule:#F2F2EF;
-  --red:#FF5A3D; --red-text:#FF6A4D; --red-ink:#140603; --teal:#8AA6FF; --teal-ink:#0A1230; --scrim:rgba(0,0,0,0.7);
-  --t-uiux:#4FC2A6; --t-data:#7C9BFF; --t-logo:#F0B04A; --t-pub:#9A9A94; --t-event:#FF5A3D;
-  color-scheme:dark;
-}
+/* Always light: the site never switches to a dark theme */
 
 /* ---------- Base ---------- */
 *{ box-sizing:border-box; }
@@ -802,3 +789,7 @@ html.is-loading body{ overflow:hidden; }
   .art-plate.phone-full{ grid-column:span 2; }
   .art-plate.phone-full .art-thumb{ aspect-ratio:16 / 10; }
 }
+
+/* Project facts: four across (Timeline, Role, Category, Tools) */
+.page-project .project-facts{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
+@media (max-width:1080px){ .page-project .project-facts{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }

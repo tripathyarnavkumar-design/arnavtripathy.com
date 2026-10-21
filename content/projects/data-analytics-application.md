@@ -8,9 +8,6 @@ prototype: ''
 timeline: September 2018 – March 2019
 role: UI and UX Designer in a team of 3
 tools: ''
-outcome_label: Outcome
-outcome: ''
-outcome_prompt: 'What happened next: shipped, used, published.'
 thumbnail: ''
 sections:
 - heading: The brief

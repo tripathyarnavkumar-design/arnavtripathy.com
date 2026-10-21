@@ -17,7 +17,6 @@
           {% if p.role %}<div class="fact"><dt>Role</dt><dd>{{ p.role }}</dd></div>{% endif %}
           <div class="fact"><dt>Category</dt><dd class="project-meta">{{ pills(p.categories) }}</dd></div>
           {% if p.tools %}<div class="fact"><dt>Tools</dt><dd>{{ p.tools }}</dd></div>{% elif site.show_prompts %}<div class="fact"><dt>Tools</dt>{{ todo_inline('software used') }}</div>{% endif %}
-          {% if p.outcome %}<div class="fact"><dt>{{ p.outcome_label or 'Outcome' }}</dt><dd>{{ p.outcome }}</dd></div>{% elif site.show_prompts %}<div class="fact"><dt>{{ p.outcome_label or 'Outcome' }}</dt>{{ todo_inline(p.outcome_prompt or 'What happened next.') }}</div>{% endif %}
         </dl>
       </div>
       {% set secs = p.sections_visible %}

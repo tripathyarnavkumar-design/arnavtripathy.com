@@ -65,19 +65,6 @@ content:
     label: Tools
     type: string
     description: Software used, e.g. Figma, Adobe Illustrator.
-  - name: outcome_label
-    label: Outcome heading
-    type: select
-    options:
-      values:
-      - Outcome
-      - Result
-  - name: outcome
-    label: Outcome or result
-    type: string
-  - name: outcome_prompt
-    label: Reminder shown while Outcome is empty
-    type: string
   - name: thumbnail
     label: Card image on the Design page
     type: image

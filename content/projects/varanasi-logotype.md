@@ -8,9 +8,6 @@ prototype: ''
 timeline: September – October 2025
 role: Graphic Designer in a team of 1
 tools: ''
-outcome_label: Result
-outcome: ''
-outcome_prompt: Selected, shortlisted or not selected.
 thumbnail: ''
 sections:
 - heading: The brief
