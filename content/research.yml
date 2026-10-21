@@ -1,81 +1,81 @@
-# Research page: journal papers, conference papers, presentations (newest first)
-# Edit this file in the website admin (Pages CMS), or here directly.
 journal:
-- authors: Tripathy, A. K., & Dey, S.
-  year: '2026'
-  title: Development and validation of the Odia handwriting evaluation tool (OHET) for lower primary school children
-  journal: Reading and Writing
-  volume: ''
-  issue: ''
-  pages: ''
-  doi: 10.1007/s11145-026-10780-x
-  publisher: Springer
-  impact_factor: '2.2'
-  quartile: Q1 (2025)
-  indexing: SCOPUS, SSCI, ProQuest, etc.
-- authors: Tripathy, A. K., & Dey, S.
-  year: '2026'
-  title: Identification of typographic factors of lower primary school children's handwriting legibility in the Odia script
-  journal: Journal of Occupational Therapy Schools & Early Intervention
-  volume: ''
-  issue: ''
-  pages: 1–18
-  doi: 10.1080/19411243.2026.2629366
-  publisher: Taylor and Francis
-  impact_factor: '1.1'
-  quartile: Q2 (2025)
-  indexing: SCOPUS, ESCI, EBSCO, etc.
-- authors: Tripathy, A. K., & Dey, S.
-  year: '2026'
-  title: A Semiotic Analysis of the Anatomy of Odia Letterforms
-  journal: Visual Communication Quarterly
-  volume: '33'
-  issue: '3'
-  pages: 298–315
-  doi: 10.1080/15551393.2026.2669476
-  publisher: Taylor and Francis
-  impact_factor: '0.5'
-  quartile: Q3 (2025)
-  indexing: SCOPUS, ESCI, Web of Science, etc.
-- authors: Tripathy, A. K., & Dey, S.
-  year: '2024'
-  title: Effects of Odia handwriting education on children's letterform comprehension
-  journal: The International Journal of Design Education
-  volume: '18'
-  issue: '2'
-  pages: 125–147
-  doi: 10.18848/2325-128x/cgp/v18i02/125-147
-  publisher: CGScholar
-  impact_factor: '0.7'
-  quartile: Q1 (2025)
-  indexing: SCOPUS, EBSCO, ProQuest, etc.
+  - authors: Tripathy, A. K., & Dey, S.
+    year: "2026"
+    title: Development and validation of the Odia handwriting evaluation tool (OHET)
+      for lower primary school children
+    journal: Reading and Writing
+    doi: 10.1007/s11145-026-10780-x
+    publisher: Springer
+    impact_factor: "2.2"
+    quartile: Q1 (2025)
+    indexing: SCOPUS, SSCI, ProQuest, etc.
+  - authors: Tripathy, A. K., & Dey, S.
+    year: "2026"
+    title: Identification of typographic factors of lower primary school children's
+      handwriting legibility in the Odia script
+    journal: Journal of Occupational Therapy Schools & Early Intervention
+    pages: 1–18
+    doi: 10.1080/19411243.2026.2629366
+    publisher: Taylor and Francis
+    impact_factor: "1.1"
+    quartile: Q2 (2025)
+    indexing: SCOPUS, ESCI, EBSCO, etc.
+  - authors: Tripathy, A. K., & Dey, S.
+    year: "2026"
+    title: A Semiotic Analysis of the Anatomy of Odia Letterforms
+    journal: Visual Communication Quarterly
+    volume: "33"
+    issue: "3"
+    pages: 298–315
+    doi: 10.1080/15551393.2026.2669476
+    publisher: Taylor and Francis
+    impact_factor: "0.5"
+    quartile: Q2 (2025)
+    indexing: SCOPUS, ESCI, Web of Science, etc.
+  - authors: Tripathy, A. K., & Dey, S.
+    year: "2024"
+    title: Effects of Odia handwriting education on children's letterform
+      comprehension
+    journal: The International Journal of Design Education
+    volume: "18"
+    issue: "2"
+    pages: 125–147
+    doi: 10.18848/2325-128x/cgp/v18i02/125-147
+    publisher: CGScholar
+    impact_factor: "0.7"
+    quartile: Q1 (2025)
+    indexing: SCOPUS, EBSCO, ProQuest, etc.
 conference:
-- authors: Tripathy, A.K., & Dey, S.
-  year: '2026'
-  title: A comparative study of reading performances across structural variations of j̄uktāksharas (conjunct-consonants) for on-screen reading in the Odia script
-  editors: ''
-  venue: ICoRD 2027
-  details: ''
-  status: Accepted
-  doi: ''
-  citation_book_title: ''
-  publisher: ''
-  pages: ''
-- authors: Tripathy, A. K., & Dey, S.
-  year: '2025'
-  title: Understanding teachers' perceptions of legibility and readability parameters for Odia handwriting instruction and assessment
-  editors: A. Chakrabarti, V. Singh, P. S. Onkar & M. Shahid
-  venue: Responsible and Resilient Design for Society
-  details: Vol. 2. ICoRD 2025. Lecture Notes in Mechanical Engineering (pp. 55–67). Springer
-  status: ''
-  doi: 10.1007/978-981-96-6511-2_5
-  citation_book_title: Responsible and Resilient Design for Society, Vol. 2 (ICoRD 2025), Lecture Notes in Mechanical Engineering
-  publisher: Springer
-  pages: 55–67
+  - authors: Tripathy, A.K., & Dey, S.
+    year: "2026"
+    title: A comparative study of reading performances across structural variations
+      of j̄uktāksharas (conjunct-consonants) for on-screen reading in the Odia
+      script
+    venue: ICoRD 2027
+    status: Accepted
+  - authors: Tripathy, A. K., & Dey, S.
+    year: "2025"
+    title: Understanding teachers' perceptions of legibility and readability
+      parameters for Odia handwriting instruction and assessment
+    editors: A. Chakrabarti, V. Singh, P. S. Onkar & M. Shahid
+    venue: Responsible and Resilient Design for Society
+    details: Vol. 2. ICoRD 2025. Lecture Notes in Mechanical Engineering (pp.
+      55–67). Springer
+    doi: 10.1007/978-981-96-6511-2_5
+    citation_book_title: Responsible and Resilient Design for Society, Vol. 2 (ICoRD
+      2025), Lecture Notes in Mechanical Engineering
+    publisher: Springer
+    pages: 55–67
 presentations:
-- title: Development and Validation of the Odia Handwriting Evaluation Tool (OHET) for Lower Primary School Children
-  event: 4th Paris Conference on Education (PCE 2025), Sorbonne University, Paris, France, 10–14 June 2025
-- title: Investigating the Factors Affecting Primary School Children's Handwriting Legibility in Odia Script
-  event: 12th European Conference on Language Learning (ECLL 2024), University College London, United Kingdom, 11–15 July 2024
-- title: Effects of Odia Handwriting Education on Children's Letterform Comprehension
-  event: 17th International Conference on Design Principles & Practices, Polytechnic Institute of Lisbon, Portugal, 29–31 March 2023
+  - title: Development and Validation of the Odia Handwriting Evaluation Tool (OHET)
+      for Lower Primary School Children
+    event: 4th Paris Conference on Education (PCE 2025), Sorbonne University, Paris,
+      France, 10–14 June 2025
+  - title: Investigating the Factors Affecting Primary School Children's Handwriting
+      Legibility in Odia Script
+    event: 12th European Conference on Language Learning (ECLL 2024), University
+      College London, United Kingdom, 11–15 July 2024
+  - title: Effects of Odia Handwriting Education on Children's Letterform
+      Comprehension
+    event: 17th International Conference on Design Principles & Practices,
+      Polytechnic Institute of Lisbon, Portugal, 29–31 March 2023
