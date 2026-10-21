@@ -888,3 +888,8 @@ html, body{ color-scheme:only light; }
   }
   .art-mosaic .art-plate .art-title, .art-mosaic .art-plate:nth-child(n) .art-title{ font-size:var(--fs-base); }
 }
+
+/* Tools introduction */
+.tools-intro .row-body p{ font-size:var(--fs-md); line-height:1.55; color:var(--ink); max-width:none; }
+.tools-intro .row-body a{ color:var(--ink); font-weight:600; text-decoration:underline; text-decoration-color:var(--red); text-decoration-thickness:2px; text-underline-offset:3px; transition:color var(--t-fast) ease, text-decoration-color var(--t-fast) ease; }
+.tools-intro .row-body a:hover{ color:var(--teal); text-decoration-color:var(--teal); }

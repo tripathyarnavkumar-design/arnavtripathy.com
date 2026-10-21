@@ -559,13 +559,17 @@ content:
       label: Hide on the website
       type: boolean
       description: Keeps this item saved here but removes it from the site.
-    description: The collage composes itself from each picture’s shape and order: large and small pieces, staggered rows. Drag to change the order.
+    description: The collage composes itself from each picture’s shape and order (large and small pieces, staggered rows). Drag to change the order.
 - name: tools
   label: Tools
   type: file
   path: content/tools.yml
   format: yaml
   fields:
+  - name: intro
+    label: Introduction
+    type: text
+    description: Shown above the tools. Write {email} where your email address should appear as a link.
   - name: design
     label: Design tools
     type: object
