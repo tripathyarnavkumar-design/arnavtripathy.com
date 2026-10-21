@@ -12,7 +12,7 @@ timeline: June – December 2019
 role: UI and UX Designer in a team of 2
 tools: Adobe XD, Illustrator
 thumbnail: /media/o33qw51.jpg
-thumbnail_zoom: 125%
+thumbnail_zoom: 150%
 sections:
   - heading: The brief
     text: The web application serves as a digital twin of a manufacturing plant,
