@@ -209,40 +209,28 @@
     });
   }
 
-  // Research filter: All, or any combination of the publication types
+  // Research filter: show all, or one publication type at a time
   var rFilter = document.getElementById('researchFilter');
   if(rFilter){
     var rChips = Array.prototype.slice.call(rFilter.querySelectorAll('.tag-chip'));
     var rBlocks = Array.prototype.slice.call(document.querySelectorAll('.research-blocks > .research-block'));
-    function applyResearch(){
-      var on = rChips.filter(function(c){ return c.dataset.kind !== 'all' && c.classList.contains('active'); }).map(function(c){ return c.dataset.kind; });
-      var allChip = rChips.filter(function(c){ return c.dataset.kind === 'all'; })[0];
-      var showAll = on.length === 0;
-      allChip.classList.toggle('active', showAll); allChip.setAttribute('aria-pressed', String(showAll));
+    function applyResearch(kind){
+      rChips.forEach(function(c){
+        var on = c.dataset.kind === kind;
+        c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on));
+      });
       var first = true;
       rBlocks.forEach(function(b){
-        var show = showAll || on.indexOf(b.dataset.kind) > -1;
+        var show = kind === 'all' || b.dataset.kind === kind;
         b.hidden = !show;
         b.classList.toggle('is-first', show && first);
         if(show) first = false;
       });
     }
     rChips.forEach(function(chip){
-      chip.addEventListener('click', function(){
-        if(chip.dataset.kind === 'all'){
-          rChips.forEach(function(c){ if(c.dataset.kind !== 'all'){ c.classList.remove('active'); c.setAttribute('aria-pressed','false'); } });
-        } else {
-          var active = !chip.classList.contains('active');
-          chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active));
-          var others = rChips.filter(function(c){ return c.dataset.kind !== 'all'; });
-          if(others.every(function(c){ return c.classList.contains('active'); })){
-            others.forEach(function(c){ c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
-          }
-        }
-        applyResearch();
-      });
+      chip.addEventListener('click', function(){ applyResearch(chip.dataset.kind); });
     });
-    applyResearch();
+    applyResearch('all');
   }
 
   // Art & craft lightbox (art page only): reads each work's title, details and image from the page
