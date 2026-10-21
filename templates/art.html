@@ -5,9 +5,9 @@
   <section class="section page-art">
     <div class="wrap section-inner">
 {{ page_head('Art & Craft') }}
-      <div class="art-mosaic" id="artGrid">
-{% set idx = namespace(n=0) %}{% for row in art.rows %}        <div class="art-row art-row-{{ row | length }}">
-{% for w in row %}{% set meta = [w.medium, w.year] | select | join(', ') %}          <button class="art-plate" style="--r:{{ w.ratio }};--c:{{ w.c }};--s:{{ w.s }};--o:{{ w.o }};--ps:{{ w.ps }};--po:{{ w.po }};--pw:{{ w.pw }}%" data-index="{{ idx.n }}" data-title="{{ w.title }}" data-meta="{{ meta }}" data-image="{{ w.image | url }}"><div class="art-thumb">{{ img(w.image, w.title, '', idx.n > 1, w.position, w.zoom) }}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
+      <div class="art-mosaic art-justified" id="artGrid">
+{% set idx = namespace(n=0) %}{% for row in art.rows %}        <div class="art-row{% if row.open %} is-open{% endif %}" style="--sum:{{ row.sum }}">
+{% for w in row['items'] %}{% set meta = [w.medium, w.year] | select | join(', ') %}          <button class="art-plate{% if w.pn == 1 %} phone-solo{% endif %}" style="--r:{{ w.ratio }};--pn:{{ w.pn }};--pf:{{ w.pf }}" data-index="{{ idx.n }}" data-title="{{ w.title }}" data-meta="{{ meta }}" data-image="{{ w.image | url }}"><div class="art-thumb">{{ img(w.image, w.title, '', idx.n > 2, w.position, w.zoom) }}</div><div class="art-title">{{ w.title }}</div><div class="art-meta">{{ meta }}</div></button>
 {% set idx.n = idx.n + 1 %}{% endfor %}        </div>
 {% endfor %}      </div>
     </div>

@@ -895,3 +895,30 @@ html, body{ color-scheme:only light; }
 .tools-intro .row-body a:hover{ color:var(--teal); text-decoration-color:var(--teal); }
 .tools-intro .row-body{ max-width:none; }
 .tools-intro .row-label{ display:none; }
+
+/* ===== Art & Craft: justified collage (replaces the staggered layout) =====
+   Each row fills the width; widths follow each picture's proportions (flex-grow = ratio,
+   basis 0), so every picture in a row has the same height and shared top/bottom edges.
+   Captions sit on one shared line below. A short last row keeps the previous scale. */
+.art-justified{ display:flex; flex-direction:column; gap:var(--s7); }
+.art-justified .art-row{ display:flex; gap:var(--s5); align-items:flex-start; }
+.art-justified .art-plate, .art-justified .art-plate:nth-child(n){
+  flex:var(--r) 1 0%; min-width:0; margin:0; width:auto; max-width:none; justify-self:auto;
+  grid-area:auto; display:block;
+}
+.art-justified .art-row.is-open .art-plate{ flex:0 1 calc((100% - var(--s5) * 3) * var(--r) / 4); }
+.art-justified .art-plate .art-thumb, .art-justified .art-plate:nth-child(n) .art-thumb{ aspect-ratio:var(--r); margin-bottom:var(--s3); }
+.art-justified .art-plate .art-title{ padding-top:var(--s3); }
+.art-justified .art-plate .art-meta{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+@media (max-width:1080px){ .art-justified{ gap:var(--s6); } .art-justified .art-row{ gap:var(--s4); } }
+@media (max-width:640px){
+  /* Phones: one or two pieces per row (paired in build.py), equal heights, edge to edge */
+  .art-justified{ display:flex; flex-direction:row; flex-wrap:wrap; gap:var(--s5) var(--s4); }
+  .art-justified .art-row{ display:contents; }
+  .art-justified .art-plate, .art-justified .art-plate:nth-child(n), .art-justified .art-row.is-open .art-plate{
+    flex:none; width:calc((100% - var(--s4) * (var(--pn) - 1)) * var(--pf)); max-width:100%; margin:0;
+  }
+  .art-justified .art-plate.phone-solo{ margin-inline:auto; }
+  .art-justified .art-plate .art-meta{ white-space:normal; }
+}
+}
