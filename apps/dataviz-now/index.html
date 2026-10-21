@@ -1443,6 +1443,47 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 .sel-box::before{left:-3.5px;top:-3.5px}
 .sel-box::after{right:-3.5px;bottom:-3.5px}
 
+/* ---------- Phones & tablets: page bar + side panels as slide-in drawers ---------- */
+.pbar,.drawer-scrim{display:none}
+@media (max-width:1100px){
+  :root{--pbar:52px}
+  body.rail-out .pbar,body.ex-rail .pbar,body.ws-rail .pbar{display:flex}
+  .pbar{position:sticky;top:var(--mast);z-index:29;height:var(--pbar);align-items:center;gap:12px;padding:0 var(--pad);background:var(--paper);border-bottom:1px solid var(--rule)}
+  .pbar-h{margin:0;font-size:18px;font-weight:700;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pbar-btn{position:relative;flex:none;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px 0 10px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .pbar-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+  .pbar-btn .pb-x{display:none}
+  body.drawer-open .pbar-btn{background:var(--ink);color:var(--paper)}
+  body.drawer-open .pbar-btn .pb-x{display:block} body.drawer-open .pbar-btn .pb-menu{display:none}
+  .pbar-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .pbar-n{min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center}
+  .drawer-scrim:not([hidden]){display:block;position:fixed;left:0;right:0;bottom:0;top:calc(var(--mast) + var(--pbar));z-index:61;background:rgba(15,23,42,.38);animation:fadeIn .2s ease-out}
+
+  /* the three panels */
+  body.rail-out .chooser .rail,body.ex-rail #startDataForm .df-side,body.ws-rail .work-grid .col-r{
+    --rpl:18px;position:fixed!important;left:0!important;right:auto!important;top:calc(var(--mast) + var(--pbar))!important;bottom:0!important;
+    width:min(400px,90vw)!important;max-height:none!important;height:auto!important;overflow:auto!important;overscroll-behavior:contain;z-index:62!important;margin:0!important;
+    background:var(--paper)!important;padding:14px 18px 40px!important;border:0!important;border-right:1px solid var(--rule)!important;box-shadow:18px 0 44px rgba(15,23,42,.18);
+    transform:translateX(-104%);visibility:hidden;transition:transform .3s cubic-bezier(.23,1,.32,1),visibility 0s linear .3s;display:block!important}
+  body.drawer-open.rail-out .chooser .rail,body.drawer-open.ex-rail #startDataForm .df-side,body.drawer-open.ws-rail .work-grid .col-r{transform:none;visibility:visible;transition:transform .3s cubic-bezier(.23,1,.32,1)}
+  /* the heading lives in the page bar instead */
+  body.rail-out #rail .rail-title,body.ex-rail .ex-head .rail-title,body.ws-rail #h-adj{display:none!important}
+  body.ws-rail .ws-title{justify-content:flex-end;margin-bottom:10px}
+  body.rail-out .rail-head,body.ex-rail .ex-head,body.ws-rail .ws-head{position:sticky!important;top:-14px!important;margin:-14px -18px 10px!important;padding:14px 18px 10px!important;background:var(--paper)!important;z-index:3}
+  /* content uses the full width */
+  body.rail-out .start,body.ex-rail .start{padding-left:var(--pad)!important}
+  body.ws-rail .work-grid{padding-left:0!important}
+  body.ex-rail .data-form{grid-template-columns:minmax(0,1fr)!important}
+  body.ex-rail .df-main{padding-right:0!important}
+  body.ws-rail .stage{min-height:calc(100vh - var(--mast) - var(--pbar))}
+  body.ws-rail .col-c{min-height:calc(100vh - var(--mast) - var(--pbar))!important}
+  body.drawer-open{overflow:hidden}
+}
+@media (max-width:560px){ .pbar-btn span{display:none} .pbar-btn{padding:0 10px} .pbar-h{font-size:16px} }
+@media (prefers-reduced-motion:reduce){ body.rail-out .chooser .rail,body.ex-rail #startDataForm .df-side,body.ws-rail .work-grid .col-r{transition:none!important} }
+.pbar-hist{display:none;margin-left:auto;gap:4px}
+@media (max-width:1100px){ body.ws-rail .pbar-hist{display:flex} }
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
@@ -1457,6 +1498,12 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
   </nav>
   <button class="btn btn-red mast-export" id="mastExport" type="button" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>Export</button>
 </header>
+<div class="pbar" id="pbar">
+  <button type="button" class="pbar-btn" id="pbarBtn" aria-expanded="false" aria-label="Open the side panel"><svg class="pb-menu" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14"/></svg><svg class="pb-x" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg><span id="pbarLbl">Panel</span><b class="pbar-n" id="pbarN" hidden></b></button>
+  <h1 class="pbar-h" id="pbarH"></h1>
+  <div class="pbar-hist" role="group" aria-label="Undo and redo"><button type="button" class="icon-btn hb" id="pbUndo" title="Undo" aria-label="Undo" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3 2.5 6l3 3"/><path d="M2.5 6h7a4 4 0 0 1 0 8H7"/></svg></button><button type="button" class="icon-btn hb" id="pbRedo" title="Redo" aria-label="Redo" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3l3 3-3 3"/><path d="M13.5 6h-7a4 4 0 0 0 0 8H9"/></svg></button></div>
+</div>
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
 
 <main>
   <!-- CREATE -->
@@ -5581,6 +5628,43 @@ function multiInit(){
   $$('.st-tip').forEach(t=>{ if (/click any part of the chart/.test(t.textContent)) t.lastChild.textContent = ` Tip: click any part of the chart to edit just that part. ${MOD}-click several similar parts — bars, points, slices, or text such as titles and axis labels — to change them together.`; });
   document.addEventListener('keydown', e=>{ if (e.key==='Escape' && SEL.length>1 && !$('#subPanel').hidden) { SEL=[SEL[0]]; openSub(Object.assign({}, SEL[0])); drawSel(); e.stopImmediatePropagation(); } }, true); }
 if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', multiInit, {once:true}); else multiInit();
+
+/* ---------- Phones and tablets: the left panels become slide-in drawers opened from a page bar ---------- */
+const DRAWER_MQ = matchMedia('(max-width:1100px)');
+const PAGES = {
+  'ex-rail': {n:1, title:'Upload dataset', lbl:'Examples', panel:()=>$('#startDataForm .df-side')},
+  'rail-out': {n:2, title:'Pick a chart', lbl:'Filters', panel:()=>$('#rail')},
+  'ws-rail': {n:3, title:'Modify chart', lbl:'Chart options', panel:()=>$('.work-grid .col-r')}
+};
+function drawerMode(){ const b=document.body.classList; return b.contains('ws-rail') ? 'ws-rail' : b.contains('rail-out') ? 'rail-out' : b.contains('ex-rail') ? 'ex-rail' : null; }
+let DRAWER_MODE=null;
+function renderPbar(){ const m=drawerMode(), P=m && PAGES[m];
+  if (m!==DRAWER_MODE) { closeDrawer(true); DRAWER_MODE=m; }
+  if (!P) return;
+  $('#pbarH').innerHTML = `<span class="ph-n">${P.n}.</span> ${P.title}`;
+  $('#pbarLbl').textContent = P.lbl;
+  const pnl=P.panel(); if (pnl) { if (!pnl.id) pnl.id='drawer-'+m; $('#pbarBtn').setAttribute('aria-controls', pnl.id); }
+  const n = m==='rail-out' ? (()=>{ const t=($('#railCount')||{}).textContent||''; const k=$$('#rail input[type=checkbox]:checked').length; return k; })() : 0;
+  const nb=$('#pbarN'); nb.hidden=!n; nb.textContent=n; }
+function openDrawer(){ if (!DRAWER_MQ.matches) return; const P=PAGES[drawerMode()]; if (!P) return; document.body.classList.add('drawer-open'); $('#drawerScrim').hidden=false;
+  const b=$('#pbarBtn'); b.setAttribute('aria-expanded','true'); b.setAttribute('aria-label','Close the side panel');
+  const pnl=P.panel(); if (pnl) { pnl.scrollTop=0; setTimeout(()=>{ const f=pnl.querySelector('input,button,select,summary,a[href]'); if (f) f.focus({preventScroll:true}); }, 60); } }
+function closeDrawer(silent){ if (!document.body.classList.contains('drawer-open')) return; document.body.classList.remove('drawer-open'); $('#drawerScrim').hidden=true;
+  const b=$('#pbarBtn'); b.setAttribute('aria-expanded','false'); b.setAttribute('aria-label','Open the side panel'); if (!silent) b.focus({preventScroll:true}); }
+function drawerInit(){
+  $('#pbarBtn').onclick=()=>document.body.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+  $('#drawerScrim').onclick=()=>closeDrawer();
+  document.addEventListener('keydown', e=>{ if (e.key==='Escape' && document.body.classList.contains('drawer-open')) { e.stopPropagation(); closeDrawer(); } }, true);
+  /* picking an example closes the drawer so the table is visible */
+  document.addEventListener('click', e=>{ if (DRAWER_MQ.matches && document.body.classList.contains('drawer-open') && e.target.closest('#startExamples .ex-row')) setTimeout(()=>closeDrawer(true), 120); });
+  new MutationObserver(renderPbar).observe(document.body, {attributes:true, attributeFilter:['class']});
+  document.addEventListener('change', e=>{ if (e.target.closest('#rail')) renderPbar(); });
+  DRAWER_MQ.addEventListener ? DRAWER_MQ.addEventListener('change', ()=>{ closeDrawer(true); renderPbar(); }) : DRAWER_MQ.addListener(()=>{ closeDrawer(true); renderPbar(); });
+  $('#pbUndo').onclick=()=>histUndo(); $('#pbRedo').onclick=()=>histRedo();
+  const mirror=()=>{ const u=$('#wsUndo'), r=$('#wsRedo'); if (u) $('#pbUndo').disabled=u.disabled; if (r) $('#pbRedo').disabled=r.disabled; };
+  ['#wsUndo','#wsRedo'].forEach(s=>{ const n=$(s); if (n) new MutationObserver(mirror).observe(n, {attributes:true, attributeFilter:['disabled']}); }); mirror();
+  renderPbar(); }
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', drawerInit, {once:true}); else drawerInit();
 
 try { Object.assign(window,{DVN:{R,SAMPLES,S,buildFile,specOf,presetOf,zipStore,SHEET,doExport}}); } catch(e) {}
 }
