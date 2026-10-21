@@ -19,7 +19,7 @@ sections:
       platforms, packaging, and promotional materials.
     prompt: What the brand or competition asked for, and who the audience is.
     hidden: false
-  - heading: The idea behind the mark
+  - heading: The idea behind the logo
     text: The logo combines a stylised hat with a flowing brim and a feminine facial
       profile, symbolising fashion, individuality, and elegance. The green and
       black colour palette balances freshness with sophistication, while the
