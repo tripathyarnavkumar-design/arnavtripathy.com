@@ -127,7 +127,7 @@ content:
       type: text
       description: Leave a blank line between paragraphs. **bold** and *italic* work.
     - name: prompt
-      label: Reminder shown while Text is empty
+      label: Note to self (not shown on the website)
       type: string
     - name: hidden
       label: Hide on the website
@@ -824,14 +824,11 @@ content:
     label: Résumé (PDF)
     type: file
     description: Upload a new PDF here to replace the one behind the Download Résumé button.
-  - name: show_prompts
-    label: Show “To add” reminders on the website
-    type: boolean
-    description: 'Turn off before sharing the site: empty sections, captions and image slots are then hidden.'
   - name: hidden_pages
     label: Hide whole pages
     type: select
-    description: Selected pages disappear from the menu and the site. Hiding Design also hides every project page.
+    description: Selected pages disappear from the menu and the site. Hiding Design also hides every project page. Art & Craft and Tools also stay hidden automatically until they have at least one item
+      with content.
     options:
       multiple: true
       values:

@@ -839,3 +839,7 @@ html, body{ color-scheme:only light; }
 /* Every image keeps its own proportions, so images in a row are always the same height */
 .auto-gallery .shot-row .shot:nth-child(n) .shot-frame{ aspect-ratio:var(--r, 1.5); }
 .auto-gallery .shot-row .shot:nth-child(n){ grid-column:auto; }
+
+/* Items without an image: no empty box */
+.tool-item.no-thumb{ grid-template-columns:minmax(0, 1fr); }
+.project-card a > .project-title:first-child{ padding-top:var(--s3); }

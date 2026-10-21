@@ -168,7 +168,9 @@ def url(path):
 
 def main():
     site = load_yaml('site.yml')
-    show = bool(site.get('show_prompts', True))
+    # Nothing empty is ever shown: no "To add" reminders, no image placeholders
+    site['show_prompts'] = False
+    show = False
     projects = load_projects()
     for p in projects:
         p['sections_visible'] = [s for s in p['sections'] if s and s.get('heading') and (s.get('text') or (show and s.get('prompt')))]
@@ -177,7 +179,7 @@ def main():
 
     # Art collage on phones is two columns: a half-width work left alone on its row goes full width
     art = load_yaml('art.yml')
-    works = [w for w in (art.get('works') or []) if w and w.get('title')]
+    works = [w for w in (art.get('works') or []) if w and w.get('image')]
     for i, w in enumerate(works):
         w['size'] = w.get('size') or 'medium'
     col = 0
@@ -202,12 +204,18 @@ def main():
             return hashlib.md5(f.read()).hexdigest()[:8]
     asset_v = {'css': ver('styles.css'), 'js': ver('script.js')}
     hidden_pages = set(site.get('hidden_pages') or [])
+    # A page with nothing to show stays out of the menu until content is added
+    tools_data = load_yaml('tools.yml')
+    if not works:
+        hidden_pages.add('art')
+    if not any(tools_data.get(k) for k in ('design', 'research', 'other')):
+        hidden_pages.add('tools')
     nav = [n for n in NAV if n['key'] not in hidden_pages]
     common = dict(site=site, asset_v=asset_v, nav=nav, base=BASE, categories=CATEGORIES,
                   year=datetime.date.today().year,
                   home=load_yaml('home.yml'), about=load_yaml('about.yml'),
                   teaching=load_yaml('teaching.yml'), research=load_yaml('research.yml'),
-                  art=art, tools=load_yaml('tools.yml'),
+                  art=art, tools=tools_data,
                   projects=projects,
                   used_categories={c for p in projects for c in p['categories']})
 

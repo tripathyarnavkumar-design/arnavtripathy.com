@@ -25,7 +25,7 @@ This is Arnav Kumar Tripathy's personal website. It's a static site built by `bu
 
 - Keep headings small. Minimum text sizes are 15px for secondary text and 16px for reading text.
 - No page descriptions or ledes under headings.
-- Never fabricate content. Leave empty fields so the "To add" prompts show.
+- Never fabricate content. Empty fields are never shown on the live site: no "To add" prompts, no empty image placeholders. Art & Craft and Tools hide themselves until they have content.
 - Pages always open at the top. Keep the smooth page transitions and the once-per-visit loader.
 
 ## Checking your work

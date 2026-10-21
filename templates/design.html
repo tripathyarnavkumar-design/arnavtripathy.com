@@ -10,7 +10,7 @@
 {% for key, c in categories.items() if key in used_categories %}        <button class="tag-chip" data-tag="{{ key }}">{{ c.chip }}</button>
 {% endfor %}      </div>
       <ul class="project-grid" id="projectIndex">
-{% for p in projects %}        <li class="project-card" data-tags="{{ p.categories | join(' ') }}"><div><a href="{{ base }}/{{ p.url }}"><div class="project-thumb">{% if p.card_image %}{{ img(p.card_image, '', pos=p.card_position, zoom=p.card_zoom) }}{% else %}{{ placeholder('Project image') }}{% endif %}</div><span class="project-title">{{ p.title }}</span><span class="project-meta">{{ pills(p.categories) }}</span></a></div></li>
+{% for p in projects %}        <li class="project-card" data-tags="{{ p.categories | join(' ') }}"><div><a href="{{ base }}/{{ p.url }}">{% if p.card_image %}<div class="project-thumb">{{ img(p.card_image, '', pos=p.card_position, zoom=p.card_zoom) }}</div>{% endif %}<span class="project-title">{{ p.title }}</span><span class="project-meta">{{ pills(p.categories) }}</span></a></div></li>
 {% endfor %}      </ul>
     </div>
   </section>
