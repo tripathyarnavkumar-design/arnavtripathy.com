@@ -7,10 +7,10 @@
 {{ page_head('Tools') }}
       <div class="rows">
 {% if tools.intro %}        <div class="row tools-intro">
-          <p class="row-label">About</p>
+          <p class="row-label" aria-hidden="true"></p>
           <div class="row-body">{{ tools.intro.replace('{email}', '[' ~ site.email ~ '](mailto:' ~ site.email ~ ')') | md }}</div>
         </div>
-{% endif %}{% for key, label in [('design','Design'),('research','Research'),('other','Other')] %}{% set list = tools[key] or [] %}{% if list or site.show_prompts %}        <div class="row">
+{% endif %}{% for key, label in [('design','Design Tools'),('research','Research Tools'),('other','Other Tools')] %}{% set list = tools[key] or [] %}{% if list or site.show_prompts %}        <div class="row">
           <h2 class="row-label">{{ label }}</h2>
           <ul class="tool-list">
 {% for t in list %}            <li class="tool-item{% if not t.thumbnail %} no-thumb{% endif %}">
