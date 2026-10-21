@@ -860,3 +860,31 @@ html, body{ color-scheme:only light; }
 /* A picture alone on its row grows only so far, so tall pieces never become huge */
 .art-collage .art-plate, .art-collage .art-plate:nth-child(n){ max-width:calc(var(--r, 1) * var(--h) * 1.7); }
 @media (max-width:640px){ .art-collage{ --h:170px; } }
+
+/* ===== Art & Craft: editorial collage =====
+   build.py composes rows on the 12-column grid from each picture's shape: a large piece
+   with a smaller one dropped beside it, staggered trios, and mirrored pairs. Each piece
+   keeps its full proportions; --c/--s place it, --o drops it (as % of its own width). */
+.art-mosaic{ display:flex; flex-direction:column; gap:var(--s8); }
+.art-row{ display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); column-gap:var(--s5); align-items:start; }
+.art-mosaic .art-plate, .art-mosaic .art-plate:nth-child(n){
+  grid-column:var(--c) / span var(--s); grid-row:1; grid-area:auto / var(--c) / auto / span var(--s);
+  margin-top:calc(var(--o) * 1%); min-width:0; min-height:0; display:block; width:auto; max-width:none; flex:none;
+}
+.art-mosaic .art-plate .art-thumb, .art-mosaic .art-plate:nth-child(n) .art-thumb{
+  aspect-ratio:var(--r, 1); height:auto; min-height:0; flex:none; margin-bottom:var(--s3);
+}
+.art-mosaic .art-plate .art-thumb img{ object-fit:cover; transition:transform .6s var(--ease); }
+@media (hover:hover) and (pointer:fine){ .art-mosaic .art-plate:hover .art-thumb img{ transform:scale(calc(var(--zoom, 1) * 1.025)); } }
+.art-mosaic .art-plate .art-title, .art-mosaic .art-plate:nth-child(n) .art-title{ font-size:var(--fs-md); }
+.art-mosaic .art-plate .art-meta{ font-size:var(--fs-sm); }
+@media (max-width:1080px){ .art-mosaic{ gap:var(--s7); } .art-row{ column-gap:var(--s4); } }
+@media (max-width:640px){
+  .art-mosaic{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--s6) var(--s4); align-items:start; }
+  .art-row{ display:contents; }
+  .art-mosaic .art-plate, .art-mosaic .art-plate:nth-child(n){
+    grid-area:auto; grid-column:span var(--ps); margin-top:calc(var(--po) * 1%);
+    width:var(--pw); justify-self:center;
+  }
+  .art-mosaic .art-plate .art-title, .art-mosaic .art-plate:nth-child(n) .art-title{ font-size:var(--fs-base); }
+}

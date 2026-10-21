@@ -115,6 +115,75 @@ def gallery_rows(shots):
     return rows
 
 
+def art_layout(works):
+    """Compose the Art & Craft collage from each picture's shape and order.
+
+    Pieces are grouped into rows that cycle through four editorial patterns on a
+    12-column grid: a large piece with a smaller one dropped beside it, a staggered
+    trio, the mirror of the first, and a centred wide piece. Spans follow each
+    picture's proportions, so tall works stay narrow and wide works get room.
+    Every piece gets: c (start column), s (span), o (drop from the row top, % of
+    its width) for desktop, plus ps/po for the two-column phone layout."""
+    def kind(w):
+        r = w['ratio']
+        return 'wide' if r >= 1.35 else ('tall' if r < 0.85 else 'square')
+
+    def big(w):
+        return {'wide': 8, 'square': 6, 'tall': 5}[kind(w)]
+
+    def small(w):
+        return {'wide': 5, 'square': 4, 'tall': 4}[kind(w)]
+
+    rows, i, n, step = [], 0, len(works), 0
+    while i < n:
+        left = n - i
+        pattern = ['feature-left', 'trio', 'feature-right', 'trio'][step % 4]
+        a = works[i]
+        if left == 1:
+            s_ = {'wide': 10, 'square': 6, 'tall': 5}[kind(a)]
+            rows.append([dict(a, c=(12 - s_) // 2 + 1, s=s_, o=0)]); i += 1
+        elif pattern == 'trio' and left >= 3:
+            trio = works[i:i + 3]
+            spans = [small(w) if kind(w) != 'wide' else 4 for w in trio]
+            gap = max(0, min(1, (12 - sum(spans)) // 2))
+            cols, c = [], 1
+            for sp in spans:
+                cols.append(c); c += sp + gap
+            shift = 12 - (cols[-1] + spans[-1] - 1)
+            cols = [cols[0]] + [x + shift // 2 for x in cols[1:-1]] + [cols[-1] + shift]
+            drops = [0, 18, 6]
+            rows.append([dict(w, c=cols[k], s=spans[k], o=drops[k]) for k, w in enumerate(trio)]); i += 3
+        elif pattern == 'trio' and left == 2 and kind(a) == 'wide' and kind(works[i + 1]) == 'wide':
+            rows.append([dict(a, c=1, s=6, o=0), dict(works[i + 1], c=7, s=6, o=14)]); i += 2
+        else:
+            b = works[i + 1]
+            if pattern in ('feature-left', 'trio'):
+                L, S = big(a), small(b)
+                S = min(S, 11 - L)
+                rows.append([dict(a, c=1, s=L, o=0), dict(b, c=13 - S, s=S, o=22)])
+            else:
+                S, L = small(a), big(b)
+                S = min(S, 11 - L)
+                rows.append([dict(a, c=1, s=S, o=26), dict(b, c=13 - L, s=L, o=0)])
+            i += 2
+        step += 1
+
+    # Phone: two columns. Wide pieces take the full width; others pair up, the second dropped.
+    flat = [w for row in rows for w in row]
+    k = 0
+    while k < len(flat):
+        w = flat[k]
+        if kind(w) == 'wide' or k == len(flat) - 1 or kind(flat[k + 1]) == 'wide':
+            w['ps'], w['po'] = 2, 0
+            w['pw'] = 100 if kind(w) == 'wide' else 72
+            k += 1
+        else:
+            w['ps'], w['po'], w['pw'] = 1, 0, 100
+            flat[k + 1]['ps'], flat[k + 1]['po'], flat[k + 1]['pw'] = 1, 22, 100
+            k += 2
+    return rows
+
+
 def optimise_media(folder):
     """Shrink very large photos in the published copy (originals in media/ stay untouched)."""
     try:
@@ -183,6 +252,7 @@ def main():
     for w in works:
         w['ratio'] = image_ratio(w['image'])
     art['works'] = works
+    art['rows'] = art_layout(works)
 
     env = Environment(loader=FileSystemLoader(os.path.join(ROOT, 'templates')),
                       autoescape=select_autoescape(['html']), trim_blocks=False, lstrip_blocks=False)
