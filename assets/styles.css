@@ -828,7 +828,7 @@ html, body{ color-scheme:only light; }
 .auto-gallery .shot{ flex:var(--r, 1.5) 1 0%; min-width:0; margin:0; }
 .auto-gallery .shot-frame{ aspect-ratio:var(--r, 1.5); background:var(--surface); overflow:hidden; }
 .auto-gallery .shot-frame img{ width:100%; height:100%; object-fit:cover; background:none; }
-.shot-row.count-1 .shot{ max-width:calc(80vh * var(--r, 1.5)); }
+.shot-row.count-1 .shot{ max-width:calc(90vh * var(--r, 1.5)); }
 .shot-row.count-1{ justify-content:center; }
 .auto-gallery figcaption{ margin-top:var(--s2); }
 @media (max-width:640px){
@@ -836,3 +836,6 @@ html, body{ color-scheme:only light; }
   .shot-row{ flex-direction:column; }
   .auto-gallery .shot{ flex:none; width:100%; max-width:none; }
 }
+/* Every image keeps its own proportions, so images in a row are always the same height */
+.auto-gallery .shot-row .shot:nth-child(n) .shot-frame{ aspect-ratio:var(--r, 1.5); }
+.auto-gallery .shot-row .shot:nth-child(n){ grid-column:auto; }

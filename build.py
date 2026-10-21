@@ -90,21 +90,28 @@ def image_ratio(path):
 
 
 def gallery_rows(shots):
-    """Arrange any number of images into rows: a wide lead image when the count is odd,
-    then pairs; three portrait images in a row share one line."""
-    rows, i, n = [], 0, len(shots)
-    portrait = lambda k: shots[k]['ratio'] < 1
-    if n % 2 == 1 and not (n >= 3 and all(portrait(k) for k in range(3))):
-        rows.append(shots[:1]); i = 1
-    while i < n:
-        left = n - i
-        if left >= 3 and all(portrait(i + k) for k in range(3)) and (left - 3) % 2 == 0:
+    """Arrange any number of images into rows.
+    The first image always gets a row of its own. With an even number of images (4 or more),
+    the last one does too. The images in between go in pairs; three portrait images share a row."""
+    n = len(shots)
+    if n == 0:
+        return []
+    rows = [shots[:1]]
+    last_alone = n % 2 == 0 and n > 2
+    middle = shots[1:n - 1] if last_alone else shots[1:]
+    i, m = 0, len(middle)
+    portrait = lambda k: middle[k]['ratio'] < 1
+    while i < m:
+        left = m - i
+        if left >= 3 and all(portrait(i + k) for k in range(3)) and left - 3 != 1:
             take = 3
         elif left >= 2:
             take = 2
         else:
             take = 1
-        rows.append(shots[i:i + take]); i += take
+        rows.append(middle[i:i + take]); i += take
+    if last_alone:
+        rows.append(shots[-1:])
     return rows
 
 
