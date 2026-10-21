@@ -3,36 +3,34 @@ works:
     medium: Thermocol model
     year: "2017"
     image: /media/horse-thermocol.jpg
-    size: large
     hidden: false
   - title: Devi
     medium: Acrylic on canvas
     year: "2020"
     image: /media/devi-acrylic.png
-    size: medium
     hidden: false
   - title: Einstein
     medium: Stippling
     year: "2013"
-    size: small
+    image: /media/picture-087copy.jpg
     hidden: false
   - title: Village
     medium: Oil pastel on paper
     year: "2015"
-    size: wide
+    image: /media/img20170118235621330copy.jpg
     hidden: false
   - title: Ganesh
     medium: Terracotta
     year: "2014"
-    size: medium
+    image: /media/screenshot-2026-04-20-144757.png
     hidden: false
   - title: Nature
     medium: Digital illustration
     year: "2018"
-    size: medium
+    image: /media/screenshot-2026-10-21-193259.png
     hidden: false
   - title: Peacock
     medium: Thermocol
     year: "2015"
-    size: medium
+    image: /media/imag36411.jpg
     hidden: false
