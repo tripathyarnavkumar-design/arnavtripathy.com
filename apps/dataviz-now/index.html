@@ -1528,6 +1528,23 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 @media (hover:none){ .key .hov{display:none} }
 @media (max-width:600px){ .se-right{gap:8px;min-width:0;max-width:100%} #seClear{white-space:nowrap;flex:none} .se-hist{flex:none} }
 
+/* ---------- Icons sit level with the first line of their heading, at every width ---------- */
+#gallery>.gal-sep.sec{align-items:flex-start}
+#gallery>.gal-sep.sec .sec-ic{margin:0}
+.sec-t h3{line-height:22px;min-height:22px}
+/* Collapsible option groups: icon, count badge and chevron sit level with the group name, the summary line hangs underneath */
+.st-g summary{align-items:flex-start}
+.st-gt > span{line-height:30px}
+.st-gt small{margin-top:-5px;line-height:1.35}
+.st-g summary .st-dot{align-self:flex-start;margin-top:6px}
+.st-g summary::after{align-self:flex-start;margin-top:10px}
+/* Size list rows: thumbnail, ratio and tick level with the size name */
+.sz-row{align-items:start}
+.sz-tx b{line-height:30px}
+.sz-tx small{margin-top:-5px;line-height:1.35}
+.sz-ratio{margin-top:6px;line-height:14px}
+.sz-tick{margin-top:7px}
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
