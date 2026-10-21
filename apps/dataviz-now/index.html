@@ -1499,6 +1499,35 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 }
 @media (max-width:1100px){ body.landing .pick{min-height:100dvh;justify-content:center;padding-top:32px;padding-bottom:40px} }
 
+/* ---------- Responsive alignment fixes (tablets & phones) ---------- */
+@media (max-width:1100px){
+  /* section bars: icon sits on the title line, explanation wraps beneath the title */
+  #gallery>.gal-sep.sec{align-items:flex-start;padding:10px 12px}
+  #gallery>.gal-sep.sec .sec-ic{margin-top:0}
+  .sec-t{flex-direction:column;align-items:flex-start;gap:2px}
+  .sec-t h3{line-height:22px;min-height:22px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+  .sec-t p{margin-top:0;line-height:1.4}
+  /* the Modify drawer: undo/redo already sit in the page bar */
+  body.ws-rail .ws-title{display:none!important}
+}
+@media (max-width:600px){
+  /* data bar */
+  .dbar{padding:10px 12px;column-gap:10px}
+  .dbar .dm-ic{flex:none}
+  .db-name{flex:1 1 calc(100% - 40px);max-width:calc(100% - 40px);min-width:0}
+  .db-stats{flex:1 1 100%;border-left:0;padding-left:32px}
+  /* sheet header: label on its own line, size + undo/redo + clear on the next */
+  .se-bar{flex-wrap:wrap;align-items:center;row-gap:6px}
+  .se-t{flex:1 1 100%}
+  .se-right{flex:1 1 100%;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .se-info{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .se-right > *{flex-shrink:0} .se-right > .se-info{flex-shrink:1}
+  /* landing strip heading */
+  .marq-h{text-align:center;padding:0 8px}
+}
+@media (hover:none){ .key .hov{display:none} }
+@media (max-width:600px){ .se-right{gap:8px;min-width:0;max-width:100%} #seClear{white-space:nowrap;flex:none} .se-hist{flex:none} }
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
