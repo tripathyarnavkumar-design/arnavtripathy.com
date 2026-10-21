@@ -10,8 +10,14 @@
   <section class="section page-research">
     <div class="wrap section-inner">
 {{ page_head('Research') }}
+      {% set kinds = [] %}{% if research.journal %}{% set _ = kinds.append(('journal','Journal Publications')) %}{% endif %}{% if research.conference %}{% set _ = kinds.append(('conference','Conference Publications')) %}{% endif %}{% if research.presentations %}{% set _ = kinds.append(('presentations','Conference Presentations')) %}{% endif %}
+      {% if kinds | length > 1 %}<div class="tag-filter research-filter" id="researchFilter" role="group" aria-label="Show">
+        <button type="button" class="tag-chip active" data-kind="all" aria-pressed="true">All</button>
+{% for k, label in kinds %}        <button type="button" class="tag-chip" data-kind="{{ k }}" aria-pressed="false">{{ label }}</button>
+{% endfor %}      </div>{% endif %}
+      <div class="research-blocks">
 
-{% if research.journal %}      <div class="research-block">
+{% if research.journal %}      <div class="research-block" data-kind="journal">
         <h2>Journal Publications <span class="count">({{ research.journal | length }})</span></h2>
         <ol class="pub-list">
 {% for p in research.journal %}{% set det = [] %}{% if p.volume %}{% set _ = det.append(p.volume ~ ('(' ~ p.issue ~ ')' if p.issue else '')) %}{% endif %}{% if p.pages %}{% set _ = det.append(p.pages) %}{% endif %}
@@ -29,7 +35,7 @@
 {% endfor %}        </ol>
       </div>
 {% endif %}
-{% if research.conference %}      <div class="research-block">
+{% if research.conference %}      <div class="research-block" data-kind="conference">
         <h2>Conference Publications <span class="count">({{ research.conference | length }})</span></h2>
         <ol class="pub-list">
 {% for p in research.conference %}
@@ -41,13 +47,14 @@
 {% endfor %}        </ol>
       </div>
 {% endif %}
-{% if research.presentations %}      <div class="research-block">
+{% if research.presentations %}      <div class="research-block" data-kind="presentations">
         <h2>Conference Presentations <span class="count">({{ research.presentations | length }})</span></h2>
         <ol class="pub-list">
 {% for p in research.presentations %}          <li><span class="pub-year pub-num" aria-hidden="true">{{ '%02d' % loop.index }}</span><strong>"{{ p.title }}"</strong>{{ endp(p.event) }}</li>
 {% endfor %}        </ol>
       </div>
 {% endif %}
+      </div>
     </div>
   </section>
 </main>
