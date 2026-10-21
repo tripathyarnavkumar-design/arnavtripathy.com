@@ -1,38 +1,38 @@
-# Art & Craft page: works in the order they appear
-# Edit this file in the website admin (Pages CMS), or here directly.
 works:
-- title: Horse
-  medium: Thermocol model
-  year: '2017'
-  image: ''
-  size: large
-- title: Devi
-  medium: Acrylic on canvas
-  year: '2020'
-  image: ''
-  size: medium
-- title: Einstein
-  medium: Stippling
-  year: '2013'
-  image: ''
-  size: small
-- title: Village
-  medium: Oil pastel on paper
-  year: '2015'
-  image: ''
-  size: wide
-- title: Ganesh
-  medium: Terracotta
-  year: '2014'
-  image: ''
-  size: medium
-- title: Nature
-  medium: Digital illustration
-  year: '2018'
-  image: ''
-  size: medium
-- title: Peacock
-  medium: Thermocol
-  year: '2015'
-  image: ''
-  size: medium
+  - title: Horse
+    medium: Thermocol model
+    year: "2017"
+    image: /media/horse-thermocol.jpg
+    size: large
+    hidden: false
+  - title: Devi
+    medium: Acrylic on canvas
+    year: "2020"
+    image: /media/devi-acrylic.png
+    size: medium
+    hidden: false
+  - title: Einstein
+    medium: Stippling
+    year: "2013"
+    size: small
+    hidden: false
+  - title: Village
+    medium: Oil pastel on paper
+    year: "2015"
+    size: wide
+    hidden: false
+  - title: Ganesh
+    medium: Terracotta
+    year: "2014"
+    size: medium
+    hidden: false
+  - title: Nature
+    medium: Digital illustration
+    year: "2018"
+    size: medium
+    hidden: false
+  - title: Peacock
+    medium: Thermocol
+    year: "2015"
+    size: medium
+    hidden: false
