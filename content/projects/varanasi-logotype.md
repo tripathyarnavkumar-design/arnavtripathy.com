@@ -31,6 +31,7 @@ sections:
     hidden: false
 gallery_heading: Explorations and final mark
 images:
-  - hidden: false
+  - image: /media/varanasi-heritage-branding-moodboard.png
+    hidden: false
 hidden: false
 ---
