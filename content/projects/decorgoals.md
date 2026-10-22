@@ -2,29 +2,20 @@
 title: DecorGoals
 order: 9
 categories:
-- logo
-description: |-
-  DecorGoals is a Furniture shop, dealing with all kinds of personal and office furniture.
-
-  This project involved a logo design for the shop.
-prototype: ''
+  - logo
+description: DecorGoals is a furniture retailer offering a wide range of
+  furniture for residential and office spaces. The project involved designing a
+  logo that reflects the brand’s identity and appeal.
 timeline: April – June 2023
 role: Graphic Designer in a team of 1
-tools: ''
-thumbnail: ''
+thumbnail: /media/decorgoals-branding-mockup-scene.png
 sections:
-- heading: The brief
-  text: ''
-  prompt: What the brand or competition asked for, and who the audience is.
-- heading: The idea behind the mark
-  text: ''
-  prompt: What the form and letterforms refer to, and why.
-- heading: Construction
-  text: ''
-  prompt: The grid, colour palette and typeface used in the final mark.
-- heading: In use
-  text: ''
-  prompt: 'Where the mark appears: signage, stationery, packaging, screens.'
-gallery_heading: Explorations and final mark
-images: []
+  - heading: The brief
+    prompt: What the brand or competition asked for, and who the audience is.
+    hidden: false
+  - heading: The idea behind the logo
+    prompt: What the form and letterforms refer to, and why.
+    hidden: false
+gallery_heading: Final Logo and Mock ups
+hidden: false
 ---
