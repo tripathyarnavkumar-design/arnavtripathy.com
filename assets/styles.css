@@ -907,7 +907,7 @@ html, body{ color-scheme:only light; }
   grid-area:auto; display:block;
 }
 /* A short last row is not stretched: its pieces keep a generous height (--hl) */
-.art-justified{ --hl:clamp(320px, 42vw, 560px); }
+.art-justified{ --hl:min(clamp(300px, 38vw, 500px), 62vh); }
 .art-justified .art-row.is-open .art-plate{ flex:0 1 calc(var(--r) * var(--hl)); max-width:100%; }
 .art-justified .art-plate .art-thumb, .art-justified .art-plate:nth-child(n) .art-thumb{ aspect-ratio:var(--r); margin-bottom:var(--s3); }
 .art-justified .art-plate .art-title{ padding-top:var(--s3); }
@@ -923,4 +923,14 @@ html, body{ color-scheme:only light; }
   .art-justified .art-plate.phone-solo{ margin-inline:auto; }
   .art-justified .art-plate .art-meta{ white-space:normal; }
 }
+}
+
+/* Never taller than the screen: a piece is at most ~65% of the viewport height */
+.art-justified .art-row.is-open .art-plate{ max-width:min(100%, calc(var(--r) * 62vh)); }
+@media (max-width:640px){
+  .art-justified .art-plate, .art-justified .art-plate:nth-child(n), .art-justified .art-row.is-open .art-plate{ max-width:min(100%, calc(var(--r) * 65vh)); }
+}
+/* On short screens, a full row narrows so its pieces still fit within ~62% of the screen height */
+@media (min-width:641px){
+  .art-justified .art-row:not(.is-open){ max-width:calc(var(--sum) * 62vh + var(--s5) * (var(--n) - 1)); }
 }

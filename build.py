@@ -122,7 +122,8 @@ def art_layout(works):
     bottom edge (each picture's width follows its proportions). Rows alternate between
     a few large pieces and more, smaller pieces, so the rhythm changes down the page
     while every edge stays aligned. A short last row is not stretched."""
-    targets = [1.9, 2.8]                  # summed width÷height per row: feature row, then a lighter row
+    targets = [2.4, 3.4]                  # summed width÷height per row: feature row, then a lighter row
+                                          # (keeps every row under ~520px tall on a laptop, so whole pieces fit on screen)
     rows, row, total, t = [], [], 0.0, 0
     for w in works:
         r = w['ratio']
