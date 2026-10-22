@@ -9,6 +9,7 @@ description: This project was a submission to a logo design competition
   both local and global audiences.
 timeline: September – October 2025
 role: Graphic Designer in a team of 1
+tools: Adobe Illustrator
 thumbnail: /media/varanasi-branding-triptych.png
 thumbnail_position: top
 sections:
