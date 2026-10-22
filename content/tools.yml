@@ -9,5 +9,12 @@ design:
   thumbnail_position: ''
   thumbnail_zoom: 100%
   hidden: false
-research: []
+research:
+- name: Validex
+  description: Check the reliability and validity of research data. Upload survey responses, expert ratings, retest scores or rater codes; Validex works out which tests the data supports, runs them, and writes a summary for your methods section.
+  url: https://tripathyarnavkumar-design.github.io/Validity/
+  thumbnail: /media/validex.png
+  thumbnail_position: ''
+  thumbnail_zoom: 100%
+  hidden: false
 other: []
