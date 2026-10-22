@@ -27,9 +27,13 @@ sections:
       branding applications."
     prompt: What the form and letterforms refer to, and why.
     hidden: false
-gallery_heading: Final Logo and Mock ups
+gallery_heading: Final Logo and Other Explorations
 images:
   - image: /media/decorgoals-brand-mockup-collection.png
+    caption: Finalized Logo
+    hidden: false
+  - image: /media/decor-goals-logo-explorations.png
+    caption: All explorations for the logo
     hidden: false
 hidden: false
 ---
