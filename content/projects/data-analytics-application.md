@@ -8,6 +8,7 @@ description: The project involved designing a web application for a data
   statistical methods to identify trends and derive meaningful insights.
 timeline: September 2018 – March 2019
 role: UI and UX Designer in a team of 3
+tools: Figma, Adobe Illustrator
 thumbnail: /media/datum-data-analysis-dashboard.png
 sections:
   - heading: The brief
