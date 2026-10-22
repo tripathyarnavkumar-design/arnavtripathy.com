@@ -29,7 +29,7 @@ sections:
       legacy.
     prompt: What the form and letterforms refer to, and why.
     hidden: false
-gallery_heading: Explorations and final mark
+gallery_heading: Final Logo and Mock-ups
 images:
   - image: /media/varanasi-heritage-branding-moodboard.png
     hidden: false
