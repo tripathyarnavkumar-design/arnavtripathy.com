@@ -1545,6 +1545,14 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 .sz-ratio{margin-top:6px;line-height:14px}
 .sz-tick{margin-top:7px}
 
+/* ---------- Credit line ("This tool is developed by Arnav"), as in Validex ---------- */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.credit{margin:0;font-size:15px;color:var(--ink-3);text-align:center}
+.credit a,.ws-credit a{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--red);transition:color .15s}
+.credit a:hover,.ws-credit a:hover{color:var(--red);text-decoration-thickness:2px}
+.credit a:focus-visible,.ws-credit a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.ws-credit{align-self:stretch;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--rule);font-size:15px;color:var(--ink-3)}
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
@@ -1592,6 +1600,7 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
           <p class="marq-h" id="marqH">Visualize your data with <b><span id="marqN">115</span>+ visualization techniques</b></p>
           <div class="marq-box" id="marqBox"><div class="marq-row" data-dir="l"><div class="marq-track"></div></div><div class="marq-row" data-dir="r"><div class="marq-track"></div></div></div>
         </section>
+        <p class="credit">This tool is developed by <a href="https://www.linkedin.com/in/arnav-kumar-tripathy/" target="_blank" rel="noopener">Arnav<span class="vh"> (LinkedIn, opens in a new tab)</span></a></p>
       </div>
 
       <div class="mode" id="modeView" hidden>
@@ -1659,6 +1668,7 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
           <div class="gal-foot">
             <button class="btn btn-line" id="galMore" type="button" hidden></button>
             <p class="refs-line" id="refsLine"></p>
+            <p class="ws-credit">This tool is developed by <a href="https://www.linkedin.com/in/arnav-kumar-tripathy/" target="_blank" rel="noopener">Arnav<span class="vh"> (LinkedIn, opens in a new tab)</span></a></p>
           </div>
           </div>
         </div>
