@@ -934,3 +934,6 @@ html, body{ color-scheme:only light; }
 @media (min-width:641px){
   .art-justified .art-row:not(.is-open){ max-width:calc(var(--sum) * 62vh + var(--s5) * (var(--n) - 1)); }
 }
+/* Rows that don't fill the full width sit in the middle */
+.art-justified .art-row{ justify-content:center; width:100%; margin-inline:auto; }
+@media (max-width:640px){ .art-justified{ justify-content:center; } }
