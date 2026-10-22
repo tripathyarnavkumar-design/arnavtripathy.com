@@ -8,6 +8,7 @@ description: DecorGoals is a furniture retailer offering a wide range of
   logo that reflects the brand’s identity and appeal.
 timeline: April – June 2023
 role: Graphic Designer in a team of 1
+tools: Adobe Illustrator, Adobe Photoshop
 thumbnail: /media/decorgoals-branding-mockup-scene.png
 sections:
   - heading: The brief
