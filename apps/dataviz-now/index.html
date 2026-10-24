@@ -1553,6 +1553,45 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 .credit a:focus-visible,.ws-credit a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .ws-credit{align-self:stretch;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--rule);font-size:15px;color:var(--ink-3)}
 
+/* ---------- 3D preview: 2D / 3D switch on Pick a chart ---------- */
+.dimbar{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin:0 0 18px}
+.dimbar-l{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.dimseg{display:inline-grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--field);border:1px solid var(--rule)}
+.dimseg button{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 16px 6px 10px;border:1px solid transparent;background:none;color:var(--ink-3);font:inherit;cursor:pointer;text-align:left;transition:background-color .15s,border-color .15s,color .15s}
+.dimseg button svg{width:32px;height:26px;flex:none}
+.dimseg b{display:block;font-size:15px;font-weight:700;line-height:1.2;color:var(--ink)}
+.dimseg small{display:block;font-size:12px;line-height:1.3;color:var(--ink-3);white-space:nowrap}
+.dimseg button:hover{background:color-mix(in srgb,var(--paper) 70%,transparent);color:var(--ink-2)}
+.dimseg button[aria-pressed="true"]{background:var(--paper);color:var(--red);border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.dimseg button[aria-pressed="true"] b{color:var(--red)}
+.dimseg button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.dimbar-note{flex:1 1 260px;margin:0;font-size:13px;line-height:1.45;color:var(--ink-2)}
+@media (max-width:600px){ .dimbar{gap:8px} .dimseg{width:100%} .dimseg button{padding:6px 10px 6px 8px;gap:8px} .dimseg button svg{width:26px;height:22px} .dimbar-note{flex-basis:100%} }
+
+/* ---------- 3D tab on Modify chart ---------- */
+.ptabs{grid-template-columns:repeat(5,1fr)}
+.ptab span{white-space:nowrap}
+.v3seg{display:flex}
+.v3views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.v3views button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink-2);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;line-height:1.2;text-align:center;transition:border-color .15s,color .15s,background-color .15s}
+.v3views button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linejoin:round}
+.v3views button:hover{border-color:var(--ink-3);color:var(--ink)}
+.v3views button[aria-pressed="true"]{border-color:var(--red);color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.v3views button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.v3alts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.v3alts .btn{justify-content:flex-start;height:34px}
+
+/* ---------- 3D on the canvas: drag to rotate ---------- */
+body.v3on #chart{cursor:grab;touch-action:none}
+body.rot3d,body.rot3d #chart{cursor:grabbing!important;user-select:none}
+body.rot3d #hl{display:none!important}
+.v3hud{position:absolute;left:18px;top:16px;z-index:5;display:flex;align-items:center;gap:8px;padding:5px 6px 5px 10px;background:var(--paper);border:1px solid var(--rule);box-shadow:0 4px 16px rgba(15,23,42,.10);font-size:12.5px;color:var(--ink-2)}
+.v3hud svg{width:15px;height:15px;flex:none;fill:none;stroke:var(--red);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.v3hud button{border:1px solid var(--rule);background:var(--paper);color:var(--ink);font:inherit;font-size:12px;font-weight:600;height:26px;padding:0 9px;cursor:pointer}
+.v3hud button:hover{border-color:var(--red);color:var(--red)}
+body:not(.ws-rail) .v3hud{display:none}
+@media (max-width:1100px){ .v3hud{position:static;margin:8px auto 0;width:max-content;max-width:calc(100% - 16px)} }
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
@@ -1660,6 +1699,7 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
             <details class="fgroup" open><summary>More</summary><div class="fopts"><label class="chk"><input type="checkbox" id="fRefs" checked><span>List charts drawn elsewhere</span></label></div></details>
           </aside>
           <div class="browse">
+          <div class="dimbar" role="group" aria-labelledby="dimL"><span class="dimbar-l" id="dimL">Chart style</span><div class="dimseg"><button type="button" data-dim="2d" aria-pressed="true"><svg viewBox="0 0 32 26" aria-hidden="true"><path d="M4 23h25" stroke="currentColor" stroke-width="1.4"/><rect x="6" y="13" width="5" height="10" fill="currentColor" opacity=".55"/><rect x="13.5" y="6" width="5" height="17" fill="currentColor"/><rect x="21" y="10" width="5" height="13" fill="currentColor" opacity=".75"/></svg><span><b>2D</b><small id="dimN2"></small></span></button><button type="button" data-dim="3d" aria-pressed="false"><svg viewBox="0 0 32 26" aria-hidden="true"><path d="M2 23.5 10 20h21" fill="none" stroke="currentColor" stroke-width="1.2"/><g stroke="currentColor" stroke-width=".8" stroke-linejoin="round"><path d="M4 21v-8h5v8z" fill="currentColor" opacity=".55"/><path d="M4 13l2.5-2h5L9 13z" fill="currentColor" opacity=".3"/><path d="M9 21v-8l2.5-2v8z" fill="currentColor" opacity=".8"/><path d="M13 21V5h5v16z" fill="currentColor"/><path d="M13 5l2.5-2h5L18 5z" fill="currentColor" opacity=".4"/><path d="M18 21V5l2.5-2v16z" fill="currentColor" opacity=".7"/><path d="M22 21V10h5v11z" fill="currentColor" opacity=".75"/><path d="M22 10l2.5-2h5L27 10z" fill="currentColor" opacity=".35"/><path d="M27 21V10l2.5-2v11z" fill="currentColor" opacity=".85"/></g></svg><span><b>3D</b><small id="dimN3"></small></span></button></div><p class="dimbar-note" id="dimNote" hidden>Showing only the charts that can be drawn in 3D. On the next page you can turn, tilt, light and shape them.</p></div>
           <div class="tech-head">
             <p class="lead" id="goalLead"></p>
           </div>
@@ -1724,6 +1764,7 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
         <button class="tab ptab" role="tab" aria-selected="true" data-ptab="map" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="1.5"/><path d="M2.5 8h15M2.5 12.3h15M8 3.5v13"/></svg><span>Data</span><b class="ptab-n" data-n="ds" hidden></b></button>
         <button class="tab ptab" role="tab" aria-selected="false" data-ptab="axes" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 2.5v14h14"/><path d="M6.5 13l3.5-4 3 2.5 4-6"/></svg><span>Axes</span><b class="ptab-n" data-n="ax" hidden></b></button>
         <button class="tab ptab" role="tab" aria-selected="false" data-ptab="style" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5a7.5 7.5 0 1 0 0 15c1 0 1.5-.7 1.5-1.4 0-.9-.8-1.3-.8-2.1 0-.8.7-1.3 1.5-1.3h2.1A3.2 3.2 0 0 0 17.5 9.5C17.5 5.6 14.2 2.5 10 2.5z"/><circle cx="6.4" cy="9.3" r="1"/><circle cx="8.6" cy="6.1" r="1"/><circle cx="12.4" cy="6.1" r="1"/></svg><span>Style</span><b class="ptab-n" data-n="st" hidden></b></button>
+        <button class="tab ptab" role="tab" aria-selected="false" data-ptab="v3" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6.5 10 3l7 3.5v7L10 17l-7-3.5z"/><path d="M3 6.5 10 10l7-3.5M10 10v7"/></svg><span>3D</span><b class="ptab-n" data-n="v3" hidden></b></button>
         <button class="tab ptab" role="tab" aria-selected="false" data-ptab="size" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5v-4h4M17.5 6.5v-4h-4M2.5 13.5v4h4M17.5 13.5v4h-4"/><rect x="6" y="7" width="8" height="6" rx=".8"/></svg><span>Size</span></button>
       </div></div>
       <div class="pane" data-ppane="map">
@@ -1773,6 +1814,11 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
         </div>
         <div id="stGroups" class="st-groups"></div>
         <button class="btn btn-line wide-btn" id="stReset" type="button">Reset all styling</button>
+      </div>
+      <div class="pane" data-ppane="v3" hidden>
+        <p class="hint st-tip"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5l9 5.2-4 1 2.3 4-1.6.9-2.3-4-3 2.8z"/></svg>Tip: drag the chart to turn and tilt it. Click a shape or the walls to edit them.</p>
+        <div id="v3Groups" class="st-groups"></div>
+        <button class="btn btn-line wide-btn" id="v3Reset" type="button">Reset 3D view</button>
       </div>
       <div class="pane" data-ppane="size" hidden>
         <div class="sz" id="sizeUI">
@@ -5736,6 +5782,892 @@ function drawerInit(){
   ['#wsUndo','#wsRedo'].forEach(s=>{ const n=$(s); if (n) new MutationObserver(mirror).observe(n, {attributes:true, attributeFilter:['disabled']}); }); mirror();
   renderPbar(); }
 if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', drawerInit, {once:true}); else drawerInit();
+
+/* =====================================================================
+   3D charts — PREVIEW BUILD ONLY (python3 build.py 3d)
+   · Pick a chart: a 2D / 3D switch; 3D shows only charts with a 3D version
+   · Modify chart: a "3D" tab (camera, shapes, light, walls) + drag-to-rotate
+   Drawn as plain SVG with a small projection engine, so every export
+   (SVG, PNG, PDF, WebP…) keeps working exactly as for 2D charts.
+   ===================================================================== */
+const R3 = {};
+const NAME3 = {barV:'3D Column Chart', barH:'3D Bar Chart (Horizontal)', groupedBar:'3D Grouped Bar Chart', stackedBar:'3D Stacked Bar Chart',
+  heatmap:'3D Bar Matrix', pie:'3D Pie Chart', lollipop:'3D Lollipop Chart', triangleBar:'3D Pyramid Bar Chart', dotChart:'3D Dot Chart', histogram:'3D Histogram', waterfall:'3D Waterfall Chart', columnRange:'3D Column Range Chart', bubbleHeatmap:'3D Bubble Matrix', spline:'3D Spline Ribbon', stepped:'3D Stepped Line', stackedArea:'3D Stacked Area Chart', layeredArea:'3D Layered Area Chart', semiDonut:'3D Semi Donut', polarArea:'3D Polar Area Chart', funnel:'3D Funnel Chart', pyramidChart:'3D Pyramid Chart', treemap:'3D Treemap', waffle:'3D Waffle (Cubes)', propSquare:'3D Proportional Cubes', propCircle:'3D Proportional Spheres', hexbin:'3D Hexbin (Hex Columns)', boxplot:'3D Box Plot', violin:'3D Violin Plot', jitter:'3D Jitter Plot', strip:'3D Strip Plot', beeswarm:'3D Beeswarm', dotPlot:'3D Dot Plot (Stacked)',
+  span:'3D Span Chart', butterfly:'3D Butterfly Chart', dumbbell:'3D Dumbbell Plot', errorBars:'3D Error Bars', pareto:'3D Pareto Chart', winLoss:'3D Win–Loss Blocks', progressBar:'3D Progress Bars', bullet:'3D Bullet Chart', marimekko:'3D Marimekko',
+  radialBar:'3D Radial Bar Chart', radialHist:'3D Radial Histogram', circularHeatmap:'3D Circular Heat Map', multiDonut:'3D Multi-ring Donut', sunburst:'3D Sunburst', multiLevelPie:'3D Multi-level Pie', target:'3D Target Diagram', solidGauge:'3D Solid Gauge', gauge:'3D Gauge',
+  radar:'3D Radar (Stacked Layers)', icicle:'3D Icicle (Steps)', packed:'3D Packed Circles (Discs)', nestedProp:'3D Nested Squares (Plates)', circularBubble:'3D Circular Bubbles', propHalf:'3D Proportional Domes', pyramidDiagram:'3D Pyramid Diagram',
+  bump:'3D Bump Ribbons', contour:'3D Density Surface', connectedScatter:'3D Connected Scatter (Path)', choropleth:'3D Prism Map', bubbleMap:'3D Spike Map', pinMap:'3D Pin Map', stream:'3D Stream Graph', sortedStream:'3D Sorted Stream Graph', stackedOrderedArea:'3D Stacked Ordered Area', popPyramid:'3D Population Pyramid', cluster:'3D Cluster Plot', candlestick:'3D Candlestick Chart', gantt:'3D Gantt Chart', columnSparkline:'3D Column Sparklines',
+  bubbleTimeline:'3D Bubble Timeline', timeline:'3D Timeline', rangeArea:'3D Range Band', trendline:'3D Trendline', control:'3D Control Chart', slope:'3D Slope Rods', radialArea:'3D Radial Area (Layers)', radialLine:'3D Radial Line (Walls)', spiralHeatmap:'3D Spiral Heat Map',
+  flowMap:'3D Flow Map (Arcs)', connectionMap:'3D Connection Map (Arcs)', routeMap:'3D Route Map', cartogram:'3D Bubble Cartogram', sankey:'3D Sankey (Slabs)', alluvial:'3D Alluvial (Slabs)', chord:'3D Chord (Vaulted Arcs)', nonRibbonChord:'3D Non-ribbon Chord', arcDiagram:'3D Arc Diagram (Arches)', network:'3D Network (Force Layout)', sociogram:'3D Sociogram', dendrogram:'3D Cone Tree (Dendrogram)', orgChart:'3D Org Chart (Tiers)', mindMap:'3D Mind Map', hyperbolicTree:'3D Spherical Tree (Hyperbolic)', donut:'3D Donut Chart', line:'3D Ribbon Line Graph', area:'3D Area Chart', scatter:'3D Scatter Plot', bubble:'3D Bubble Chart'};
+const dim3 = () => !!(S.opts && S.opts.dim==='3d');
+const is3 = rid => dim3() && !!R3[rid];
+const KIND3 = rid => ({pie:'pie', donut:'pie', semiDonut:'pie', polarArea:'pie', line:'ribbon', area:'ribbon', spline:'ribbon', stepped:'ribbon', stackedArea:'ribbon', layeredArea:'ribbon', scatter:'pts', bubble:'pts',
+  lollipop:'lolli', dotChart:'lolli', dumbbell:'lolli', bubbleHeatmap:'balls', treemap:'blocks', waffle:'blocks', icicle:'blocks', packed:'blocks', propSquare:'props', propCircle:'props', propHalf:'props', nestedProp:'props', circularBubble:'props',
+  funnel:'stack', pyramidChart:'stack', pyramidDiagram:'stack', hexbin:'hex', contour:'surface', choropleth:'map', bubbleMap:'map', pinMap:'map',
+  boxplot:'distv', violin:'distv', jitter:'distv', strip:'disth', beeswarm:'disth', dotPlot:'disth', connectedScatter:'pts', bump:'ribbon', stream:'ribbon', sortedStream:'ribbon', stackedOrderedArea:'ribbon',
+  radialBar:'rings', radialHist:'rings', circularHeatmap:'rings', multiDonut:'rings', sunburst:'rings', multiLevelPie:'rings', target:'rings', solidGauge:'gauge', gauge:'gauge', radar:'radar', marimekko:'mekko', popPyramid:'bars', cluster:'pts', candlestick:'bars', gantt:'bars', columnSparkline:'bars', bubbleTimeline:'props', timeline:'props', rangeArea:'ribbon', trendline:'distv', control:'distv', slope:'lolli',
+  radialArea:'radar', radialLine:'radar', spiralHeatmap:'rings', flowMap:'map', connectionMap:'map', routeMap:'map', cartogram:'map',
+  sankey:'flow', alluvial:'flow', chord:'chord', nonRibbonChord:'chord', arcDiagram:'net', network:'net', sociogram:'net', dendrogram:'tree', orgChart:'tree', mindMap:'tree', hyperbolicTree:'tree'})[rid] || 'bars';
+const NOWALL3 = new Set(['pie','rings','gauge','radar']);
+const FLOOR3 = new Set(['blocks','props','stack','map','flow','chord','net','tree']); /* charts that stand on a floor without back walls */
+const clamp3 = (v,a,b) => Math.max(a, Math.min(b, v));
+function v3def(rid){ const k=KIND3(rid);
+  const top=k==='blocks'||k==='hex'||k==='map', yaw={pie:0, rings:0, gauge:0, radar:0, map:0, chord:0, flow:18, net:30, tree:24, pts:32, stack:20, props:14, surface:30, disth:20}[k] ?? (top?28:26), pitch={pie:48, rings:50, gauge:50, radar:52, map:46, chord:42, flow:12, net:16, tree:14, pts:18, stack:20, props:16, surface:34, disth:24}[k] ?? (top?44:18);
+  return {Yaw:yaw, Pitch:pitch, Proj:'persp', Persp:.25, Zoom:1, Shape:{triangleBar:'pyr', funnel:'cyl', pyramidChart:'box', pyramidDiagram:'box'}[rid]||'box', Depth:1, Gap:{histogram:.06, waffle:.14, hexbin:.08, treemap:.02, icicle:.02, packed:.02, funnel:.06, pyramidChart:.06, pyramidDiagram:.08, radar:.3}[rid] ?? .3,
+    Rows:'rows', Height:rid==='polarArea'?.14:({rings:.12, gauge:.12, radar:.08})[k]||.2, Explode:0, Shade:.6, Light:-35, Edges:'', Walls:true, WallColor:null, Drop:true, Ball:1, Lift:1, Shadow:true}; }
+function v3o(rid){ const st=S.opts.st||{}, d=v3def(rid), o={}; Object.keys(d).forEach(k=>{ const v=st['v3'+k]; o[k.toLowerCase()] = v!=null ? v : d[k]; }); return o; }
+
+/* ---------- vectors, camera, light ---------- */
+const V3 = { sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]], add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]], dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],
+  norm:a=>{ const l=Math.hypot(a[0],a[1],a[2])||1; return [a[0]/l,a[1]/l,a[2]/l]; }, mean:p=>[0,1,2].map(i=>d3.mean(p,q=>q[i])) };
+function newell(p){ const n=[0,0,0]; for (let i=0;i<p.length;i++){ const a=p[i], b=p[(i+1)%p.length]; n[0]+=(a[1]-b[1])*(a[2]+b[2]); n[1]+=(a[2]-b[2])*(a[0]+b[0]); n[2]+=(a[0]-b[0])*(a[1]+b[1]); } return V3.norm(n); }
+function cam3(o){ const ya=o.yaw*Math.PI/180, pa=o.pitch*Math.PI/180, cy=Math.cos(ya), sy=Math.sin(ya), cp=Math.cos(pa), sp=Math.sin(pa);
+  return { rot:p=>{ const x1=p[0]*cy+p[2]*sy, z1=-p[0]*sy+p[2]*cy; return [x1, p[1]*cp+z1*sp, z1*cp-p[1]*sp]; } }; }
+/* light is fixed relative to the viewer (upper left by default), so the chart stays readable from every angle */
+function light3(o){ const a=o.light*Math.PI/180, e=48*Math.PI/180; return V3.norm([Math.sin(a)*Math.cos(e), Math.sin(e), -Math.cos(a)*Math.cos(e)]); }
+function shade3(hex, nv, o, L){ const k=d3.rgb(hex); if (!k || isNaN(k.r)) return hex; const d=Math.max(0, V3.dot(nv, L)), s=o.shade;
+  const dark=s*0.55*(1-d), lift=s*0.2*Math.max(0, d-0.72)/0.28; let r=k.r*(1-dark), g=k.g*(1-dark), b=k.b*(1-dark);
+  r+=(255-r)*lift; g+=(255-g)*lift; b+=(255-b)*lift;
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b)); const out=d3.rgb(r,g,b).formatHex();
+  return out.toLowerCase()===(hexOf(hex)||'') ? d3.rgb(Math.max(0,r-2),Math.max(0,g-2),Math.max(0,b-2)).formatHex() : out; } /* never the exact palette colour, so 2D-only mark styling leaves 3D faces alone */
+
+/* ---------- colour of a mark: category colours, highlight, "each bar" mode ---------- */
+function col3(c, key, i, si){ const st=c.mini ? {} : (S.opts.st||{});
+  if (key!=null && st.catColors && st.catColors[key]) return st.catColors[key];
+  const hi=[].concat(st.hiCat||[]).map(String); if (hi.length && key!=null && !hi.includes(String(key))) return st.dimColor||(c.dark?'#3B4252':'#CBD5E1');
+  if (si==null && st.colorMode==='vary') return c.col(i);
+  return c.col(si||0); }
+
+function over3(c, key){ const st=c.mini ? {} : (S.opts.st||{}); if (key!=null && st.catColors && st.catColors[key]) return st.catColors[key];
+  const hi=[].concat(st.hiCat||[]).map(String); if (hi.length && key!=null && !hi.includes(String(key))) return st.dimColor||(c.dark?'#3B4252':'#CBD5E1'); return null; }
+/* ---------- scene ---------- */
+function Scene3(c, rid){ return {c, rid, o:v3o(rid), walls:null, items:[], texts:[], refs:[]}; }
+function item3(sc, meta={}){ const it=Object.assign({faces:[], lines:[], spheres:[], center:null}, meta); sc.items.push(it); return it; }
+/* add a polygon; n = outward normal (computed if missing, flipped to point away from `out` if given) */
+function face3(it, pts, col, o={}){ let n=o.n || newell(pts); const fc=V3.mean(pts);
+  if (!o.n && o.out && V3.dot(n, V3.sub(fc, o.out))<0) n=n.map(x=>-x);
+  it.faces.push({pts, col, n, fc, two:!!o.two, smooth:!!o.smooth, pri:o.pri||0}); }
+function text3(sc, p, s, o={}){ sc.texts.push(Object.assign({p, s:String(s), dx:0, dy:0, a:'middle', cls:'axis'}, o)); }
+
+/* solids along an axis: a = length axis (a0→a1), u/w = the two cross axes centred on cu/cw with half sizes hu/hw */
+function solid3(it, kind, M, a0, a1, cu, cw, hu, hw, col){
+  const out=M((a0+a1)/2, cu, cw), N=22;
+  if (kind==='cyl' || kind==='cone') { const ring=(a,s)=>d3.range(N).map(j=>{ const t=j/N*2*Math.PI; return M(a, cu+Math.cos(t)*hu*s, cw+Math.sin(t)*hw*s); });
+    const r0=ring(a0,1), r1 = kind==='cone' ? null : ring(a1,1), tip=M(a1, cu, cw);
+    for (let j=0;j<N;j++){ const k=(j+1)%N; face3(it, kind==='cone' ? [r0[j], r0[k], tip] : [r0[j], r0[k], r1[k], r1[j]], col, {out, smooth:true}); }
+    face3(it, r0.slice().reverse(), col, {out}); if (r1) face3(it, r1, col, {out}); return; }
+  const C=(da,du,dw)=>M(da?a1:a0, cu+(du?hu:-hu), cw+(dw?hw:-hw));
+  if (kind==='pyr') { const tip=M(a1, cu, cw), b=[C(0,0,0), C(0,1,0), C(0,1,1), C(0,0,1)];
+    for (let j=0;j<4;j++) face3(it, [b[j], b[(j+1)%4], tip], col, {out}); face3(it, b, col, {out}); return; }
+  const q=(p)=>face3(it, p, col, {out});
+  q([C(0,0,0),C(0,1,0),C(0,1,1),C(0,0,1)]); q([C(1,0,0),C(1,1,0),C(1,1,1),C(1,0,1)]);
+  q([C(0,0,0),C(1,0,0),C(1,0,1),C(0,0,1)]); q([C(0,1,0),C(1,1,0),C(1,1,1),C(0,1,1)]);
+  q([C(0,0,0),C(1,0,0),C(1,1,0),C(0,1,0)]); q([C(0,0,1),C(1,0,1),C(1,1,1),C(0,1,1)]); }
+
+/* a tapered column (funnel layers, pyramid layers, hexagonal columns): radius r0 at a0, r1 at a1; n sides (4 = square, 6 = hexagon, 28 ≈ round) */
+function frustum3(it, M, a0, a1, cu, cw, r0, r1, col, n=28, phase=0, caps=true){ const out=M((a0+a1)/2, cu, cw), sq=n===4?Math.SQRT2:1;
+  const ring=(a,r)=>d3.range(n).map(j=>{ const t=phase+j/n*2*Math.PI; return M(a, cu+Math.cos(t)*r*sq, cw+Math.sin(t)*r*sq); }); const A=ring(a0,r0), B=ring(a1,r1), smooth=n>8;
+  for (let j=0;j<n;j++){ const k=(j+1)%n; face3(it, r1>1e-6 ? [A[j],A[k],B[k],B[j]] : [A[j],A[k],B[0]], col, {out, smooth}); }
+  if (caps) { face3(it, A.slice().reverse(), col, {out}); if (r1>1e-6) face3(it, B, col, {out}); } }
+/* text size estimate for fitting labels inside the frame */
+function textBox3(t){ const fs=t.fs||12, w=t.s.length*fs*0.56; let lo, hi;
+  if (t.rot) { const r=Math.abs(t.rot)*Math.PI/180; return {xlo:t.dx-w*Math.cos(r), xhi:t.dx+2, ylo:t.dy-fs*0.6, yhi:t.dy+w*Math.sin(r)+fs*0.6}; }
+  if (t.a==='start') { lo=t.dx; hi=t.dx+w; } else if (t.a==='end') { lo=t.dx-w; hi=t.dx; } else { lo=t.dx-w/2; hi=t.dx+w/2; }
+  return {xlo:lo, xhi:hi, ylo:t.dy-fs*0.62, yhi:t.dy+fs*0.62}; }
+function fitAxis3(P, size){ let k=Infinity; for (const a of P) for (const b of P) if (a.v>b.v+1e-9) k=Math.min(k, (size-a.hi+b.lo)/(a.v-b.v)); return isFinite(k)&&k>0 ? k : 1; }
+
+/* walls & floor: the planes of the bounding box whose inside faces the viewer */
+function walls3(sc, B, grids=[]){ sc.walls={B, grids}; }
+
+/* ---------- draw a scene into the chart ---------- */
+function draw3(sc){ const {c, o}=sc, cam=cam3(o), L=light3(o), root=c.root, st=c.mini?{}:(S.opts.st||{}), mini=c.mini;
+  const B = sc.walls && sc.walls.B; const all=[];
+  if (B) for (const x of B.x) for (const y of B.y) for (const z of B.z) all.push([x,y,z]);
+  (sc.flat||[]).forEach(f=>all.push(...f.pts)); (sc.flatLines||[]).forEach(l=>all.push(l.a,l.b));
+  sc.items.forEach(it=>{ it.faces.forEach(f=>all.push(...f.pts)); it.lines.forEach(l=>all.push(l.a,l.b)); it.spheres.forEach(s=>{ all.push(V3.add(s.p,[s.r,s.r,s.r]), V3.sub(s.p,[s.r,s.r,s.r])); }); });
+  if (!all.length) return emptyMsg(c);
+  const ex=[0,1,2].map(i=>d3.extent(all,p=>p[i])), C=ex.map(e=>(e[0]+e[1])/2), Rs=Math.hypot(...ex.map(e=>(e[1]-e[0])/2))||1;
+  const persp=o.proj==='persp', D=Rs*(1.5+7*(1-clamp3(o.persp,0.05,1)));
+  const P = p=>{ const v=cam.rot(V3.sub(p,C)), f=persp ? D/(D+v[2]) : 1; return [v[0]*f, -v[1]*f, v[2], f]; };
+  /* fit: geometry plus every label (labels keep their pixel size) */
+  const gx=[], gy=[]; all.forEach(p=>{ const q=P(p); gx.push(q[0]); gy.push(q[1]); });
+  const X=[{v:d3.min(gx),lo:0,hi:0},{v:d3.max(gx),lo:0,hi:0}], Y=[{v:d3.min(gy),lo:0,hi:0},{v:d3.max(gy),lo:0,hi:0}];
+  const texts = mini ? [] : sc.texts; texts.forEach(t=>{ t.q=P(t.p); const b=textBox3(t); X.push({v:t.q[0], lo:b.xlo, hi:b.xhi}); Y.push({v:t.q[1], lo:b.ylo, hi:b.yhi}); });
+  const pad=mini?4:4, W=c.W-pad*2, H=c.H-pad*2; const k=Math.min(fitAxis3(X,W), fitAxis3(Y,H))*clamp3(o.zoom,0.4,1.6);
+  const off=(A,size)=>{ const lo=d3.min(A,a=>a.v*k+a.lo), hi=d3.max(A,a=>a.v*k+a.hi); return pad+(size-(hi-lo))/2-lo; };
+  const ox=off(X,W), oy=off(Y,H); const S2=q=>[q[0]*k+ox, q[1]*k+oy]; const pt=p=>S2(P(p));
+  const path=pts=>'M'+pts.map(p=>pt(p).map(v=>v.toFixed(2)).join(',')).join('L')+'Z';
+  const camV = persp ? [0,0,-D] : null;
+  const facing = (n, fc)=>{ const nv=cam.rot(n); if (!persp) return nv[2] < -1e-4; const v=cam.rot(V3.sub(fc,C)); return V3.dot(nv, V3.sub(v, camV)) < -1e-4; };
+  /* walls */
+  if (B && o.walls) { const g=root.append('g').attr('data-el','walls'), wc=o.wallcolor || d3.interpolateRgb(c.bg==='none'?'#ffffff':c.bg, c.fg)(c.dark?0.07:0.045), fc=d3.interpolateRgb(wc, c.fg)(0.035);
+    const [x0,x1]=B.x, [y0,y1]=B.y, [z0,z1]=B.z;
+    const planes=[{d:1,v:y0,n:[0,1,0],p:[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],floor:1},{d:2,v:z1,n:[0,0,-1],p:[[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]]},{d:2,v:z0,n:[0,0,1],p:[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]]},
+      {d:0,v:x0,n:[1,0,0],p:[[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]]},{d:0,v:x1,n:[-1,0,0],p:[[x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0]]}];
+    const vis=planes.filter(pl=>cam.rot(pl.n)[2] < -0.03 && (!sc.floorOnly || pl.floor)); sc.visWalls=vis;
+    vis.forEach(pl=>g.append('path').attr('d',path(pl.p)).attr('fill',pl.floor?fc:wc).attr('stroke',c.axisc).attr('stroke-width',mini?.5:.8).attr('stroke-linejoin','round').attr('stroke-opacity',.7));
+    if (c.grid || mini) { const span={0:[x0,x1],1:[y0,y1],2:[z0,z1]};
+      sc.walls.grids.forEach(gr=>{ const ax={x:0,y:1,z:2}[gr.axis]; vis.forEach(pl=>{ if (pl.d===ax) return; const e=[0,1,2].find(i=>i!==ax && i!==pl.d);
+        gr.vals.forEach(v=>{ const a=[0,0,0], b=[0,0,0]; a[pl.d]=b[pl.d]=pl.v; a[ax]=b[ax]=v; a[e]=span[e][0]; b[e]=span[e][1];
+          const [p1,p2]=[pt(a),pt(b)]; g.append('line').attr('x1',p1[0]).attr('y1',p1[1]).attr('x2',p2[0]).attr('y2',p2[1]).attr('stroke',c.gridc).attr('stroke-width',mini?.5:1); }); }); }); }
+  } else sc.visWalls=[];
+  /* flat shapes lying on the floor (land on maps, the web of a radar) */
+  if ((sc.flat&&sc.flat.length) || (sc.flatLines&&sc.flatLines.length)) { const g=root.append('g').attr('data-el','walls');
+    (sc.flat||[]).forEach(f=>g.append('path').attr('d',path(f.pts)).attr('fill',f.fill).attr('stroke',f.stroke||'none').attr('stroke-width',f.sw||.5).attr('stroke-linejoin','round'));
+    (sc.flatLines||[]).forEach(l=>{ const a=pt(l.a), b=pt(l.b); g.append('line').attr('x1',a[0]).attr('y1',a[1]).attr('x2',b[0]).attr('y2',b[1]).attr('stroke',l.col||c.gridc).attr('stroke-width',l.w||1); }); }
+  /* reference line on the walls */
+  sc.refs.forEach(r=>{ const g=root.append('g').attr('data-el','ref'); const pts=r.pts.map(pt); g.append('path').attr('d','M'+pts.map(p=>p.join(',')).join('L')).attr('fill','none').attr('stroke',r.col).attr('stroke-width',1.6).attr('stroke-dasharray',r.dash);
+    if (r.lab) { const q=pt(r.labAt); tx(c, g, q[0]+(r.la==='end'?-6:6), q[1]-9, r.lab, {a:r.la||'start', s:c.fs-1, w:600, f:r.col}); } });
+  /* marks, far to near; inside each mark only the faces turned towards the viewer */
+  const op = st.markOpacity!=null && st.markOpacity<1 ? st.markOpacity : null;
+  const edge = (fill, f)=>{ if (f.smooth || o.edges==='none') return {s:fill, w:.9, o:1}; if (o.edges==='strong') return {s:c.fg, w:mini?.4:1, o:.85}; return {s:d3.interpolateRgb(fill,'#000')(0.28), w:mini?.3:.6, o:.55}; };
+  const ord = sc.items.map(it=>{ const ctr=it.center || V3.mean(it.faces.length ? it.faces.flatMap(f=>f.pts) : it.spheres.map(s=>s.p)); return {it, d:cam.rot(V3.sub(ctr,C))[2]+(it.bias||0)}; }).sort((a,b)=>b.d-a.d);
+  let gid=0; const defs=root.append('defs'), grads={};
+  const matUid=Math.random().toString(36).slice(2,6);
+  /* soft shadows the shapes cast on the floor */
+  if (!mini && o.shadow && B && o.walls && (sc.visWalls||[]).some(w=>w.floor)) { const y0=B.y[0], ld=V3.norm([-.45,-1,.3]), flt=`sh${matUid}`;
+    defs.append('filter').attr('id',flt).attr('x','-20%').attr('y','-20%').attr('width','140%').attr('height','140%').append('feGaussianBlur').attr('stdDeviation',Math.max(1.5, k*0.05));
+    const fw=(sc.visWalls||[]).find(w=>w.floor), cp=`fc${matUid}`; defs.append('clipPath').attr('id',cp).append('path').attr('d',path(fw.p));
+    const gS=root.append('g').attr('clip-path',`url(#${cp})`).append('g').attr('data-el','walls').attr('filter',`url(#${flt})`).attr('pointer-events','none');
+    sc.items.forEach(it=>{ const pts=[...it.faces.flatMap(f=>f.pts), ...it.spheres.flatMap(s2=>d3.range(10).map(i=>[s2.p[0]+Math.cos(i/10*2*Math.PI)*s2.r, s2.p[1], s2.p[2]+Math.sin(i/10*2*Math.PI)*s2.r]))]; if (!pts.length) return;
+      const fl=pts.map(p=>{ const t=(p[1]-y0)/(-ld[1]); return S2(P([p[0]+ld[0]*t, y0+.001, p[2]+ld[2]*t])); }), hull=d3.polygonHull(fl); if (!hull) return;
+      gS.append('path').attr('d','M'+hull.map(q=>q.map(v=>v.toFixed(1)).join(',')).join('L')+'Z').attr('fill','#000').attr('fill-opacity',.16); }); }
+  ord.forEach(({it})=>{ const g=root.append('g').attr('data-el','m3'); if (it.tip && !mini) g.append('title').text(it.tip);
+    it.lines.forEach(l=>{ const a=pt(l.a), b=pt(l.b); g.append('line').attr('x1',a[0]).attr('y1',a[1]).attr('x2',b[0]).attr('y2',b[1]).attr('stroke',l.col).attr('stroke-width',l.w||1).attr('stroke-dasharray',l.dash||null).attr('stroke-opacity',l.op||1); });
+    it.faces.filter(f=>f.two || facing(f.n, f.fc)).map(f=>{ let nv=cam.rot(f.n); if (f.two && nv[2]>0) nv=nv.map(x=>-x); return {f, nv, d:cam.rot(V3.sub(f.fc,C))[2]}; })
+      .sort((a,b)=>(a.f.pri-b.f.pri) || (b.d-a.d)).forEach(({f,nv})=>{ const fill=shade3(f.col, nv, o, L), e=edge(fill, f);
+        const dd=path(f.pts), el=g.append('path').attr('d',dd).attr('fill',fill).attr('stroke',e.s).attr('stroke-width',e.w).attr('stroke-opacity',e.o).attr('stroke-linejoin','round'); const fo=op!=null?op:it.op; if (fo!=null) el.attr('fill-opacity',fo);
+        });
+    it.spheres.forEach(s=>{ const q=P(s.p), [sx,sy]=S2(q), r=Math.max(.8, s.r*k*q[3]); const key=s.col+'|'+o.shade;
+      if (!grads[key]) { const id='g3'+Math.random().toString(36).slice(2,7)+(gid++); grads[key]=id; const gr=defs.append('radialGradient').attr('id',id).attr('cx','36%').attr('cy','30%').attr('r','74%');
+        gr.append('stop').attr('offset','0%').attr('stop-color',d3.interpolateRgb(s.col,'#fff')(0.55*o.shade)); gr.append('stop').attr('offset','55%').attr('stop-color',s.col); gr.append('stop').attr('offset','100%').attr('stop-color',d3.interpolateRgb(s.col,'#000')(0.42*o.shade)); }
+      const el=g.append('circle').attr('cx',sx).attr('cy',sy).attr('r',r).attr('fill',`url(#${grads[key]})`).attr('stroke',o.edges==='none'?'none':o.edges==='strong'?c.fg:d3.interpolateRgb(s.col,'#000')(0.3)).attr('stroke-width',o.edges==='strong'?1:.5).attr('stroke-opacity',.6); if (op!=null) el.attr('fill-opacity',op);
+      }); });
+  /* labels: axis labels are grouped like d3 axes so click-to-edit treats them as axes */
+  if (!mini) { const A=(typeof AXO!=='undefined' && AXO) || {}; const axes={};
+    texts.forEach(t=>{ const [x,y]=S2(t.q); const X=x+t.dx, Y=y+t.dy;
+      if (t.cls==='axis') { if ((t.ax==='v' && A.hideY) || (t.ax==='c' && A.hideX)) return; const host=axes[t.ax]||(axes[t.ax]=root.append('g').attr('data-ax3',t.ax)); const tk=host.append('g').attr('class','tick');
+        let s=t.s; if (A.case && A.case!=='none') s = A.case==='upper'?s.toUpperCase():A.case==='lower'?s.toLowerCase():s.replace(/\b\w/g,m=>m.toUpperCase());
+        const el=tx(c, tk, X, Y, s, {a:t.a, s:(t.fs||c.fs-1)*(A.size||1), f:c.muted, w:A.weight||t.w||400}); if (t.rot) el.attr('transform',`rotate(${t.rot},${X},${Y})`); return; }
+      const el=tx(c, root, X, Y, t.s, {a:t.a, s:t.fs||c.fs-1, f:t.f||c.fg, w:t.w||500}); if (t.el) el.attr('data-el', t.el); if (t.rot) el.attr('transform',`rotate(${t.rot},${X},${Y})`); }); }
+}
+
+/* value scale that respects the Axes tab (range, ticks) through the existing hooks */
+function vscale3(dom, hz){ const s=d3.scaleLinear(dom, hz?[0,1]:[1,0]).nice(); (hz?d3.axisBottom:d3.axisLeft)(s); return s; }
+const ticks3 = s => s.ticks((typeof AXO!=='undefined' && AXO && AXO.ticks) || 5);
+function refValue3(st, vals){ if (!st.ref || st.ref==='none') return null; if (st.ref==='value') return isNum(st.refValue)?st.refValue:null;
+  const v = st.ref==='avg'?d3.mean(vals):st.ref==='median'?d3.median(vals):st.ref==='max'?d3.max(vals):d3.min(vals); return isNum(v)?v:null; }
+const REFN = {avg:'Average', median:'Median', max:'Highest', min:'Lowest'};
+
+/* ---------- bars: columns, horizontal bars, grouped, stacked, bar matrix ---------- */
+function bars3(c, rid, spec){ const sc=Scene3(c, rid), o=sc.o, hz=!!spec.hz, nC=spec.cats.length, rows=spec.rows, nR=rows?rows.length:1;
+  if (!nC) return emptyMsg(c);
+  const shape = rid==='stackedBar' && (o.shape==='cone'||o.shape==='pyr') ? 'box' : o.shape;
+  const Zr=clamp3(o.depth,.15,4), Z=nR*Zr, Lv = hz ? clamp3(nC*1.15,3.6,9.5) : clamp3(nC*0.62,2.6,6.6);
+  const s=vscale3(spec.dom, hz), val=v=>hz ? s(v)*Lv : (1-s(v))*Lv, base=val(Math.max(s.domain()[0], Math.min(0, s.domain()[1])));
+  const gap=clamp3(o.gap,0,.9), bd=Zr*(1-gap*0.75);
+  const M = hz ? (a,u,w)=>[a,u,w] : (a,u,w)=>[u,a,w];
+  spec.boxes.forEach(b=>{ const ns=b.ns||1, slot=1-gap, sw=slot/ns, cu0 = hz ? nC-b.ci-0.5 : b.ci+0.5, cu=cu0-slot/2+sw*((b.si||0)+0.5), cw=b.cw!=null?b.cw*Zr:((b.ri||0)+0.5)*Zr;
+    const a0 = b.v0==null ? base : val(b.v0), a1=val(b.v1); if (Math.abs(a1-a0)<1e-6) return;
+    if (spec.lolli) { const rb=clamp3(Math.min(sw*0.36, Zr*0.42)*o.ball, .04, .9), st=Math.max(.02, rb*0.16), it=item3(sc, {tip:b.tip, center:M(a1, cu, cw)});
+      frustum3(it, M, a0, a1, cu, cw, st, st, b.col, 12); it.spheres.push({p:M(a1, cu, cw), r:rb, col:b.col});
+      if (c.labels && !c.mini && b.label!=null) text3(sc, M(a1, cu, cw), b.label, hz?{a:'start', dx:14+rb*20, cls:'label'}:{a:'middle', dy:-16-rb*20, cls:'label'}); return; }
+    const it=item3(sc, {tip:b.tip, center:M((a0+a1)/2, cu, cw)}); solid3(it, b.shape||shape, M, a0, a1, cu, cw, b.hu!=null?b.hu:sw/2*0.94, b.hd!=null?b.hd*Zr:bd/2, b.col);
+    if (c.labels && !c.mini && b.label!=null) text3(sc, M(a1, cu, cw + bd/2), b.label, hz?{a:'start', dx:8, cls:'label'}:{a:'middle', dy:-9, cls:'label'}); });
+  const B = hz ? {x:[0,Lv], y:[0,nC], z:[0,Z]} : {x:[0,nC], y:[0,Lv], z:[0,Z]};
+  const tf=spec.tickFmt||fmt; if (spec.after) spec.after(sc, {M, val, s, Lv, Zr, Z, bd, gap, nC, cuOf:ci=>hz?nC-ci-0.5:ci+0.5});
+  const tv=ticks3(s); walls3(sc, B, [{axis:hz?'x':'y', vals:tv.map(val)}]);
+  if (!c.mini) { const left = o.yaw>=0; /* which side wall faces us */
+    if (hz) { tv.forEach(t=>text3(sc, [val(t),0,0], tf(t), {a:'middle', dy:15, ax:'v'}));
+      spec.cats.forEach((k,i)=>text3(sc, [0, nC-i-0.5, 0], trunc(k,22), {a:'end', dx:-8, ax:'c'})); }
+    else { const xs=left?0:nC, zs=Math.abs(o.yaw)<4?Z:0; tv.forEach(t=>text3(sc, [xs,val(t),zs], tf(t), {a:left?'end':'start', dx:left?-8:8, ax:'v'}));
+      const rot = nC>8 || d3.max(spec.cats,k=>String(k).length)>12; spec.cats.forEach((k,i)=>text3(sc, [i+0.5,0,0], trunc(k,rot?18:14), rot?{a:'end', dx:-2, dy:12, rot:-35, ax:'c'}:{a:'middle', dy:15, ax:'c'})); }
+    if (rows && nR>1) { const rx = hz ? Lv : (left?nC:0); rows.forEach((r,i)=>text3(sc, [rx,0,(i+0.5)*Zr], trunc(r,18), {a:(hz||left)?'start':'end', dx:(hz||left)?10:-10, dy:4, ax:'r', w:600})); }
+    const st=S.opts.st||{}; if (spec.refVals && st.ref && st.ref!=='none') { const v=refValue3(st, spec.refVals); if (v!=null && v>=s.domain()[0] && v<=s.domain()[1]) { const w=val(v), col=st.refColor||(c.dark?'#FBBF24':'#E11D48');
+      const pts = hz ? [[w,0,0],[w,0,Z],[w,nC,Z]] : (left ? [[0,w,0],[0,w,Z],[nC,w,Z]] : [[nC,w,0],[nC,w,Z],[0,w,Z]]);
+      sc.refs.push({pts, col, dash:st.refDash===false?null:'6 4', lab:(st.refLabel||(st.ref==='value'?'':REFN[st.ref]+': '))+(st.refLabel?'':fmtVal(st,v)), labAt:hz?[w,nC,Z]:(left?[nC,w,Z]:[0,w,Z]), la:hz?'start':(left?'end':'start')}); } }
+    const st2=S.opts.st||{}; if (st2.axTitles!==false) { if (st2.yTitle) text3(sc, hz?[Lv/2,0,0]:[left?0:nC, Lv, 0], st2.yTitle, hz?{a:'middle', dy:36, cls:'t', el:'axtitle', f:c.muted, w:600}:{a:left?'end':'start', dy:-14, cls:'t', el:'axtitle', f:c.muted, w:600});
+      if (st2.xTitle) text3(sc, hz?[0,nC,0]:[nC/2,0,0], st2.xTitle, hz?{a:'end', dy:-14, cls:'t', el:'axtitle', f:c.muted, w:600}:{a:'middle', dy:40, cls:'t', el:'axtitle', f:c.muted, w:600}); } }
+  draw3(sc); return sc; }
+
+R3.barV = (c, rid='barV')=>{ const d=pairs(c); if (!d.length) return emptyMsg(c); const lo=Math.min(0,d3.min(d,p=>p.v)), hi=d3.max(d,p=>p.v)||1;
+  return bars3(c, rid, {cats:d.map(p=>p.k), dom:[lo,hi], refVals:d.map(p=>p.v), boxes:d.map((p,i)=>({ci:i, v1:p.v, col:col3(c,p.k,i), tip:`${p.k}: ${fmt(p.v)}`, label:fmt(p.v)}))}); };
+R3.barH = c=>{ const d=pairs(c); if (!d.length) return emptyMsg(c); const lo=Math.min(0,d3.min(d,p=>p.v)), hi=d3.max(d,p=>p.v)||1;
+  return bars3(c, 'barH', {hz:true, cats:d.map(p=>p.k), dom:[lo,hi], refVals:d.map(p=>p.v), boxes:d.map((p,i)=>({ci:i, v1:p.v, col:col3(c,p.k,i), tip:`${p.k}: ${fmt(p.v)}`, label:fmt(p.v)}))}); };
+R3.groupedBar = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=rowsBy(c,'x'), cats=rs.map(r=>label(r[xk])), o=v3o('groupedBar');
+  const vals=rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), side=o.rows==='side', boxes=[];
+  rs.forEach((r,ci)=>ks.forEach((k,si)=>{ if (!isNum(r[k])) return; boxes.push({ci, ri:side?0:si, si:side?si:0, ns:side?ks.length:1, v1:r[k], col:col3(c,cats[ci],ci,si), tip:`${cats[ci]} · ${k}: ${fmt(r[k])}`, label:fmt(r[k])}); }));
+  return bars3(c, 'groupedBar', {cats, rows:side?null:ks, dom:[Math.min(0,d3.min(vals)), d3.max(vals)||1], refVals:vals, boxes}); };
+R3.stackedBar = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=rowsBy(c,'x'), cats=rs.map(r=>label(r[xk]));
+  const stk=d3.stack().keys(ks).value((r,k)=>Math.max(0,r[k]||0))(rs), boxes=[];
+  stk.forEach((layer,si)=>layer.forEach((d,ci)=>{ if (d[1]-d[0]<=0) return; boxes.push({ci, v0:d[0], v1:d[1], col:col3(c,cats[ci],ci,si), tip:`${cats[ci]} · ${layer.key}: ${fmt(d.data[layer.key])}`, label: si===stk.length-1 ? fmt(d[1]) : null}); }));
+  const top=stk[stk.length-1]; return bars3(c, 'stackedBar', {cats, dom:[0, d3.max(top,d=>d[1])||1], refVals:top.map(d=>d[1]), boxes}); };
+R3.heatmap = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=rowsBy(c,'x'), cats=rs.map(r=>label(r[xk]));
+  const vals=rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), ext=d3.extent(vals); c.scaleExt=ext; const t=v=>(v-ext[0])/((ext[1]-ext[0])||1); const boxes=[];
+  rs.forEach((r,ci)=>ks.forEach((k,si)=>{ if (!isNum(r[k])) return; boxes.push({ci, ri:si, v1:r[k], col:over3(c,cats[ci])||c.seq(t(r[k])), tip:`${cats[ci]} · ${k}: ${fmt(r[k])}`, label:fmt(r[k])}); }));
+  return bars3(c, 'heatmap', {cats, rows:ks, dom:[Math.min(0,ext[0]), ext[1]||1], refVals:vals, boxes}); };
+
+/* ---------- pie & donut ---------- */
+function pie3(c, rid, inner, mode){ const d=pairs(c).filter(p=>p.v>0); if (!d.length) return emptyMsg(c);
+  const sc=Scene3(c, rid), o=sc.o, h=clamp3(o.height,.02,1), ri=inner, tot=d3.sum(d,p=>p.v), mx=d3.max(d,p=>p.v);
+  let arcs; if (mode==='polar') { const a=2*Math.PI/d.length; arcs=d.map((p,i)=>({data:p, startAngle:i*a, endAngle:(i+1)*a, R:Math.max(.08, Math.sqrt(p.v/mx))})); }
+  else { const pie=d3.pie().value(p=>p.v).sort(null); if (mode==='semi') pie.startAngle(1.5*Math.PI).endAngle(0.5*Math.PI); arcs=pie(d).map(a=>{ const s0=Math.min(a.startAngle,a.endAngle), s1=Math.max(a.startAngle,a.endAngle); return Object.assign(a,{startAngle:s0, endAngle:s1, R:1}); }); }
+  arcs.forEach((a,i)=>{ const R=a.R; const col=col3(c,a.data.k,i,i), mid=(a.startAngle+a.endAngle)/2, ex=o.explode*R, off=[Math.sin(mid)*ex, 0, Math.cos(mid)*ex];
+    const P=(t,r,y)=>[off[0]+r*Math.sin(t), y, off[2]+r*Math.cos(t)]; const n=Math.max(2, Math.ceil((a.endAngle-a.startAngle)/(2*Math.PI)*72)), ts=d3.range(n+1).map(j=>a.startAngle+(a.endAngle-a.startAngle)*j/n);
+    const it=item3(sc, {tip:`${a.data.k}: ${fmt(a.data.v)} (${pct(a.data.v/tot)})`, center:P(mid, (ri+R)/2+0.25, h/2)});
+    const top = ts.map(t=>P(t,R,h)).concat(ri>0 ? ts.slice().reverse().map(t=>P(t,ri,h)) : [P(0,0,h)]);
+    face3(it, top, col, {n:[0,1,0], pri:2});
+    for (let j=0;j<n;j++){ const t0=ts[j], t1=ts[j+1], tm=(t0+t1)/2; face3(it, [P(t0,R,0),P(t1,R,0),P(t1,R,h),P(t0,R,h)], col, {n:[Math.sin(tm),0,Math.cos(tm)], smooth:true});
+      if (ri>0) face3(it, [P(t1,ri,0),P(t0,ri,0),P(t0,ri,h),P(t1,ri,h)], col, {n:[-Math.sin(tm),0,-Math.cos(tm)], smooth:true}); }
+    if (ex>0 || arcs.length===1 && ri===0) { const t0=a.startAngle, t1=a.endAngle;
+      face3(it, [P(t0,ri,0),P(t0,R,0),P(t0,R,h),P(t0,ri,h)], col, {n:[-Math.cos(t0),0,Math.sin(t0)], pri:1}); face3(it, [P(t1,ri,0),P(t1,R,0),P(t1,R,h),P(t1,ri,h)], col, {n:[Math.cos(t1),0,-Math.sin(t1)], pri:1}); }
+    if (mode==='polar' && c.labels && !c.mini) { text3(sc, P(mid, R, h), fmt(a.data.v), {dy:-10, cls:'label', w:600}); return; }
+    if (c.labels && !c.mini && a.endAngle-a.startAngle>0.32) { const lr=ri>0?(ri+R)/2:R*0.64, q=P(mid,lr,h), tc=textOn(shade3(col,[0,1,0],o,light3(o)));
+      text3(sc, q, trunc(a.data.k,14), {dy:-7, cls:'label', f:tc, w:500}); text3(sc, q, pct(a.data.v/tot), {dy:8, cls:'label', f:tc, w:400}); } });
+  if (inner && !c.mini && inner>0.4) { text3(sc, [0,h,0], fmt(tot), {dy:-6, cls:'label', fs:Math.round(c.fs*1.5), w:700}); text3(sc, [0,h,0], 'Total', {dy:12, cls:'label', f:c.muted, w:400}); }
+  draw3(sc); return sc; }
+R3.pie = c=>pie3(c,'pie',0); R3.donut = c=>pie3(c,'donut',.55); R3.semiDonut = c=>pie3(c,'semiDonut',.55,'semi'); R3.polarArea = c=>pie3(c,'polarArea',0,'polar');
+
+/* ---------- ribbons: line & area ---------- */
+function ribbon3(c, rid, area, mode){ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=sortedRows(c,xk); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c, rid), o=sc.o, n=rs.length, Lx=clamp3(n*0.42,4.2,9), Hy=Lx*0.48, t=c.types[xk];
+  let xs, xticks; if (t==='date'||t==='number') { const sx=(t==='date'?d3.scaleUtc:d3.scaleLinear)(d3.extent(rs,r=>r[xk]),[0,Lx]); xs=r=>sx(r[xk]); xticks=sx.ticks(Math.max(2,Math.min(8,Math.floor(Lx)))).map(v=>({p:sx(v), s:t==='date'?sx.tickFormat()(v):fmt(v)})); }
+  else { xs=r=>rs.indexOf(r)/(Math.max(1,n-1))*Lx; const step=Math.ceil(n/8); xticks=rs.filter((r,i)=>i%step===0).map(r=>({p:xs(r), s:trunc(label(r[xk]),10)})); }
+  const STK={stack:1, stream:1, sstream:1, stackOrd:1}; let stack=null;
+  if (STK[mode]) { const sk=d3.stack().keys(ks).value((r,k)=>Math.max(0,r[k]||0)); if (mode==='stream') sk.offset(d3.stackOffsetWiggle).order(d3.stackOrderInsideOut); if (mode==='sstream') sk.offset(d3.stackOffsetSilhouette).order(d3.stackOrderAscending); if (mode==='stackOrd') sk.order(d3.stackOrderDescending); stack=sk(rs); }
+  const vals = stack ? [d3.min(stack,l=>d3.min(l,d=>d[0])), d3.max(stack,l=>d3.max(l,d=>d[1]))] : rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), lo=d3.min(vals), hi=d3.max(vals);
+  const shapeP = pts=>{ if (mode==='step') return pts.flatMap((p,j)=>j<pts.length-1 ? [p, [pts[j+1][0], p[1]]] : [p]);
+    if (mode==='spline' && pts.length>2) { const out=[]; for (let j=0;j<pts.length-1;j++){ const p0=pts[Math.max(0,j-1)], p1=pts[j], p2=pts[j+1], p3=pts[Math.min(pts.length-1,j+2)];
+      for (let t=0;t<1;t+=1/8){ const t2=t*t, t3=t2*t, f=(a,b,c2,d2)=>0.5*((2*b)+(-a+c2)*t+(2*a-5*b+4*c2-d2)*t2+(-a+3*b-3*c2+d2)*t3); out.push([f(p0[0],p1[0],p2[0],p3[0]), f(p0[1],p1[1],p2[1],p3[1])]); } } out.push(pts[pts.length-1]); return out; }
+    return pts; };
+  const s=vscale3(stack?[lo,hi]:[area?Math.min(0,lo):lo-(hi-lo)*0.05, hi], false), val=v=>(1-s(v))*Hy, y0=val(Math.max(s.domain()[0], Math.min(0, s.domain()[1])));
+  const Zr=clamp3(o.depth,.15,4)*(stack?1.6:0.9), w=Zr*(1-clamp3(o.gap,0,.9)*0.8);
+  const nR = stack ? 1 : ks.length;
+  ks.forEach((k,si)=>{ const col=col3(c,null,si,si), z0=(stack?0.5:(si+0.5))*Zr-w/2, z1=z0+w; let pts, base=null;
+    if (stack) { pts=stack[si].map((d2,j)=>[xs(rs[j]), val(d2[1])]); base=stack[si].map((d2,j)=>[xs(rs[j]), val(d2[0])]); } else pts=shapeP(rs.filter(r=>isNum(r[k])).map(r=>[xs(r), val(r[k])]));
+    if (pts.length<2) return; const it=item3(sc, {tip:k, center:[Lx/2, Hy/3, (z0+z1)/2], bias:stack?-si*1e-3:0});
+    if (stack) { face3(it, [...base.map(p=>[p[0],p[1],z0]).reverse(), ...pts.map(p=>[p[0],p[1],z0])], col, {n:[0,0,-1]});
+      for (let j=0;j<pts.length-1;j++){ const q=[[pts[j][0],pts[j][1],z0],[pts[j+1][0],pts[j+1][1],z0],[pts[j+1][0],pts[j+1][1],z1],[pts[j][0],pts[j][1],z1]]; let nn=newell(q); if (nn[1]<0) nn=nn.map(v=>-v); face3(it, q, col, {n:nn}); }
+      const f=pts[0], l=pts[pts.length-1], fb=base[0], lb=base[base.length-1]; face3(it, [[fb[0],fb[1],z0],[fb[0],fb[1],z1],[f[0],f[1],z1],[f[0],f[1],z0]], col, {n:[-1,0,0]}); face3(it, [[lb[0],lb[1],z0],[lb[0],lb[1],z1],[l[0],l[1],z1],[l[0],l[1],z0]], col, {n:[1,0,0]});
+      if (c.labels && !c.mini && si===ks.length-1) text3(sc, [l[0],l[1],z0], fmt(stack[si][stack[si].length-1][1]), {a:'start', dx:6, dy:-6, cls:'label', w:600}); return; }
+    for (let j=0;j<pts.length-1;j++){ const [xa,ya]=pts[j], [xb,yb]=pts[j+1]; const q=[[xa,ya,z0],[xb,yb,z0],[xb,yb,z1],[xa,ya,z1]]; let nn=newell(q); if (nn[1]<0) nn=nn.map(v=>-v); face3(it, q, col, {n:nn, two:!area}); }
+    if (area) { face3(it, [[pts[0][0],y0,z0], ...pts.map(p=>[p[0],p[1],z0]), [pts[pts.length-1][0],y0,z0]], col, {n:[0,0,-1]});
+      face3(it, [[pts[0][0],y0,z1], ...pts.map(p=>[p[0],p[1],z1]), [pts[pts.length-1][0],y0,z1]].reverse(), col, {n:[0,0,1]});
+      const f=pts[0], l=pts[pts.length-1]; face3(it, [[f[0],y0,z0],[f[0],y0,z1],[f[0],f[1],z1],[f[0],f[1],z0]], col, {n:[-1,0,0]}); face3(it, [[l[0],y0,z0],[l[0],y0,z1],[l[0],l[1],z1],[l[0],l[1],z0]], col, {n:[1,0,0]}); }
+    else if (!c.mini) for (let j=0;j<pts.length-1;j++) it.lines.push({a:[pts[j][0],pts[j][1],z0], b:[pts[j+1][0],pts[j+1][1],z0], col:d3.interpolateRgb(col,'#000')(0.25), w:1.2});
+    if (c.labels && !c.mini) { const L=pts[pts.length-1]; text3(sc, [L[0],L[1],z0], fmt(rs.filter(r=>isNum(r[k])).slice(-1)[0][k]), {a:'start', dx:6, dy:-6, cls:'label', f:col, w:600}); } });
+  const tv=ticks3(s); walls3(sc, {x:[0,Lx], y:[0,Hy], z:[0,nR*Zr]}, [{axis:'y', vals:tv.map(val)}]);
+  if (!c.mini) { const left=o.yaw>=0, Z=nR*Zr; tv.forEach(t2=>text3(sc, [left?0:Lx, val(t2), Math.abs(o.yaw)<4?Z:0], (c.__tf||fmt)(t2), {a:left?'end':'start', dx:left?-8:8, ax:'v'}));
+    xticks.forEach(x=>text3(sc, [x.p,0,0], x.s, {a:'middle', dy:15, ax:'c'}));
+    if (nR>1) ks.forEach((k,i)=>text3(sc, [left?Lx:0,0,(i+0.5)*Zr], trunc(k,18), {a:left?'start':'end', dx:left?10:-10, dy:4, ax:'r', w:600})); }
+  draw3(sc); return sc; }
+R3.line = c=>ribbon3(c,'line',false); R3.area = c=>ribbon3(c,'area',true); R3.spline = c=>ribbon3(c,'spline',false,'spline'); R3.stepped = c=>ribbon3(c,'stepped',false,'step');
+R3.layeredArea = c=>ribbon3(c,'layeredArea',true); R3.stackedArea = c=>ribbon3(c,'stackedArea',true,'stack');
+
+/* ---------- scatter & bubble: a depth column adds the third axis ---------- */
+function zcol3(c){ const {x,y,s}=c.e, st=c.mini?{}:(S.opts.st||{}), nums=Object.entries(c.types).filter(([k,t])=>t==='number' && ![x,y,s].includes(k)).map(([k])=>k);
+  return (st.v3Z && nums.includes(st.v3Z)) ? st.v3Z : nums[0] || null; }
+function pts3(c, rid, sized, conn){ const {x,y,s,g:gk,l}=c.e; if (!x||!y) return emptyMsg(c); const rs=c.rows.filter(r=>isNum(r[x])&&isNum(r[y])); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c, rid), o=sc.o, zk=conn?null:zcol3(c), groups=gk?uniq(rs.map(r=>label(r[gk]))):[];
+  const zv = r => conn ? rs.indexOf(r) : zk ? r[zk] : gk ? groups.indexOf(label(r[gk])) : 0;
+  const L=6, Hy=4.2, Dz=L*0.8*clamp3(o.depth,.15,4);
+  const xs=d3.scaleLinear(d3.extent(rs,r=>r[x]),[0,1]).nice(), ys=vscale3(d3.extent(rs,r=>r[y]), false), zs=d3.scaleLinear(d3.extent(rs,zv).map((v,i,a)=>a[0]===a[1]?v+(i?1:-1):v),[0,1]).nice();
+  const X=v=>xs(v)*L, Y=v=>(1-ys(v))*Hy, Z=v=>zs(v)*Dz;
+  const rr = sized&&s ? d3.scaleSqrt([0,d3.max(rs,r=>r[s])||1],[0,0.55]) : ()=>c.mini?0.2:0.13;
+  rs.forEach(r=>{ const gi=gk?groups.indexOf(label(r[gk])):0, col=col3(c, gk?label(r[gk]):null, gi, gi), p=[X(r[x]), Y(r[y]), Z(zv(r))], rad=sized&&s?Math.max(0.03,rr(Math.max(0,r[s]))):rr();
+    const it=item3(sc, {tip:`${l?label(r[l])+' — ':''}${x}: ${fmt(r[x])}, ${y}: ${fmt(r[y])}${zk?`, ${zk}: ${fmt(r[zk])}`:''}${sized&&s?', '+s+': '+fmt(r[s]):''}`, center:p});
+    if (conn) { const i=rs.indexOf(r), end=i===0||i===rs.length-1; it.spheres[0]; if (i>0) { const q=rs[i-1]; tube3(it, [X(q[x]),Y(q[y]),Z(i-1)], p, c.mini?.05:.035, col3(c,null,0,0), 8); } it.spheres.push({p, r:end?rad*1.6:rad, col:i===rs.length-1?c.col(1):col}); if (end && l && !c.mini) text3(sc, p, trunc(label(r[l]),12), {dy:-14, cls:'label', f:c.muted, w:600}); }
+    else { if (o.drop && !c.mini) it.lines.push({a:p, b:[p[0],0,p[2]], col, w:1, dash:'2 3', op:.55}); it.spheres.push({p, r:rad, col}); }
+    if (l && c.labels && !c.mini && rs.length<=30) text3(sc, p, trunc(label(r[l]),14), {dy:-12, cls:'label', f:c.muted, w:500}); });
+  const ty=ticks3(ys), tz=zs.ticks(4);
+  walls3(sc, {x:[0,L], y:[0,Hy], z:[0,Dz]}, [{axis:'x', vals:xs.ticks(5).map(X)}, {axis:'y', vals:ty.map(Y)}, {axis:'z', vals:tz.map(Z)}]);
+  if (!c.mini) { const left=o.yaw>=0, st=S.opts.st||{};
+    xs.ticks(5).forEach(t=>text3(sc, [X(t),0,0], fmt(t), {a:'middle', dy:15, ax:'c'})); ty.forEach(t=>text3(sc, [left?0:L, Y(t), 0], fmt(t), {a:left?'end':'start', dx:left?-8:8, ax:'v'}));
+    tz.forEach(t=>text3(sc, [left?L:0, 0, Z(t)], fmt(t), {a:left?'start':'end', dx:left?8:-8, dy:6, ax:'z'}));
+    if (st.axTitles!==false) { text3(sc, [L/2,0,0], st.xTitle||x, {a:'middle', dy:36, cls:'t', el:'axtitle', f:c.muted, w:600}); text3(sc, [left?0:L, Hy, 0], st.yTitle||y, {a:left?'end':'start', dy:-14, cls:'t', el:'axtitle', f:c.muted, w:600});
+      text3(sc, [left?L:0, 0, Dz], conn?(l?'Order ('+l+')':'Order'):(zk||gk||''), {a:left?'start':'end', dx:left?10:-10, dy:22, cls:'t', el:'axtitle', f:c.muted, w:600}); } }
+  draw3(sc); return sc; }
+R3.scatter = c=>pts3(c,'scatter',false); R3.bubble = c=>pts3(c,'bubble',true);
+
+/* ---------- more bar-family charts ---------- */
+const cvBoxes = (c, d) => d.map((p,i)=>({ci:i, v1:p.v, col:col3(c,p.k,i), tip:`${p.k}: ${fmt(p.v)}`, label:fmt(p.v)}));
+R3.triangleBar = c=>R3.barV(c,'triangleBar');
+R3.lollipop = c=>{ const d=pairs(c); if (!d.length) return emptyMsg(c); return bars3(c,'lollipop',{lolli:true, cats:d.map(p=>p.k), dom:[Math.min(0,d3.min(d,p=>p.v)), d3.max(d,p=>p.v)||1], refVals:d.map(p=>p.v), boxes:cvBoxes(c,d)}); };
+R3.dotChart = c=>{ const d=pairs(c); if (!d.length) return emptyMsg(c); return bars3(c,'dotChart',{lolli:true, hz:true, cats:d.map(p=>p.k), dom:[Math.min(0,d3.min(d,p=>p.v)), d3.max(d,p=>p.v)||1], refVals:d.map(p=>p.v), boxes:cvBoxes(c,d)}); };
+R3.histogram = c=>{ const gs=groupsOf(c); if (!gs.length||!gs[0].v.length) return emptyMsg(c); const all=gs.flatMap(g=>g.v), x=d3.scaleLinear(d3.extent(all),[0,1]).nice();
+  const bin=d3.bin().domain(x.domain()).thresholds(x.ticks(c.mini?10:16)), bs=gs.map(g=>bin(g.v)), cats=bs[0].map(b=>fmt(b.x0)), boxes=[];
+  bs.forEach((b,ri)=>b.forEach((bb,ci)=>{ if (!bb.length) return; boxes.push({ci, ri, v1:bb.length, col:col3(c,null,ri,ri), tip:`${gs.length>1?gs[ri].k+' · ':''}${fmt(bb.x0)}–${fmt(bb.x1)}: ${bb.length}`, label:String(bb.length)}); }));
+  return bars3(c,'histogram',{cats, rows:gs.length>1?gs.map(g=>g.k):null, dom:[0, d3.max(boxes,b=>b.v1)||1], refVals:boxes.map(b=>b.v1), boxes}); };
+R3.waterfall = c=>{ const d=pairs(Object.assign({},c,{sort:'none'})); if (!d.length) return emptyMsg(c); let acc=0;
+  const bars=d.map((p,i)=>{ const s0=acc; acc+=p.v; return {k:p.k, v:p.v, s:s0, e:acc, kind:i===0?'total':p.v>=0?'up':'down'}; }); bars.push({k:'Total', v:acc, s:0, e:acc, kind:'total'});
+  const col={total:c.col(0), up:UP, down:DOWN};
+  return bars3(c,'waterfall',{cats:bars.map(b=>b.k), dom:[Math.min(0,d3.min(bars,b=>Math.min(b.s,b.e))), d3.max(bars,b=>Math.max(b.s,b.e))||1], refVals:bars.map(b=>b.e),
+    boxes:bars.map((b,i)=>({ci:i, v0:b.s, v1:b.e, col:over3(c,b.k)||col[b.kind], tip:`${b.k}: ${b.v>0&&b.kind!=='total'?'+':''}${fmt(b.v)}`, label:(b.v>0&&b.kind!=='total'?'+':'')+fmt(b.v)}))}); };
+R3.columnRange = c=>{ const d=rangeRows(c); if (!d.length) return emptyMsg(c); const sq=d3.scaleLinear(d3.extent(d,p=>(p.lo+p.hi)/2),[0,1]);
+  return bars3(c,'columnRange',{cats:d.map(p=>p.k), dom:[d3.min(d,p=>p.lo), d3.max(d,p=>p.hi)], refVals:d.flatMap(p=>[p.lo,p.hi]),
+    boxes:d.map((p,i)=>({ci:i, v0:p.lo, v1:p.hi, col:over3(c,p.k)||c.seq(0.25+0.75*sq((p.lo+p.hi)/2)), tip:`${p.k}: ${fmt(p.lo)} – ${fmt(p.hi)}`, label:`${fmt(p.lo)}–${fmt(p.hi)}`}))}); };
+
+/* ---------- bubble matrix: spheres on a floor grid ---------- */
+R3.bubbleHeatmap = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=rowsBy(c,'x'), cats=rs.map(r=>label(r[xk]));
+  const sc=Scene3(c,'bubbleHeatmap'), o=sc.o, nC=cats.length, Zr=clamp3(o.depth,.15,4), mx=d3.max(rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)))||1;
+  rs.forEach((r,ci)=>ks.forEach((k,si)=>{ const v=r[k]; if (!isNum(v)||v<=0) return; const rad=Math.sqrt(v/mx)*0.46*Math.min(1,Zr)*o.ball, p=[ci+0.5, rad, (si+0.5)*Zr];
+    const it=item3(sc,{tip:`${cats[ci]} · ${k}: ${fmt(v)}`, center:p}); it.spheres.push({p, r:rad, col:over3(c,cats[ci])||c.col(0)});
+    if (c.labels && !c.mini && rad>0.18) text3(sc, p, fmt(v), {cls:'label', f:'#fff', w:600}); }));
+  walls3(sc, {x:[0,nC], y:[0,0.95*Math.min(1,Zr)*o.ball], z:[0,ks.length*Zr]}, [{axis:'x', vals:d3.range(1,nC)}, {axis:'z', vals:d3.range(1,ks.length).map(i=>i*Zr)}]); sc.floorOnly=true;
+  if (!c.mini) { const left=o.yaw>=0; cats.forEach((k,i)=>text3(sc,[i+0.5,0,0],trunc(k,12),{a:'middle', dy:15, ax:'c'})); ks.forEach((k,i)=>text3(sc,[left?nC:0,0,(i+0.5)*Zr],trunc(k,16),{a:left?'start':'end', dx:left?10:-10, ax:'r', w:600})); }
+  draw3(sc); return sc; };
+
+/* ---------- blocks on a floor: treemap, waffle, proportional cubes & spheres ---------- */
+R3.treemap = c=>{ const hh=hier(c); if (!hh||!hh.value) return emptyMsg(c); const sc=Scene3(c,'treemap'), o=sc.o, Wt=10, Dt=7, Hm=Wt*0.32*clamp3(o.lift,0,3);
+  d3.treemap().size([Wt,Dt]).paddingInner(Wt*0.012+o.gap*0.25).paddingTop(0)(hh); const tops=hh.children||[], leaves=hh.leaves(), mx=d3.max(leaves,n=>n.value)||1;
+  leaves.forEach((n,i)=>{ const col=over3(c,n.data.name) || (hh.height>1 ? d3.color(topColour(c,n,tops)).brighter((n.parent.children.indexOf(n)%4)*0.25).formatHex() : c.col(i));
+    const ht=Math.max(0.06, n.value/mx*Hm), w=n.x1-n.x0, d=n.y1-n.y0; if (w<=0||d<=0) return; const cu=(n.x0+n.x1)/2, cw=Dt-(n.y0+n.y1)/2;
+    const it=item3(sc,{tip:`${n.data.name}: ${fmt(n.value)}`, center:[cu, ht/2, cw]}); solid3(it,'box',(a,u,w2)=>[u,a,w2],0,ht,cu,cw,w/2,d/2,col);
+    if (!c.mini && w>Wt*0.09 && d>Dt*0.08) { text3(sc,[cu,ht,cw],trunc(n.data.name,Math.max(6,Math.floor(w*2.2))),{dy:c.labels?-7:0, cls:'label', f:textOn(col), w:600}); if (c.labels) text3(sc,[cu,ht,cw],fmt(n.value),{dy:8, cls:'label', f:textOn(col), w:400}); } });
+  walls3(sc,{x:[0,Wt], y:[0,Hm||1], z:[0,Dt]}); sc.floorOnly=true; draw3(sc); return sc; };
+R3.waffle = c=>{ const d=pairs(c).filter(p=>p.v>0); if (!d.length) return emptyMsg(c); const counts=(d.length===1&&d[0].v<=100)?[Math.round(d[0].v)]:largestRemainder(d,100);
+  const sc=Scene3(c,'waffle'), o=sc.o, cells=[]; counts.forEach((n,i)=>{ for (let j=0;j<n;j++) cells.push(i); }); while (cells.length<100) cells.push(-1);
+  const s=1-clamp3(o.gap,0,.8), H=0.9*clamp3(o.lift,0.05,3);
+  cells.forEach((k,i)=>{ const cx=i%10+0.5, cz=Math.floor(i/10)+0.5, col=k<0?c.gridc:col3(c,d[k].k,k,k), ht=k<0?0.08:H;
+    const it=item3(sc,{tip:k<0?'':`${d[k].k}: ${counts[k]}%`, center:[cx,ht/2,cz]}); solid3(it, o.shape==='cyl'?'cyl':'box', (a,u,w)=>[u,a,w], 0, ht, cx, cz, s/2, s/2, col); });
+  walls3(sc,{x:[0,10], y:[0,H], z:[0,10]}); sc.floorOnly=true; draw3(sc); return sc; };
+function props3(c, rid, sphere, half){ const d=pairs(c).filter(p=>p.v>0).slice(0,12); if (!d.length) return emptyMsg(c); const sc=Scene3(c,rid), o=sc.o, mx=d3.max(d,p=>p.v), big=0.5;
+  let x=0; const gap=0.25+o.gap*0.8;
+  d.forEach((p,i)=>{ const r=Math.sqrt(p.v/mx)*big, col=col3(c,p.k,i,i); x+= (i?gap:0)+r; const cx=x;
+    const it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:[cx,r,0]});
+    if (half) lathe3(it, cx, 0, d3.range(0,13).map(j=>{ const t=j/12*Math.PI/2; return [Math.sin(t)*r, Math.cos(t)*r]; }), col); else if (sphere) it.spheres.push({p:[cx,r,0], r, col}); else solid3(it,'box',(a,u,w)=>[u,a,w],0,2*r,cx,0,r,r,col);
+    if (!c.mini) { text3(sc,[cx,0,-r],trunc(p.k,14),{dy:16, ax:'c', w:500}); if (c.labels) text3(sc,[cx,0,-r],fmt(p.v),{dy:32, cls:'label', f:c.muted, w:400}); } x+=r; });
+  walls3(sc,{x:[-0.3,x+0.3], y:[0,2*big], z:[-big-0.2,big+0.2]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.propSquare = c=>props3(c,'propSquare',false); R3.propCircle = c=>props3(c,'propCircle',true); R3.propHalf = c=>props3(c,'propHalf',false,true);
+
+/* ---------- funnel & pyramid as stacked 3D layers ---------- */
+function layers3(c, rid, pyr){ const d=pairs(c).filter(p=>p.v>0); if (!d.length) return emptyMsg(c); const sc=Scene3(c,rid), o=sc.o, n=d.length, gap=clamp3(o.gap,0,.6), round=o.shape==='cyl', sides=round?28:4;
+  const H=pyr?4.2:Math.max(3.2, n*0.75), tot=d3.sum(d,p=>p.v), mx=d3.max(d,p=>p.v), Rb=pyr?2.2:1.8; let rightX=0;
+  if (pyr) { let acc=0; [...d].reverse().forEach((p,ri)=>{ const i=n-1-ri, y0=acc/tot*H, y1=(acc+p.v)/tot*H; acc+=p.v; const g=(y1-y0)*gap*0.5, r=y=>Rb*(1-y/H);
+      const it=item3(sc,{tip:`${p.k}: ${fmt(p.v)} (${pct(p.v/tot)})`, center:[0,(y0+y1)/2,0]}); frustum3(it,(a,u,w)=>[u,a,w],y0+g,y1-g,0,0,r(y0+g),r(y1-g),col3(c,p.k,i,i),sides,round?0:Math.PI/4);
+      if (!c.mini) text3(sc,[Rb*1.05,(y0+y1)/2,0],`${trunc(p.k,18)}${c.labels?' · '+pct(p.v/tot):''}`,{a:'start', dx:10, ax:'c', w:500}); }); rightX=Rb; }
+  else { const sh=H/n; d.forEach((p,i)=>{ const yTop=H-i*sh, yBot=yTop-sh, g=sh*gap*0.5, r0=Rb*p.v/mx, r1=Rb*(d[i+1]?d[i+1].v:p.v*0.7)/mx;
+      const it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}${i?` (${pct(p.v/d[0].v)} of the first)`:''}`, center:[0,(yTop+yBot)/2,0]}); frustum3(it,(a,u,w)=>[u,a,w],yBot+g,yTop-g,0,0,Math.max(.03,r1),Math.max(.03,r0),col3(c,p.k,i,i),sides,round?0:Math.PI/4);
+      if (!c.mini) text3(sc,[Rb*1.05,(yTop+yBot)/2,0],`${trunc(p.k,18)}${c.labels?'  '+fmt(p.v)+(i?' ('+pct(p.v/d[0].v)+')':''):''}`,{a:'start', dx:10, ax:'c', w:500}); }); rightX=Rb; }
+  walls3(sc,{x:[-Rb*1.1,rightX*1.1], y:[0,H], z:[-Rb*1.1,Rb*1.1]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.funnel = c=>layers3(c,'funnel',false); R3.pyramidChart = c=>layers3(c,'pyramidChart',true);
+
+/* ---------- hexbin as hexagonal columns: x along the floor, y into the picture, height = count ---------- */
+R3.hexbin = c=>{ const {x,y}=c.e; if (!x||!y) return emptyMsg(c); const rs=c.rows.filter(r=>isNum(r[x])&&isNum(r[y])); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c,'hexbin'), o=sc.o, L=8, D=6, xs=d3.scaleLinear(d3.extent(rs,r=>r[x]),[0,L]).nice(), zs=d3.scaleLinear(d3.extent(rs,r=>r[y]),[0,D]).nice(), rr=L/(c.mini?9:15);
+  const bins=hexbinPts(rs.map(q=>[xs(q[x]), zs(q[y])]), rr), mx=d3.max(bins,b=>b.n)||1, Hm=L*0.42*clamp3(o.lift,.05,3); c.scaleExt=[1,mx]; c.scaleLo=0.15;
+  const cnt=d3.scaleLinear([0,mx],[1,0]); d3.axisLeft(cnt);
+  bins.forEach(b=>{ const ht=Math.max(0.05, b.n/mx*Hm), col=c.seq(0.15+0.85*b.n/mx), it=item3(sc,{tip:`${b.n} point${b.n>1?'s':''}`, center:[b.x,ht/2,b.y]});
+    frustum3(it,(a,u,w)=>[u,a,w],0,ht,b.x,b.y,rr*(1-clamp3(o.gap,0,.6)),rr*(1-clamp3(o.gap,0,.6)),col,6,Math.PI/6); });
+  const ct=cnt.ticks(4).filter(t=>t>0); walls3(sc,{x:[0,L], y:[0,Hm], z:[0,D]}, [{axis:'y', vals:ct.map(t=>t/mx*Hm)}, {axis:'x', vals:xs.ticks(5).map(xs)}, {axis:'z', vals:zs.ticks(5).map(zs)}]);
+  if (!c.mini) { const left=o.yaw>=0, st=S.opts.st||{}; xs.ticks(5).forEach(t=>text3(sc,[xs(t),0,0],fmt(t),{dy:15, ax:'c'})); zs.ticks(5).forEach(t=>text3(sc,[left?L:0,0,zs(t)],fmt(t),{a:left?'start':'end', dx:left?8:-8, dy:6, ax:'z'}));
+    ct.forEach(t=>text3(sc,[left?0:L, t/mx*Hm, 0],fmt(t),{a:left?'end':'start', dx:left?-8:8, ax:'v'}));
+    if (st.axTitles!==false) { text3(sc,[L/2,0,0],st.xTitle||x,{dy:36, cls:'t', el:'axtitle', f:c.muted, w:600}); text3(sc,[left?L:0,0,D],st.yTitle||y,{a:left?'start':'end', dx:left?10:-10, dy:22, cls:'t', el:'axtitle', f:c.muted, w:600}); text3(sc,[left?0:L,Hm,0],'Count',{a:left?'end':'start', dy:-14, cls:'t', el:'axtitle', f:c.muted, w:600}); } }
+  draw3(sc); return sc; };
+
+/* ---------- helpers: tubes, rings (annular sectors), solids of revolution ---------- */
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+function tube3(it, p0, p1, r, col, n=8, caps=true){ const d=V3.sub(p1,p0), L=Math.hypot(d[0],d[1],d[2]); if (L<1e-6) return; const a=d.map(v=>v/L), t=Math.abs(a[1])<0.9?[0,1,0]:[1,0,0], e1=V3.norm(cross3(a,t)), e2=cross3(a,e1);
+  const M=(s,u,w)=>[0,1,2].map(i=>p0[i]+a[i]*s+e1[i]*u+e2[i]*w); frustum3(it, M, 0, L, 0, 0, r, r, col, n, 0, caps); }
+function ring3(it, r0, r1, t0, t1, y0, y1, col, off=[0,0,0], o={}){ if (y1-y0<1e-6 || r1-r0<1e-6) return; const full=t1-t0>=2*Math.PI-1e-6, n=Math.max(2, Math.ceil((t1-t0)/(2*Math.PI)*(o.seg||72))), ts=d3.range(n+1).map(j=>t0+(t1-t0)*j/n);
+  const P=(t,r,y)=>[off[0]+r*Math.sin(t), y, off[2]+r*Math.cos(t)];
+  face3(it, ts.map(t=>P(t,r1,y1)).concat(r0>0 ? ts.slice().reverse().map(t=>P(t,r0,y1)) : [P(0,0,y1)]), col, {n:[0,1,0], pri:2});
+  for (let j=0;j<n;j++){ const a=ts[j], b=ts[j+1], m=(a+b)/2; face3(it, [P(a,r1,y0),P(b,r1,y0),P(b,r1,y1),P(a,r1,y1)], col, {n:[Math.sin(m),0,Math.cos(m)], smooth:true});
+    if (r0>0) face3(it, [P(b,r0,y0),P(a,r0,y0),P(a,r0,y1),P(b,r0,y1)], col, {n:[-Math.sin(m),0,-Math.cos(m)], smooth:true}); }
+  if (!full) { face3(it, [P(t0,r0,y0),P(t0,r1,y0),P(t0,r1,y1),P(t0,r0,y1)], col, {n:[-Math.cos(t0),0,Math.sin(t0)], pri:1}); face3(it, [P(t1,r0,y0),P(t1,r1,y0),P(t1,r1,y1),P(t1,r0,y1)], col, {n:[Math.cos(t1),0,-Math.sin(t1)], pri:1}); } }
+/* profile = [[y, radius], …] from bottom to top */
+function lathe3(it, cx, cz, prof, col, N=22){ const ring=(y,r)=>d3.range(N).map(j=>{ const t=j/N*2*Math.PI; return [cx+Math.cos(t)*r, y, cz+Math.sin(t)*r]; }), out=[cx, d3.mean(prof,p=>p[0]), cz], R=prof.map(([y,r])=>ring(y,Math.max(0,r)));
+  for (let i=0;i<prof.length-1;i++) for (let j=0;j<N;j++){ const k=(j+1)%N, q=[R[i][j],R[i][k],R[i+1][k],R[i+1][j]]; if (prof[i][1]<1e-6 && prof[i+1][1]<1e-6) continue; face3(it, prof[i][1]<1e-6 ? [q[0],q[2],q[3]] : prof[i+1][1]<1e-6 ? [q[0],q[1],q[2]] : q, col, {out, smooth:true}); }
+  if (prof[0][1]>1e-6) face3(it, R[0].slice().reverse(), col, {out}); const l=prof.length-1; if (prof[l][1]>1e-6) face3(it, R[l], col, {out}); }
+const lcg3 = () => d3.randomLcg(0.42);
+
+/* ---------- distributions: values up, groups along the floor ---------- */
+function vframe3(sc, cats, dom, opt={}){ const c=sc.c, o=sc.o, nC=cats.length, Lv=clamp3(nC*0.62+1.4,3,6.6), Zr=clamp3(o.depth,.15,4), Z=Zr;
+  const s=vscale3(dom,false), val=v=>(1-s(v))*Lv, tv=ticks3(s); walls3(sc,{x:[0,nC],y:[0,Lv],z:[0,Z]},[{axis:'y',vals:tv.map(val)}]);
+  if (!c.mini) { const left=o.yaw>=0, zs=Math.abs(o.yaw)<4?Z:0; tv.forEach(t=>text3(sc,[left?0:nC,val(t),zs],fmt(t),{a:left?'end':'start',dx:left?-8:8,ax:'v'}));
+    if (nC>1 || cats[0]!==opt.yTitle) cats.forEach((k,i)=>text3(sc,[i+.5,0,0],trunc(k,14),{dy:15,ax:'c'}));
+    const st=S.opts.st||{}; if (opt.yTitle && st.axTitles!==false) text3(sc,[left?0:nC,Lv,0],st.yTitle||opt.yTitle,{a:left?'end':'start',dy:-14,cls:'t',el:'axtitle',f:c.muted,w:600}); }
+  return {s, val, Lv, Zr, Z, nC}; }
+function distV3(c, rid, mode){ const gs=groupsOf(c); if (!gs.length||!gs[0].v.length) return emptyMsg(c); const all=gs.flatMap(g=>g.v), sc=Scene3(c,rid), o=sc.o;
+  const F=vframe3(sc, gs.map(g=>g.k), d3.extent(all), {yTitle:c.e.y}), zc=F.Zr/2, rnd=lcg3(), M=(a,u,w)=>[u,a,w];
+  const dens = mode==='violin' ? (()=>{ const xs=d3.ticks(...F.s.domain(), 48), bw=(F.s.domain()[1]-F.s.domain()[0])/14||1; const k=gs.map(g=>kde(g.v, xs, bw)); return {xs, k, mx:d3.max(k, a=>d3.max(a,p=>p[1]))||1}; })() : null;
+  gs.forEach((g,i)=>{ const col=col3(c,g.k,i,i), cx=i+.5, half=0.42*(1-clamp3(o.gap,0,.8)*0.6);
+    if (mode==='box') { const b=boxStats(g.v), hd=Math.min(half, F.Zr*0.42), sh=o.shape==='cyl'?'cyl':'box', it=item3(sc,{tip:`${g.k}: median ${fmt(b.q2)} · middle half ${fmt(b.q1)}–${fmt(b.q3)} · range ${fmt(b.lo)}–${fmt(b.hi)}`, center:[cx,F.val(b.q2),zc]});
+      solid3(it, sh, M, F.val(b.q1), F.val(b.q2), cx, zc, half, hd, col); solid3(it, sh, M, F.val(b.q2), F.val(b.q3), cx, zc, half, hd, d3.interpolateRgb(col,'#fff')(.38));
+      const wc=c.fg, tw=c.mini?.03:.022; tube3(it,[cx,F.val(b.lo),zc],[cx,F.val(b.q1),zc],tw,wc); tube3(it,[cx,F.val(b.q3),zc],[cx,F.val(b.hi),zc],tw,wc);
+      [b.lo,b.hi].forEach(v=>tube3(it,[cx-half*.45,F.val(v),zc],[cx+half*.45,F.val(v),zc],tw,wc)); if (!c.mini) b.out.forEach(v=>it.spheres.push({p:[cx,F.val(v),zc], r:.05, col}));
+      if (c.labels && !c.mini) text3(sc,[cx,F.val(b.q2),zc-hd],fmt(b.q2),{a:'start',dx:half*40+6,cls:'label'}); }
+    else if (mode==='violin') { const prof=dens.k[i].map(([x,d])=>[F.val(x), d/dens.mx*half]).filter((p,j,a)=>p[1]>half*0.01 || (a[j-1]&&a[j-1][1]>half*0.01) || (a[j+1]&&a[j+1][1]>half*0.01));
+      if (prof.length<2) return; prof[0][1]=0; prof[prof.length-1][1]=0; const md=d3.median(g.v), it=item3(sc,{tip:`${g.k}: median ${fmt(md)}, ${g.v.length} values`, center:[cx,F.val(md),zc]}); lathe3(it, cx, zc, prof, col, 20);
+      if (!c.mini) it.spheres.push({p:[cx,F.val(md),zc - (prof.reduce((m,p)=>Math.abs(p[0]-F.val(md))<Math.abs(m[0]-F.val(md))?p:m)[1])], r:.06, col:'#ffffff'}); }
+    else g.v.forEach(v=>{ const p=[cx+(rnd()-.5)*half*1.4, F.val(v), zc+(rnd()-.5)*F.Zr*0.7], it=item3(sc,{tip:`${g.k}: ${fmt(v)}`, center:p}); it.spheres.push({p, r:(c.mini?.09:.065)*o.ball, col}); }); });
+  draw3(sc); return sc; }
+R3.boxplot = c=>distV3(c,'boxplot','box'); R3.violin = c=>distV3(c,'violin','violin'); R3.jitter = c=>distV3(c,'jitter','jitter');
+/* values along the floor, groups in rows front to back */
+function distH3(c, rid, mode){ const {y,g:gk}=c.e; if (!y) return emptyMsg(c); const rs=c.rows.filter(r=>isNum(r[y])); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c,rid), o=sc.o, rowsK = mode==='dot' ? [''] : gk ? uniq(rs.map(r=>label(r[gk]))) : [y], L=8, Zr=clamp3(o.depth,.15,4)*(mode==='dot'?1.4:1), nR=rowsK.length;
+  const s=d3.scaleLinear(d3.extent(rs,r=>r[y]),[0,1]).nice(); d3.axisBottom(s); const X=v=>s(v)*L, tv=ticks3(s), rb=(c.mini?.11:.075)*o.ball; let top=0.6;
+  const rowOf=r=>mode==='dot'?0:gk?rowsK.indexOf(label(r[gk])):0, colOf=r=>gk?col3(c,label(r[gk]),rowsK.indexOf(label(r[gk])),uniq(rs.map(q=>label(q[gk]))).indexOf(label(r[gk]))):col3(c,null,0,0);
+  if (mode==='strip') rs.forEach(r=>{ const zc=(rowOf(r)+.5)*Zr, x=X(r[y]), it=item3(sc,{tip:`${gk?label(r[gk])+' · ':''}${fmt(r[y])}`, center:[x,.3,zc]}); solid3(it,'box',(a,u,w)=>[u,a,w],0,.55,x,zc,.018,Zr*.32,colOf(r)); });
+  else { const step=rb*2.05, nb=Math.max(8, Math.floor(L/step)), bins=new Map();
+    rs.forEach(r=>{ const ri=rowOf(r), bi=Math.round(X(r[y])/L*nb), key=ri+'|'+bi, n=bins.get(key)||0; bins.set(key,n+1);
+      const x = mode==='dot' ? bi/nb*L : X(r[y]), p=[x, rb+n*step*0.95, (ri+.5)*Zr + (mode==='dot'?0:((n%2)?1:-1)*Math.min(Zr*0.3,rb*0.9)*(n>0?1:0))]; top=Math.max(top,p[1]+rb);
+      const it=item3(sc,{tip:`${gk?label(r[gk])+' · ':''}${fmt(r[y])}`, center:p}); it.spheres.push({p, r:rb, col:colOf(r)}); }); }
+  walls3(sc,{x:[0,L],y:[0,Math.max(.6,top)],z:[0,nR*Zr]},[{axis:'x',vals:tv.map(X)}]);
+  if (!c.mini) { const left=o.yaw>=0; tv.forEach(t=>text3(sc,[X(t),0,0],fmt(t),{dy:15,ax:'v'})); if (nR>1) rowsK.forEach((k,i)=>text3(sc,[left?L:0,0,(i+.5)*Zr],trunc(k,18),{a:left?'start':'end',dx:left?10:-10,ax:'r',w:600}));
+    const st=S.opts.st||{}; if (st.axTitles!==false) text3(sc,[L/2,0,0],st.xTitle||y,{dy:36,cls:'t',el:'axtitle',f:c.muted,w:600}); }
+  draw3(sc); return sc; }
+R3.strip = c=>distH3(c,'strip','strip'); R3.beeswarm = c=>distH3(c,'beeswarm','swarm'); R3.dotPlot = c=>distH3(c,'dotPlot','dot');
+
+/* ---------- more bar-family variations ---------- */
+R3.span = c=>{ const d=rangeRows(c); if (!d.length) return emptyMsg(c); return bars3(c,'span',{hz:true, cats:d.map(p=>p.k), dom:[d3.min(d,p=>p.lo), d3.max(d,p=>p.hi)], refVals:d.flatMap(p=>[p.lo,p.hi]), boxes:d.map((p,i)=>({ci:i, v0:p.lo, v1:p.hi, col:col3(c,p.k,i), shape:'cyl', tip:`${p.k}: ${fmt(p.lo)} – ${fmt(p.hi)}`, label:`${fmt(p.lo)}–${fmt(p.hi)}`}))}); };
+R3.butterfly = c=>{ const d=twoRows(c); if (!d.length) return emptyMsg(c); const mx=d3.max(d,p=>Math.max(p.a,p.b))||1, boxes=[];
+  d.forEach((p,i)=>{ boxes.push({ci:i, v0:0, v1:-p.a, col:over3(c,p.k)||c.col(0), tip:`${p.k} · ${c.e.a}: ${fmt(p.a)}`, label:null}); boxes.push({ci:i, v0:0, v1:p.b, col:over3(c,p.k)||c.col(1), tip:`${p.k} · ${c.e.b}: ${fmt(p.b)}`, label:fmt(p.b)}); });
+  return bars3(c,'butterfly',{hz:true, cats:d.map(p=>p.k), dom:[-mx,mx], tickFmt:v=>fmt(Math.abs(v)), boxes}); };
+R3.dumbbell = c=>{ const d=twoRows(c); if (!d.length) return emptyMsg(c); const lo=Math.min(0,d3.min(d,p=>Math.min(p.a,p.b))), hi=d3.max(d,p=>Math.max(p.a,p.b))||1;
+  return bars3(c,'dumbbell',{hz:true, cats:d.map(p=>p.k), dom:[lo,hi], boxes:[], after:(sc,H)=>{ const o=sc.o, rb=clamp3(.22*o.ball,.05,.5);
+    d.forEach((p,i)=>{ const cu=H.cuOf(i), cw=H.Zr/2, A=H.M(H.val(p.a),cu,cw), B=H.M(H.val(p.b),cu,cw), it=item3(sc,{tip:`${p.k} · ${c.e.a}: ${fmt(p.a)} → ${c.e.b}: ${fmt(p.b)}`, center:V3.mean([A,B])});
+      tube3(it,A,B,.04,c.axisc); it.spheres.push({p:A, r:rb, col:over3(c,p.k)||c.col(0)},{p:B, r:rb, col:over3(c,p.k)||c.col(1)});
+      if (c.labels && !c.mini) { text3(sc,A,fmt(p.a),{dy:-16-rb*20,cls:'label'}); text3(sc,B,fmt(p.b),{dy:-16-rb*20,cls:'label'}); } }); }}); };
+R3.errorBars = c=>{ const {x,y,err}=c.e; if (!x||!y) return emptyMsg(c); const d=c.rows.filter(r=>isNum(r[y])).map(r=>({k:label(r[x]),v:r[y],e:err&&isNum(r[err])?Math.abs(r[err]):0})); if (!d.length) return emptyMsg(c);
+  return bars3(c,'errorBars',{cats:d.map(p=>p.k), dom:[Math.min(0,d3.min(d,p=>p.v-p.e)), d3.max(d,p=>p.v+p.e)||1], refVals:d.map(p=>p.v), boxes:d.map((p,i)=>({ci:i, v1:p.v, col:col3(c,p.k,i), tip:`${p.k}: ${fmt(p.v)} ± ${fmt(p.e)}`, label:null})),
+    after:(sc,H)=>d.forEach((p,i)=>{ if (!p.e) return; const cu=H.cuOf(i), zf=H.Zr/2-H.bd/2-.04, it=item3(sc,{tip:`${p.k}: ${fmt(p.v-p.e)} to ${fmt(p.v+p.e)}`, center:[cu,H.val(p.v),zf-1]}), cap=(1-H.gap)*0.22;
+      tube3(it,[cu,H.val(p.v-p.e),zf],[cu,H.val(p.v+p.e),zf],.025,c.fg); [p.v-p.e,p.v+p.e].forEach(v=>tube3(it,[cu-cap,H.val(v),zf],[cu+cap,H.val(v),zf],.025,c.fg));
+      if (c.labels && !c.mini) text3(sc,[cu,H.val(p.v+p.e),zf],`${fmt(p.v)} ± ${fmt(p.e)}`,{dy:-12,cls:'label'}); })}); };
+R3.pareto = c=>{ const d=pairs(c).filter(p=>p.v>0).sort((a,b)=>b.v-a.v); if (!d.length) return emptyMsg(c); const tot=d3.sum(d,p=>p.v); let acc=0; const cum=d.map(p=>(acc+=p.v)/tot);
+  return bars3(c,'pareto',{cats:d.map(p=>p.k), dom:[0,d3.max(d,p=>p.v)], refVals:d.map(p=>p.v), boxes:d.map((p,i)=>({ci:i, v1:p.v, col:over3(c,p.k)||c.col(0), tip:`${p.k}: ${fmt(p.v)} · ${pct(cum[i])} so far`, label:fmt(p.v)})),
+    after:(sc,H)=>{ const z=-0.12, pts=cum.map((f,i)=>[H.cuOf(i), f*H.Lv, z]), it=item3(sc,{tip:'Running total (%)', center:[H.nC/2,H.Lv,z-2]}), col=c.col(1);
+      pts.forEach((p,i)=>{ if (i) tube3(it,pts[i-1],p,.035,col); it.spheres.push({p, r:.08, col}); });
+      if (!c.mini) { const right=sc.o.yaw>=0; [0,.25,.5,.75,1].forEach(f=>text3(sc,[right?H.nC:0,f*H.Lv,0],pct(f),{a:right?'start':'end',dx:right?8:-8,ax:'p',f:c.muted})); } }}); };
+R3.winLoss = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=sortedRows(c,xk); if (rs.length<2) return emptyMsg(c); const cats=rs.slice(1).map(r=>label(r[xk])), boxes=[];
+  ks.forEach((k,si)=>rs.slice(1).forEach((r,ci)=>{ const a=rs[ci][k], b=r[k]; if (!isNum(a)||!isNum(b)||a===b) return; const up=b>a; boxes.push({ci, ri:si, v0:0, v1:up?1:-1, col:up?UP:DOWN, tip:`${k} · ${cats[ci]}: ${up?'up':'down'} ${fmt(Math.abs(b-a))}`, label:null}); }));
+  return bars3(c,'winLoss',{cats, rows:ks, dom:[-1,1], tickFmt:v=>v===1?'Up':v===-1?'Down':'', boxes}); };
+R3.progressBar = c=>{ const d=kpiRows(c).slice(0,12); if (!d.length) return emptyMsg(c); const boxes=[];
+  d.forEach((p,i)=>{ const f=Math.max(0,Math.min(1,p.v/p.max)); if (f>0) boxes.push({ci:i, v0:0, v1:f, col:col3(c,p.k,i,i), shape:'cyl', tip:`${p.k}: ${pct(f)}`, label:c.labels?`${fmt(p.v)} / ${fmt(p.max)} · ${pct(f)}`:pct(f)}); if (f<1) boxes.push({ci:i, v0:f, v1:1, col:c.gridc, shape:'cyl', tip:`${p.k}: ${pct(1-f)} to go`, label:null}); });
+  return bars3(c,'progressBar',{hz:true, cats:d.map(p=>p.k), dom:[0,1], tickFmt:pct, boxes}); };
+R3.bullet = c=>{ const d=kpiRows(c).slice(0,10); if (!d.length) return emptyMsg(c); const boxes=[], tone=f=>d3.interpolateRgb(c.bg==='none'?'#fff':c.bg, c.muted)(f);
+  d.forEach((p,i)=>{ const F=v=>Math.max(0,Math.min(1,v/p.max)); [[0,.6,.42],[.6,.85,.3],[.85,1,.2]].forEach(([a,b,t])=>boxes.push({ci:i, v0:a, v1:b, col:tone(t), cw:.72, hd:.22, hu:.36, tip:`${p.k}: range ${pct(a)}–${pct(b)}`, label:null}));
+    boxes.push({ci:i, v0:0, v1:F(p.v), col:col3(c,p.k,0), cw:.3, hd:.16, hu:.14, tip:`${p.k}: ${fmt(p.v)}${p.t!=null?' (target '+fmt(p.t)+')':''}`, label:c.labels?fmt(p.v):null});
+    if (p.t!=null) boxes.push({ci:i, v0:F(p.t)-.006, v1:F(p.t)+.006, col:c.fg, cw:.3, hd:.2, hu:.4, tip:`${p.k}: target ${fmt(p.t)}`, label:null}); });
+  return bars3(c,'bullet',{hz:true, cats:d.map(p=>p.k), dom:[0,1], tickFmt:pct, boxes}); };
+R3.marimekko = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=rowsBy(c,'x').map(r=>({k:label(r[xk]),r,t:d3.sum(ks,k=>Math.max(0,r[k]||0))})).filter(d=>d.t>0); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c,'marimekko'), o=sc.o, tot=d3.sum(rs,d=>d.t), L=8, H=4.2, Zr=clamp3(o.depth,.15,4), M=(a,u,w)=>[u,a,w]; let x0=0;
+  rs.forEach(d=>{ const w=d.t/tot*L; let y0=0; ks.forEach((k,i)=>{ const h=Math.max(0,d.r[k]||0)/d.t*H; if (h<=0) return; const it=item3(sc,{tip:`${d.k} · ${k}: ${fmt(d.r[k])} (${pct((d.r[k]||0)/d.t)})`, center:[x0+w/2,y0+h/2,Zr/2]});
+      solid3(it,'box',M,y0+.01,y0+h-.01,x0+w/2,Zr/2,Math.max(.01,w/2-.03),Zr*.45,col3(c,d.k,i,i)); if (c.labels && !c.mini && w>.7 && h>.4) text3(sc,[x0+w/2,y0+h/2,Zr*.05],pct((d.r[k]||0)/d.t),{cls:'label',f:textOn(c.col(i))}); y0+=h; });
+    if (!c.mini) text3(sc,[x0+w/2,0,0],trunc(d.k,12),{dy:15,ax:'c'}); x0+=w; });
+  walls3(sc,{x:[0,L],y:[0,H],z:[0,Zr]},[{axis:'y',vals:[.25,.5,.75,1].map(f=>f*H)}]);
+  if (!c.mini) { const left=o.yaw>=0; [0,.25,.5,.75,1].forEach(f=>text3(sc,[left?0:L,f*H,0],pct(f),{a:left?'end':'start',dx:left?-8:8,ax:'v'})); }
+  draw3(sc); return sc; };
+
+/* ---------- rings, arcs and gauges ---------- */
+function ringsBase3(c, rid){ return Scene3(c, rid); }
+R3.radialBar = c=>{ const d=pairs(c).filter(p=>p.v>=0).slice(0,14); if (!d.length) return emptyMsg(c); const sc=ringsBase3(c,'radialBar'), o=sc.o, h=clamp3(o.height,.02,.6), inner=.25, mx=d3.max(d,p=>p.v)||1;
+  const band=d3.scaleBand(d.map(p=>p.k),[inner,1]).padding(.22), A=v=>v/mx*1.5*Math.PI;
+  d.forEach((p,i)=>{ const r0=band(p.k), r1=r0+band.bandwidth(), it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:[0,h/2,0], bias:-i*1e-3}), tr=item3(sc,{center:[0,0,0], bias:1});
+    ring3(tr, r0, r1, 0, 1.5*Math.PI, 0, h*.25, c.gridc); ring3(it, r0, r1, 0, Math.max(.02,A(p.v)), 0, h*(1+0.6*clamp3(o.lift,0,3)), col3(c,p.k,i,i));
+    if (!c.mini) text3(sc,[-.02,h,(r0+r1)/2],trunc(p.k,14)+(c.labels?'  '+fmt(p.v):''),{a:'end',dx:-6,ax:'c',w:500}); });
+  draw3(sc); return sc; };
+R3.radialHist = c=>{ const gs=groupsOf(c); if (!gs.length) return emptyMsg(c); const all=gs.flatMap(d=>d.v); if (!all.length) return emptyMsg(c);
+  const sc=ringsBase3(c,'radialHist'), o=sc.o, bins=d3.bin().thresholds(24)(all), a=2*Math.PI/bins.length, mx=d3.max(bins,b=>b.length)||1, inner=.3, h=clamp3(o.height,.02,.6), r=n=>inner+(1-inner)*n/mx;
+  bins.forEach((b,i)=>{ if (!b.length) return; const it=item3(sc,{tip:`${fmt(b.x0)}–${fmt(b.x1)}: ${b.length}`, center:[Math.sin((i+.5)*a)*.6, h/2, Math.cos((i+.5)*a)*.6]}); ring3(it, inner, r(b.length), i*a+.01, (i+1)*a-.01, 0, h*(1+clamp3(o.lift,0,3)*b.length/mx), c.col(0)); });
+  if (!c.mini) bins.forEach((b,i)=>{ if (i%3) return; text3(sc,[Math.sin(i*a)*(inner-.08),0,Math.cos(i*a)*(inner-.08)],fmt(b.x0),{fs:c.fs-3,ax:'c'}); });
+  draw3(sc); return sc; };
+R3.circularHeatmap = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=c.rows.filter(r=>r[xk]!=null).slice(0,60), n=rs.length; if (!n) return emptyMsg(c);
+  const sc=ringsBase3(c,'circularHeatmap'), o=sc.o, inner=.28, band=(1-inner)/ks.length, a=2*Math.PI/n, vals=rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), ext=d3.extent(vals), t=v=>(v-ext[0])/((ext[1]-ext[0])||1); c.scaleExt=ext;
+  const h=clamp3(o.height,.02,.6), lift=clamp3(o.lift,0,3);
+  rs.forEach((r,i)=>ks.forEach((k,j)=>{ if (!isNum(r[k])) return; const it=item3(sc,{tip:`${label(r[xk])} · ${k}: ${fmt(r[k])}`, center:[Math.sin((i+.5)*a)*(inner+(j+.5)*band), 0, Math.cos((i+.5)*a)*(inner+(j+.5)*band)]});
+    ring3(it, inner+j*band+.006, inner+(j+1)*band-.006, i*a+.006, (i+1)*a-.006, 0, h*.4+h*lift*1.6*t(r[k]), over3(c,label(r[xk]))||c.seq(t(r[k])), [0,0,0], {seg:120}); }));
+  if (!c.mini && n<=36) rs.forEach((r,i)=>{ const m=(i+.5)*a; text3(sc,[Math.sin(m)*1.1,0,Math.cos(m)*1.1],trunc(label(r[xk]),12),{fs:c.fs-2,ax:'c'}); });
+  draw3(sc); return sc; };
+R3.multiDonut = c=>{ const ks=series(c).slice(0,6), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const sc=ringsBase3(c,'multiDonut'), o=sc.o, inner=.3, band=(1-inner)/ks.length, h=clamp3(o.height,.02,.6), lift=clamp3(o.lift,0,3);
+  ks.forEach((k,j)=>{ const arcs=d3.pie().sort(null).value(r=>Math.max(0,r[k]||0))(c.rows), r0=inner+j*band+.01, r1=r0+band-.02, top=h*(1+lift*0.5*(ks.length-1-j)/Math.max(1,ks.length-1));
+    arcs.forEach((a,i)=>{ if (a.endAngle-a.startAngle<1e-4) return; const m=(a.startAngle+a.endAngle)/2, it=item3(sc,{tip:`${k} · ${label(a.data[xk])}: ${fmt(a.data[k])}`, center:[Math.sin(m)*(r0+r1)/2, top/2, Math.cos(m)*(r0+r1)/2]}); ring3(it, r0, r1, a.startAngle+.004, a.endAngle-.004, 0, top, col3(c,label(a.data[xk]),i,i)); });
+    if (!c.mini) text3(sc,[0,top,(r0+r1)/2],trunc(k,14),{cls:'label',w:600,f:textOn(c.col(0))}); });
+  draw3(sc); return sc; };
+function partition3(c, rid, hole){ const hh=hier(c); if (!hh||!hh.value) return emptyMsg(c); const sc=ringsBase3(c,rid), o=sc.o, tops=hh.children||[], hgt=clamp3(o.height,.02,.6), lift=clamp3(o.lift,0,3);
+  d3.partition().size([2*Math.PI, hh.height+1])(hh); const r=d=>hole ? (d/(hh.height+1)) : (d===0?0:(Math.max(0,d-1)/hh.height));
+  hh.descendants().filter(n=>n.depth>0).forEach(n=>{ const col=over3(c,n.data.name)||d3.color(topColour(c,n,tops)).brighter((n.depth-1)*0.35).formatHex(), r0=r(n.y0)+.006, r1=r(n.y1)-.006, top=hgt*(1+lift*0.6*(n.depth-1)), m=(n.x0+n.x1)/2;
+    if (r1<=r0) return; const it=item3(sc,{tip:`${n.ancestors().map(a=>a.data.name).reverse().slice(1).join(' → ')}: ${fmt(n.value)}`, center:[Math.sin(m)*(r0+r1)/2, top/2, Math.cos(m)*(r0+r1)/2]});
+    ring3(it, r0, r1, n.x0+.004, n.x1-.004, 0, top, col); if (!c.mini && (n.x1-n.x0)*(r0+r1)/2>.28 && r1-r0>.12) text3(sc,[Math.sin(m)*(r0+r1)/2, top, Math.cos(m)*(r0+r1)/2],trunc(n.data.name,12),{cls:'label',fs:c.fs-2,f:textOn(col),w:600}); });
+  draw3(sc); return sc; }
+R3.sunburst = c=>partition3(c,'sunburst',true); R3.multiLevelPie = c=>partition3(c,'multiLevelPie',false);
+R3.target = c=>{ const d=items(c).slice(0,7); if (!d.length) return emptyMsg(c); const sc=ringsBase3(c,'target'), o=sc.o, n=d.length, step=1/n, h=clamp3(o.height,.02,.6)*.7, lift=clamp3(o.lift,0,3);
+  d.forEach((p,i)=>{ const top=h*(1+lift*0.7*(n-1-i)), col=col3(c,p.k,i,i), it=item3(sc,{tip:p.k+(p.d?' — '+p.d:''), center:[0,top/2,-(i+.5)*step], bias:-i*1e-3}); ring3(it, i?i*step:0, (i+1)*step, 0, 2*Math.PI, 0, top, col);
+    if (!c.mini) text3(sc,[0,top,-(i===0?0:(i+.5)*step)],trunc(p.k,16),{cls:'label',f:textOn(col),w:600}); });
+  draw3(sc); return sc; };
+function gauges3(c, rid, solid){ const d=kpiRows(c).slice(0,6); if (!d.length) return emptyMsg(c); const sc=Scene3(c,rid), o=sc.o, n=d.length, cols=n<=3?n:Math.ceil(n/2), h=clamp3(o.height,.02,.6), A0=Math.PI*1.25, A1=Math.PI*2.75;
+  d.forEach((p,i)=>{ const gx=(i%cols)*2.6, gz=-Math.floor(i/cols)*2.6, off=[gx,0,gz], f=Math.max(0,Math.min(1,p.v/p.max)), col=col3(c,p.k,i,i), it=item3(sc,{tip:`${p.k}: ${fmt(p.v)} of ${fmt(p.max)} (${pct(f)})`, center:[gx,h/2,gz]});
+    const tr=item3(sc,{center:[gx,0,gz], bias:1}); ring3(tr, solid?.62:.86, 1, A0, A1, 0, h*.25, c.gridc, off);
+    if (solid) ring3(it, .62, 1, A0, A0+(A1-A0)*Math.max(.01,f), 0, h, col, off);
+    else { ring3(it, .86, 1, A0, A0+(A1-A0)*Math.max(.01,f), 0, h*.6, col, off); const ang=A0+(A1-A0)*f; tube3(it,[gx,h*.7,gz],[gx+Math.sin(ang)*.82,h*.7,gz+Math.cos(ang)*.82],.035,c.fg,8); ring3(it,0,.1,0,2*Math.PI,0,h*.9,c.fg,off); }
+    if (!c.mini) { text3(sc,[gx,h,gz],fmt(p.v),{cls:'label',fs:Math.round(c.fs*1.4),w:700,dy:solid?0:-18}); text3(sc,[gx,0,gz-1.1],trunc(p.k,18),{ax:'c',dy:10,w:600}); } });
+  draw3(sc); return sc; }
+R3.solidGauge = c=>gauges3(c,'solidGauge',true); R3.gauge = c=>gauges3(c,'gauge',false);
+
+/* ---------- radar as stacked layers ---------- */
+R3.radar = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=c.rows.filter(r=>r[xk]!=null).slice(0,16), n=rs.length; if (n<3) return emptyMsg(c,'A radar needs at least 3 categories.');
+  const sc=Scene3(c,'radar'), o=sc.o, max=d3.max(rs,r=>d3.max(ks,k=>r[k]))||1, rr=d3.scaleLinear([0,max],[0,1]).nice(), a=i=>i*2*Math.PI/n, P=(i,r,y)=>[Math.sin(a(i))*r, y, Math.cos(a(i))*r], th=clamp3(o.height,.02,.4), gapY=th+clamp3(o.gap,0,1)*1.1;
+  rr.ticks(4).forEach(t=>{ for (let i=0;i<n;i++) sc.flatLines=(sc.flatLines||[]).concat([{a:P(i,rr(t),0), b:P((i+1)%n,rr(t),0)}]); }); for (let i=0;i<n;i++) sc.flatLines.push({a:P(i,0,0), b:P(i,1,0)});
+  ks.forEach((k,j)=>{ const y0=j*gapY, y1=y0+th, pts=rs.map((r,i)=>rr(Math.max(0,r[k]||0))), col=col3(c,null,j,j), it=item3(sc,{tip:k, center:[0,y0,0], bias:-j*0.01});
+    face3(it, pts.map((r,i)=>P(i,r,y1)).reverse(), col, {n:[0,1,0], pri:2}); for (let i=0;i<n;i++){ const i2=(i+1)%n, q=[P(i,pts[i],y0),P(i2,pts[i2],y0),P(i2,pts[i2],y1),P(i,pts[i],y1)], cen=V3.mean(q); let nn=newell(q); if (V3.dot(nn,[cen[0],0,cen[2]])<0) nn=nn.map(v=>-v); face3(it, q, col, {n:nn}); } });
+  if (!c.mini) rs.forEach((r,i)=>text3(sc,P(i,1.12,0),trunc(label(r[xk]),16),{ax:'c',fs:c.fs-1}));
+  draw3(sc); return sc; };
+
+/* ---------- hierarchy as blocks: icicle steps, packed discs ---------- */
+R3.icicle = c=>{ const hh=hier(c); if (!hh||!hh.value) return emptyMsg(c); const sc=Scene3(c,'icicle'), o=sc.o, L=9, Zr=1, tops=hh.children||[], lift=clamp3(o.lift,0,3); d3.partition().size([L, hh.height+1])(hh);
+  hh.descendants().forEach(n=>{ const col=n.depth===0?c.muted:(over3(c,n.data.name)||d3.color(topColour(c,n,tops)).brighter((n.depth-1)*0.4).formatHex()), w=n.x1-n.x0-clamp3(o.gap,0,.5)*0.2, ht=.25+lift*0.55*(hh.height+1-n.depth), z=(n.depth+.5)*Zr;
+    if (w<=0.01) return; const it=item3(sc,{tip:`${n.data.name}: ${fmt(n.value)}`, center:[(n.x0+n.x1)/2, ht/2, z]}); solid3(it,'box',(a,u,w2)=>[u,a,w2],0,ht,(n.x0+n.x1)/2,z,w/2,Zr*.45,col);
+    if (!c.mini && w>.6) text3(sc,[(n.x0+n.x1)/2,ht,z-Zr*.45],trunc(n.data.name,Math.floor(w*3)),{cls:'label',fs:c.fs-2,w:600,dy:-8}); });
+  walls3(sc,{x:[0,L],y:[0,.25+lift*0.55*(hh.height+1)],z:[0,(hh.height+1)*Zr]}); sc.floorOnly=true; draw3(sc); return sc; };
+R3.packed = c=>{ const hh=hier(c); if (!hh||!hh.value) return emptyMsg(c); const sc=Scene3(c,'packed'), o=sc.o, S8=8, t=.18*clamp3(o.lift,.1,3), tops=hh.children||[]; d3.pack().size([S8,S8]).padding(.08+clamp3(o.gap,0,.5)*0.3)(hh);
+  hh.descendants().forEach(n=>{ if (n.depth===0 && n.children) return; const leaf=!n.children, base=leaf?(hh.height>1?topColour(c,n,tops):c.col(hh.leaves().indexOf(n))):d3.interpolateRgb(c.bg==='none'?'#fff':c.bg, topColour(c,n,tops))(0.25), col=over3(c,n.data.name)||base;
+    const y0=(n.depth-(hh.children?1:0))*t, it=item3(sc,{tip:`${n.data.name}: ${fmt(n.value)}`, center:[n.x, y0+t/2, S8-n.y], bias:-n.depth*1e-3}); ring3(it,0,n.r,0,2*Math.PI,y0,y0+t,col,[n.x,0,S8-n.y],{seg:48});
+    if (!c.mini && leaf && n.r>.55) text3(sc,[n.x,y0+t,S8-n.y],trunc(n.data.name,Math.floor(n.r*5)),{cls:'label',fs:c.fs-1,f:textOn(col),w:600}); });
+  walls3(sc,{x:[0,S8],y:[0,(hh.height+1)*t],z:[0,S8]}); sc.floorOnly=true; draw3(sc); return sc; };
+
+/* ---------- more proportional shapes ---------- */
+R3.nestedProp = c=>{ const d=pairs(c).filter(p=>p.v>0).sort((a,b)=>b.v-a.v); if (!d.length) return emptyMsg(c); const sc=Scene3(c,'nestedProp'), o=sc.o, side=6, sq=d3.scaleSqrt([0,d[0].v],[0,side]), t=.16+clamp3(o.gap,0,.8)*0.3;
+  d.forEach((p,i)=>{ const s2=sq(p.v), col=col3(c,p.k,i,i), it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:[s2/2,(i+.5)*t,side-s2/2], bias:-i*1e-3}); solid3(it,'box',(a,u,w)=>[u,a,w],i*t,(i+1)*t,s2/2,side-s2/2,s2/2,s2/2,col);
+    if (!c.mini && s2>1) text3(sc,[s2,(i+1)*t,side-s2+.15],`${trunc(p.k,14)}${c.labels?' '+fmt(p.v):''}`,{a:'end',dx:-6,dy:-8,cls:'label',fs:c.fs-1,f:textOn(col),w:600}); });
+  walls3(sc,{x:[0,side],y:[0,d.length*t],z:[0,side]}); sc.floorOnly=true; draw3(sc); return sc; };
+R3.circularBubble = c=>{ const d=pairs(c).filter(p=>p.v>0).slice(0,24); if (!d.length) return emptyMsg(c); const sc=Scene3(c,'circularBubble'), o=sc.o, a=2*Math.PI/d.length, Rg=3, rmax=Math.min(Rg*Math.sin(a/2)*0.95, Rg*0.32)*(1-clamp3(o.gap,0,.8)*0.3), sq=d3.scaleSqrt([0,d3.max(d,p=>p.v)],[0,rmax]);
+  d.forEach((p,i)=>{ const r=sq(p.v), q=[Math.sin(i*a)*Rg, r, Math.cos(i*a)*Rg], it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:q}); it.spheres.push({p:q, r, col:col3(c,p.k,i,i)});
+    if (!c.mini) text3(sc,[Math.sin(i*a)*(Rg+rmax+.35),0,Math.cos(i*a)*(Rg+rmax+.35)],trunc(p.k,12)+(c.labels?' '+fmt(p.v):''),{ax:'c',fs:c.fs-1}); });
+  walls3(sc,{x:[-Rg-rmax,Rg+rmax],y:[0,rmax*2],z:[-Rg-rmax,Rg+rmax]}); sc.floorOnly=true; draw3(sc); return sc; };
+R3.pyramidDiagram = c=>{ const d=items(c); if (!d.length) return emptyMsg(c); const sc=Scene3(c,'pyramidDiagram'), o=sc.o, n=d.length, H=4.2, Rb=2.2, round=o.shape==='cyl', gap=clamp3(o.gap,0,.6);
+  d.forEach((p,i)=>{ const lvl=n-1-i, y0=lvl/n*H, y1=(lvl+1)/n*H, g=(y1-y0)*gap*.5, r=y=>Rb*(1-y/H), it=item3(sc,{tip:p.k+(p.d?' — '+p.d:''), center:[0,(y0+y1)/2,0]});
+    frustum3(it,(a,u,w)=>[u,a,w],y0+g,y1-g,0,0,r(y0+g),Math.max(0,r(y1-g)),col3(c,p.k,i,i),round?28:4,round?0:Math.PI/4);
+    if (!c.mini) { text3(sc,[Rb*1.05,(y0+y1)/2,0],trunc(p.k,22),{a:'start',dx:10,dy:p.d?-7:0,ax:'c',w:600}); if (p.d) text3(sc,[Rb*1.05,(y0+y1)/2,0],trunc(p.d,30),{a:'start',dx:10,dy:9,cls:'label',f:c.muted,w:400}); } });
+  walls3(sc,{x:[-Rb*1.1,Rb*1.1],y:[0,H],z:[-Rb*1.1,Rb*1.1]}); sc.floorOnly=true; draw3(sc); return sc; };
+
+/* ---------- ranks & density surface ---------- */
+R3.bump = c=>{ const ks=series(c), xk=c.e.x; if (ks.length<2||!xk) return emptyMsg(c,'A bump chart needs two or more series.'); const n=ks.length;
+  const rows=sortedRows(c,xk).map(r=>{ const order=[...ks].sort((a,b)=>(r[b]??-Infinity)-(r[a]??-Infinity)), o2=Object.assign({}, r); order.forEach((k,i)=>{ o2[k]=n-i; }); return o2; });
+  const c2=Object.assign(Object.create(c), {rows, __tf:v=>Number.isInteger(v)&&v>=1&&v<=n?'#'+(n+1-v):''}); return ribbon3(c2,'bump',false,'spline'); };
+R3.contour = c=>{ const {x,y}=c.e; if (!x||!y) return emptyMsg(c); const rs=c.rows.filter(r=>isNum(r[x])&&isNum(r[y])); if (rs.length<3) return emptyMsg(c);
+  const sc=Scene3(c,'contour'), o=sc.o, L=8, D=6, xs=d3.scaleLinear(d3.extent(rs,r=>r[x]),[0,L]).nice(), zs=d3.scaleLinear(d3.extent(rs,r=>r[y]),[0,D]).nice(), N=c.mini?16:30, bw=L/9, P=rs.map(r=>[xs(r[x]), zs(r[y])]);
+  const grid=d3.range(N+1).map(i=>d3.range(N+1).map(j=>{ const gx=i/N*L, gz=j/N*D; return d3.sum(P,p=>{ const dx=(gx-p[0])/bw, dz=(gz-p[1])/bw; return Math.exp(-(dx*dx+dz*dz)/2); }); }));
+  const mx=d3.max(grid,r=>d3.max(r))||1, Hm=L*0.36*clamp3(o.lift,.05,3); c.scaleExt=[0,1]; const Y=v=>v/mx*Hm, it=item3(sc,{tip:'Density of points', center:[L/2,Hm/3,D/2]});
+  for (let i=0;i<N;i++) for (let j=0;j<N;j++){ const q=[[i/N*L,Y(grid[i][j]),j/N*D],[(i+1)/N*L,Y(grid[i+1][j]),j/N*D],[(i+1)/N*L,Y(grid[i+1][j+1]),(j+1)/N*D],[i/N*L,Y(grid[i][j+1]),(j+1)/N*D]], v=(grid[i][j]+grid[i+1][j]+grid[i+1][j+1]+grid[i][j+1])/4/mx;
+    let nn=newell(q); if (nn[1]<0) nn=nn.map(t=>-t); face3(it, q, c.seq(0.08+0.92*v), {n:nn, two:true, smooth:true}); }
+  walls3(sc,{x:[0,L],y:[0,Hm],z:[0,D]},[{axis:'x',vals:xs.ticks(5).map(xs)},{axis:'z',vals:zs.ticks(5).map(zs)}]);
+  if (!c.mini) { const left=o.yaw>=0, st=S.opts.st||{}; xs.ticks(5).forEach(t=>text3(sc,[xs(t),0,0],fmt(t),{dy:15,ax:'c'})); zs.ticks(5).forEach(t=>text3(sc,[left?L:0,0,zs(t)],fmt(t),{a:left?'start':'end',dx:left?8:-8,dy:6,ax:'z'}));
+    if (st.axTitles!==false) { text3(sc,[L/2,0,0],st.xTitle||x,{dy:36,cls:'t',el:'axtitle',f:c.muted,w:600}); text3(sc,[left?L:0,0,D],st.yTitle||y,{a:left?'start':'end',dx:left?10:-10,dy:22,cls:'t',el:'axtitle',f:c.muted,w:600}); } }
+  draw3(sc); return sc; };
+R3.connectedScatter = c=>pts3(c,'connectedScatter',false,true);
+
+/* ---------- maps: prisms, spikes and pins standing on the world ---------- */
+function geoRings3(f, proj){ const rings=[]; let cur=null; const ctx={moveTo(x,y){ cur=[[x,y]]; rings.push(cur); }, lineTo(x,y){ if (cur) cur.push([x,y]); }, closePath(){ cur=null; }, arc(){}, beginPath(){}};
+  d3.geoPath(proj, ctx)(f); return rings.map(r=>{ const out=[]; r.forEach(p=>{ const l=out[out.length-1]; if (!l || Math.hypot(p[0]-l[0],p[1]-l[1])>0.035) out.push(p); }); return out; }).filter(r=>r.length>=3); }
+function geo3(c, rid, mode){ if (!WORLD || WORLD.error) { geoBase(c); return; } const sc=Scene3(c,rid), o=sc.o, L=10, D=L*0.52, proj=proj3(L, D, mode==='pin' && c.e.lat && c.e.lon ? c.rows.filter(r=>isNum(r[c.e.lat])&&isNum(r[c.e.lon])).map(r=>[r[c.e.lon],r[c.e.lat]]) : null), W3=p=>[p[0], 0, D-p[1]], lift=clamp3(o.lift,.05,3), H=1.6*lift;
+  const land=c.land||'#E5E7EB'; sc.flat=[]; const ocean=d3.geoPath(proj,{moveTo(){},lineTo(){},closePath(){},arc(){},beginPath(){}}); void ocean;
+  const vals=new Map(); if (mode==='prism') { const {x,y}=c.e; if (x) c.rows.forEach(r=>{ const f=findCountry(r[x]); if (f) vals.set(f, y&&isNum(r[y])?r[y]:1); }); c.unmatched = x ? c.rows.filter(r=>!findCountry(r[x])).map(r=>label(r[x])).filter(Boolean) : []; }
+  const ext=d3.extent([...vals.values()]); if (mode==='prism') c.scaleExt=ext; const cs=v=>c.seq(0.12+0.88*((v-ext[0])/((ext[1]-ext[0])||1))), hv=v=>.06+H*((v-(Math.min(0,ext[0])))/((ext[1]-Math.min(0,ext[0]))||1));
+  WORLD.features.forEach(f=>{ const rings=geoRings3(f, proj); if (vals.has(f)) { const v=vals.get(f), col=over3(c,f.properties.name)||cs(v), h=hv(v), it=item3(sc,{tip:`${f.properties.name}: ${fmt(v)}`, center:null});
+      rings.forEach(r=>{ const top=r.map(p=>{ const q=W3(p); q[1]=h; return q; }); face3(it, top, col, {n:[0,1,0], pri:2}); for (let i=0;i<r.length;i++){ const a=W3(r[i]), b=W3(r[(i+1)%r.length]); face3(it, [a,b,[b[0],h,b[2]],[a[0],h,a[2]]], col, {two:true, n:V3.norm([b[2]-a[2],0,-(b[0]-a[0])])}); } });
+      it.center=V3.mean(it.faces.filter(q=>q.pri===2).flatMap(q=>q.pts)); }
+    else rings.forEach(r=>sc.flat.push({pts:r.map(W3), fill:land, stroke:c.bg==='none'?'#fff':c.bg, sw:.4})); });
+  if (mode==='spike' || mode==='pin') { const pts = mode==='pin' ? (()=>{ const {lat,lon,x}=c.e; return lat&&lon ? c.rows.filter(r=>isNum(r[lat])&&isNum(r[lon])).map(r=>({ll:[r[lon],r[lat]], k:x?label(r[x]):'', v:1})) : []; })() : pointsOf(c);
+    if (!pts.length) return emptyMsg(c, mode==='pin'?'This map needs latitude and longitude columns.':'No places matched the map.'); const mx=d3.max(pts,p=>p.v)||1;
+    pts.forEach((p,i)=>{ const q=proj(p.ll); if (!q) return; const b=W3(q), col=over3(c,p.k)||c.col(0);
+      if (mode==='spike') { const h=.1+H*1.6*p.v/mx, it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:[b[0],h/2,b[2]]}); frustum3(it,(a,u,w)=>[u,a,w],0,h,b[0],b[2],.09,0,col,10); if (c.labels && !c.mini && p.v/mx>.25) text3(sc,[b[0],h,b[2]],trunc(p.k,12),{dy:-8,cls:'label',fs:c.fs-2,w:600}); }
+      else { const h=.45*lift, it=item3(sc,{tip:p.k||'Pin', center:[b[0],h,b[2]]}); tube3(it,b,[b[0],h,b[2]],.02,c.fg,6); it.spheres.push({p:[b[0],h,b[2]], r:.11, col}); if (c.labels && !c.mini && p.k) text3(sc,[b[0],h,b[2]],trunc(p.k,12),{dy:-14,cls:'label',fs:c.fs-2,w:600}); } }); }
+  walls3(sc,{x:[0,L],y:[0,H],z:[0,D]}); sc.floorOnly=true; if (!o.wallcolor) sc.o=Object.assign({}, o, {wallcolor:c.ocean||null}); draw3(sc); return sc; }
+R3.choropleth = c=>geo3(c,'choropleth','prism'); R3.bubbleMap = c=>geo3(c,'bubbleMap','spike'); R3.pinMap = c=>geo3(c,'pinMap','pin');
+R3.stream = c=>ribbon3(c,'stream',true,'stream'); R3.sortedStream = c=>ribbon3(c,'sortedStream',true,'sstream'); R3.stackedOrderedArea = c=>ribbon3(c,'stackedOrderedArea',true,'stackOrd');
+
+/* ---------- more: pyramid of two groups, clusters, candles, Gantt, timelines, bands, slopes, radial time ---------- */
+R3.popPyramid = c=>{ const c2=Object.assign(Object.create(c),{sort:'none', rows:[...c.rows].reverse()}); const d=twoRows(c2); if (!d.length) return emptyMsg(c); const mx=d3.max(d,p=>Math.max(p.a,p.b))||1, boxes=[];
+  d.forEach((p,i)=>{ boxes.push({ci:i, v0:0, v1:-p.a, col:over3(c,p.k)||c.col(0), tip:`${p.k} · ${c.e.a}: ${fmt(p.a)}`, label:null}); boxes.push({ci:i, v0:0, v1:p.b, col:over3(c,p.k)||c.col(1), tip:`${p.k} · ${c.e.b}: ${fmt(p.b)}`, label:null}); });
+  return bars3(c,'popPyramid',{hz:true, cats:d.map(p=>p.k), dom:[-mx,mx], tickFmt:v=>fmt(Math.abs(v)), boxes}); };
+R3.cluster = c=>pts3(c,'cluster',false);
+R3.candlestick = c=>{ const {x,o,hi,lo,cl}=c.e; if (!x||!o||!hi||!lo||!cl) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>[o,hi,lo,cl].every(k=>isNum(r[k]))); if (!rs.length) return emptyMsg(c);
+  const cats=rs.map(r=>label(r[x])); return bars3(c,'candlestick',{cats, dom:[d3.min(rs,r=>r[lo]), d3.max(rs,r=>r[hi])], boxes:rs.map((r,i)=>{ const up=r[cl]>=r[o]; return {ci:i, v0:r[o], v1:r[cl]===r[o]?r[o]+(r[hi]-r[lo])*0.01:r[cl], col:up?UP:DOWN, tip:`${cats[i]} · open ${fmt(r[o])}, high ${fmt(r[hi])}, low ${fmt(r[lo])}, close ${fmt(r[cl])}`, label:null}; }),
+    after:(sc,H)=>rs.forEach((r,i)=>{ const cu=H.cuOf(i), z=H.Zr/2, it=item3(sc,{center:[cu,H.val((r[hi]+r[lo])/2),z+.01], tip:`${cats[i]}: ${fmt(r[lo])} – ${fmt(r[hi])}`}), col=r[cl]>=r[o]?UP:DOWN; tube3(it,[cu,H.val(r[lo]),z],[cu,H.val(Math.min(r[o],r[cl])),z],.025,col); tube3(it,[cu,H.val(Math.max(r[o],r[cl])),z],[cu,H.val(r[hi]),z],.025,col); })}); };
+R3.gantt = c=>{ const {x,st,en,g:gk}=c.e; if (!x||!st||!en) return emptyMsg(c); const rs=c.rows.filter(r=>r[st]!=null&&r[en]!=null&&!isNaN(r[st])&&!isNaN(r[en])); if (!rs.length) return emptyMsg(c,'Start and End need to be dates.');
+  const groups=gk?uniq(rs.map(r=>label(r[gk]))):[], isD=c.types[st]==='date', tf=v=>isD?d3.utcFormat('%d %b')(new Date(v)):fmt(v);
+  return bars3(c,'gantt',{hz:true, cats:rs.map(r=>label(r[x])), dom:[d3.min(rs,r=>+r[st]), d3.max(rs,r=>+r[en])], tickFmt:tf, boxes:rs.map((r,i)=>({ci:i, v0:+r[st], v1:Math.max(+r[en], +r[st]+1), col:over3(c,label(r[x]))||c.col(gk?groups.indexOf(label(r[gk])):0), tip:`${label(r[x])}: ${label(r[st])} → ${label(r[en])}`, label:null}))}); };
+R3.columnSparkline = c=>{ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=sortedRows(c,xk), cats=rs.map(r=>label(r[xk])), vals=rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), boxes=[];
+  rs.forEach((r,ci)=>ks.forEach((k,si)=>{ if (isNum(r[k])) boxes.push({ci, ri:si, v1:r[k], col:col3(c,null,si,si), tip:`${k} · ${cats[ci]}: ${fmt(r[k])}`, label:null}); }));
+  return bars3(c,'columnSparkline',{cats, rows:ks, dom:[Math.min(0,d3.min(vals)), d3.max(vals)||1], boxes}); };
+/* things placed along a time axis on the floor */
+function along3(c, rid, mode){ const {x,y,l}=c.e; if (!x||(mode!=='events'&&!y)) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>mode==='events'||isNum(r[y])); if (!rs.length) return emptyMsg(c);
+  const sc=Scene3(c,rid), o=sc.o, L=10, t=c.types[x], X = t==='date'||t==='number' ? (()=>{ const s2=(t==='date'?d3.scaleUtc:d3.scaleLinear)(d3.extent(rs,r=>r[x]),[0,L]); return {f:r=>s2(r[x]), ticks:s2.ticks(6).map(v=>({p:s2(v), s:t==='date'?s2.tickFormat()(v):fmt(v)}))}; })() : {f:r=>rs.indexOf(r)/Math.max(1,rs.length-1)*L, ticks:[]};
+  const axIt=item3(sc,{center:[L/2,0,0], bias:2}); tube3(axIt,[-.3,.05,0],[L+.3,.05,0],.05,c.fg,10);
+  if (mode==='bubbles') { const rr=d3.scaleSqrt([0,d3.max(rs,r=>r[y])||1],[0,Math.min(1.2, L/Math.max(rs.length,1)*0.9)]);
+    rs.forEach((r,i)=>{ const rad=Math.max(.04,rr(Math.max(0,r[y]))), p=[X.f(r),rad,0], it=item3(sc,{tip:`${label(r[x])}${l?' · '+label(r[l]):''}: ${fmt(r[y])}`, center:p}); it.spheres.push({p, r:rad, col:col3(c,l?label(r[l]):null,i,l?i:0)});
+      if (c.labels && !c.mini && (rs.length<=16 || i%Math.ceil(rs.length/16)===0)) text3(sc,[p[0],2*rad,0],l?trunc(label(r[l]),14):fmt(r[y]),{dy:-10,cls:'label',fs:c.fs-2}); }); }
+  else rs.forEach((r,i)=>{ const h=.5+(i%3)*.45, p=[X.f(r),h,0], it=item3(sc,{tip:`${label(r[x])}: ${label(r[l])}`, center:p}); tube3(it,[p[0],0,0],p,.02,c.muted,6); it.spheres.push({p, r:.1, col:col3(c,label(r[l]),i,i%10)});
+      if (!c.mini) text3(sc,p,trunc(label(r[l]),22),{dy:-12,cls:'label',fs:c.fs-1,w:600}); });
+  if (!c.mini) X.ticks.forEach(tk=>text3(sc,[tk.p,0,0],tk.s,{dy:16,ax:'c'}));
+  walls3(sc,{x:[-.4,L+.4],y:[0,1.4],z:[-1,1]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.bubbleTimeline = c=>along3(c,'bubbleTimeline','bubbles'); R3.timeline = c=>along3(c,'timeline','events');
+/* a band between low and high, with an optional middle line */
+R3.rangeArea = c=>{ const {x,lo,hi,mid}=c.e; if (!x||!lo||!hi) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>isNum(r[lo])&&isNum(r[hi])); if (rs.length<2) return emptyMsg(c);
+  const sc=Scene3(c,'rangeArea'), o=sc.o, n=rs.length, Lx=clamp3(n*0.42,4.2,9), Hy=Lx*0.48, t=c.types[x]; const sx=t==='date'||t==='number' ? (t==='date'?d3.scaleUtc:d3.scaleLinear)(d3.extent(rs,r=>r[x]),[0,Lx]) : null, xs=r=>sx?sx(r[x]):rs.indexOf(r)/(n-1)*Lx;
+  const s=vscale3([d3.min(rs,r=>Math.min(r[lo],r[hi])), d3.max(rs,r=>Math.max(r[lo],r[hi]))],false), val=v=>(1-s(v))*Hy, Zr=clamp3(o.depth,.15,4)*1.2, z0=.1*Zr, z1=Zr*.9, col=col3(c,null,0,0);
+  const top=rs.map(r=>[xs(r),val(Math.max(r[lo],r[hi]))]), bot=rs.map(r=>[xs(r),val(Math.min(r[lo],r[hi]))]), it=item3(sc,{tip:`${lo} – ${hi}`, center:[Lx/2,Hy/2,(z0+z1)/2]});
+  face3(it,[...bot.map(p=>[p[0],p[1],z0]).reverse(), ...top.map(p=>[p[0],p[1],z0])], col, {n:[0,0,-1]});
+  for (let j=0;j<n-1;j++){ [[top,1],[bot,-1]].forEach(([P,up])=>{ const q=[[P[j][0],P[j][1],z0],[P[j+1][0],P[j+1][1],z0],[P[j+1][0],P[j+1][1],z1],[P[j][0],P[j][1],z1]]; let nn=newell(q); if (nn[1]*up<0) nn=nn.map(v=>-v); face3(it,q,col,{n:nn}); }); }
+  face3(it,[[bot[0][0],bot[0][1],z0],[bot[0][0],bot[0][1],z1],[top[0][0],top[0][1],z1],[top[0][0],top[0][1],z0]],col,{n:[-1,0,0]}); const k=n-1; face3(it,[[bot[k][0],bot[k][1],z0],[bot[k][0],bot[k][1],z1],[top[k][0],top[k][1],z1],[top[k][0],top[k][1],z0]],col,{n:[1,0,0]});
+  if (mid) { const mi=item3(sc,{tip:mid, center:[Lx/2,Hy/2,z0-1]}), mp=rs.filter(r=>isNum(r[mid])).map(r=>[xs(r),val(r[mid]),z0-.04]); for (let j=1;j<mp.length;j++) tube3(mi,mp[j-1],mp[j],.035,c.col(1)); }
+  const tv=ticks3(s); walls3(sc,{x:[0,Lx],y:[0,Hy],z:[0,Zr]},[{axis:'y',vals:tv.map(val)}]);
+  if (!c.mini) { const left=o.yaw>=0; tv.forEach(t2=>text3(sc,[left?0:Lx,val(t2),0],fmt(t2),{a:left?'end':'start',dx:left?-8:8,ax:'v'})); (sx?sx.ticks(6).map(v=>({p:sx(v), s:t==='date'?sx.tickFormat()(v):fmt(v)})):rs.filter((r,i)=>i%Math.ceil(n/8)===0).map(r=>({p:xs(r), s:trunc(label(r[x]),10)}))).forEach(tk=>text3(sc,[tk.p,0,0],tk.s,{dy:15,ax:'c'})); }
+  draw3(sc); return sc; };
+/* a value cloud on a wall with its best-fit line */
+R3.trendline = c=>{ const {x,y}=c.e; if (!x||!y) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>isNum(r[y]) && c.types[x]!=='text'); if (rs.length<2) return emptyMsg(c,'A trendline needs a numeric or date X.');
+  const sc=Scene3(c,'trendline'), o=sc.o, L=8, Hy=4.4, Zr=clamp3(o.depth,.15,4), X=(c.types[x]==='date'?d3.scaleUtc:d3.scaleLinear)(d3.extent(rs,r=>r[x]),[0,L]), s=vscale3(d3.extent(rs,r=>r[y]),false), val=v=>(1-s(v))*Hy, zc=Zr/2;
+  rs.forEach(r=>{ const p=[X(r[x]),val(r[y]),zc], it=item3(sc,{tip:`${label(r[x])}, ${fmt(r[y])}`, center:p}); it.spheres.push({p, r:(c.mini?.12:.09)*o.ball, col:col3(c,null,0,0)}); });
+  const xsN=rs.map(r=>+r[x]), ys=rs.map(r=>r[y]), mx=d3.mean(xsN), my=d3.mean(ys), b=d3.sum(xsN,(v,i)=>(v-mx)*(ys[i]-my))/(d3.sum(xsN,v=>(v-mx)**2)||1), a=my-b*mx, x0=d3.min(xsN), x1=d3.max(xsN);
+  const it=item3(sc,{tip:`Trend: ${b>=0?'+':''}${fmt(b)} per unit`, center:[L/2,Hy/2,zc-.5]}); tube3(it,[X(x0),val(a+b*x0),zc],[X(x1),val(a+b*x1),zc],.05,c.col(1),10);
+  const tv=ticks3(s); walls3(sc,{x:[0,L],y:[0,Hy],z:[0,Zr]},[{axis:'y',vals:tv.map(val)},{axis:'x',vals:X.ticks(6).map(X)}]);
+  if (!c.mini) { const left=o.yaw>=0; tv.forEach(t=>text3(sc,[left?0:L,val(t),0],fmt(t),{a:left?'end':'start',dx:left?-8:8,ax:'v'})); X.ticks(6).forEach(t=>text3(sc,[X(t),0,0],c.types[x]==='date'?X.tickFormat()(t):fmt(t),{dy:15,ax:'c'})); }
+  draw3(sc); return sc; };
+/* control chart: the measurements as a path, limits drawn on the walls */
+R3.control = c=>{ const {x,y}=c.e; if (!x||!y) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>isNum(r[y])); if (rs.length<2) return emptyMsg(c); const v=rs.map(r=>r[y]), m=d3.mean(v), sd=d3.deviation(v)||0;
+  const sc=Scene3(c,'control'), o=sc.o, L=Math.max(5,Math.min(10,rs.length*.4)), Hy=4.2, Zr=clamp3(o.depth,.15,4), s=vscale3([Math.min(d3.min(v),m-3.4*sd),Math.max(d3.max(v),m+3.4*sd)],false), val=t=>(1-s(t))*Hy, X=i=>i/(rs.length-1)*L, zc=Zr/2;
+  const it=item3(sc,{tip:y, center:[L/2,val(m),zc]}); rs.forEach((r,i)=>{ const p=[X(i),val(r[y]),zc], out=Math.abs(r[y]-m)>3*sd; if (i) tube3(it,[X(i-1),val(rs[i-1][y]),zc],p,.03,c.col(0),6); it.spheres.push({p, r:out?.13:.08, col:out?DOWN:c.col(0)}); });
+  const tv=ticks3(s); walls3(sc,{x:[0,L],y:[0,Hy],z:[0,Zr]},[{axis:'y',vals:tv.map(val)}]); const left=o.yaw>=0;
+  [[m,'Mean',c.muted,null],[m+3*sd,'Upper limit',DOWN,'6 4'],[m-3*sd,'Lower limit',DOWN,'6 4']].forEach(([t,nm,col,dash])=>{ const w=val(t); sc.refs.push({pts:left?[[0,w,0],[0,w,Zr],[L,w,Zr]]:[[L,w,0],[L,w,Zr],[0,w,Zr]], col, dash, lab:c.mini?'':`${nm}: ${fmt(t)}`, labAt:left?[L,w,Zr]:[0,w,Zr], la:left?'end':'start'}); });
+  if (!c.mini) tv.forEach(t=>text3(sc,[left?0:L,val(t),0],fmt(t),{a:left?'end':'start',dx:left?-8:8,ax:'v'}));
+  draw3(sc); return sc; };
+/* slope: one rod per item, from the start wall to the end wall, each item in its own row */
+R3.slope = c=>{ const d=twoRows(c); if (!d.length) return emptyMsg(c); const sc=Scene3(c,'slope'), o=sc.o, L=5, Hy=4.2, Zr=clamp3(o.depth,.15,4)*.6, s=vscale3(d3.extent(d.flatMap(p=>[p.a,p.b])),false), val=v=>(1-s(v))*Hy, rb=.11*o.ball;
+  d.forEach((p,i)=>{ const z=(i+.5)*Zr, A=[0,val(p.a),z], B=[L,val(p.b),z], col=col3(c,p.k,i,i), it=item3(sc,{tip:`${p.k}: ${fmt(p.a)} → ${fmt(p.b)}`, center:[L/2,(A[1]+B[1])/2,z]}); tube3(it,A,B,.035,col,8); it.spheres.push({p:A,r:rb,col},{p:B,r:rb,col});
+    if (!c.mini) text3(sc,B,`${trunc(p.k,16)}${c.labels?' '+fmt(p.b):''}`,{a:'start',dx:10,ax:'r',fs:c.fs-1}); });
+  const tv=ticks3(s); walls3(sc,{x:[0,L],y:[0,Hy],z:[0,d.length*Zr]},[{axis:'y',vals:tv.map(val)}]);
+  if (!c.mini) { tv.forEach(t=>text3(sc,[0,val(t),0],fmt(t),{a:'end',dx:-8,ax:'v'})); text3(sc,[0,Hy,0],c.e.a,{dy:-14,cls:'t',el:'axtitle',w:700}); text3(sc,[L,Hy,0],c.e.b,{dy:-14,cls:'t',el:'axtitle',w:700}); }
+  draw3(sc); return sc; };
+/* radial line / area: each series an extruded loop, stacked in height */
+function radialLayers3(c, rid, area){ const ks=series(c), xk=c.e.x; if (!ks.length||!xk) return emptyMsg(c); const rs=sortedRows(c,xk), n=rs.length; if (n<3) return emptyMsg(c);
+  const sc=Scene3(c,rid), o=sc.o, vals=rs.flatMap(r=>ks.map(k=>r[k]).filter(isNum)), rr=d3.scaleLinear([Math.min(0,d3.min(vals)),d3.max(vals)],[.12,1]).nice(), a=i=>i*2*Math.PI/n, P=(i,r,y)=>[Math.sin(a(i))*r, y, Math.cos(a(i))*r], th=clamp3(o.height,.02,.4), gapY=th+clamp3(o.gap,0,1)*1.1;
+  sc.flatLines=[]; rr.ticks(4).forEach(t=>{ for (let i=0;i<n;i++) sc.flatLines.push({a:P(i,rr(t),0), b:P((i+1)%n,rr(t),0)}); }); for (let i=0;i<n;i+=Math.max(1,Math.ceil(n/12))) sc.flatLines.push({a:P(i,.12,0), b:P(i,1,0)});
+  ks.forEach((k,j)=>{ const y0=j*gapY, y1=y0+(area?th:th*2.2), pts=rs.map(r=>rr(isNum(r[k])?r[k]:rr.domain()[0])), col=col3(c,null,j,j), it=item3(sc,{tip:k, center:[0,y0,0], bias:-j*0.01, op:ks.length>1&&area?.82:null});
+    if (area) face3(it, pts.map((r,i)=>P(i,r,y1)).reverse(), col, {n:[0,1,0], pri:2});
+    for (let i=0;i<n;i++){ const i2=(i+1)%n, q=[P(i,pts[i],y0),P(i2,pts[i2],y0),P(i2,pts[i2],y1),P(i,pts[i],y1)], cen=V3.mean(q); let nn=newell(q); if (V3.dot(nn,[cen[0],0,cen[2]])<0) nn=nn.map(v=>-v); face3(it, q, col, {n:nn, two:!area}); } });
+  if (!c.mini) rs.forEach((r,i)=>{ if (n>24 && i%Math.ceil(n/12)) return; text3(sc,P(i,1.12,0),trunc(label(r[xk]),10),{ax:'c',fs:c.fs-2}); });
+  draw3(sc); return sc; }
+R3.radialArea = c=>radialLayers3(c,'radialArea',true); R3.radialLine = c=>radialLayers3(c,'radialLine',false);
+/* spiral heat map as a rising helix of blocks */
+R3.spiralHeatmap = c=>{ const {x,y}=c.e; if (!x||!y) return emptyMsg(c); const rs=sortedRows(c,x).filter(r=>isNum(r[y])), n=rs.length; if (n<8) return emptyMsg(c);
+  let per=Math.ceil(Math.sqrt(n*2)); if (c.types[x]==='date' && n>1) { const gap=d3.median(d3.pairs(rs).map(([a,b])=>b[x]-a[x]))/864e5; per=gap<=1.5?(n>150?30:7):gap<=8?52:gap<=40?12:per; }
+  const sc=Scene3(c,'spiralHeatmap'), o=sc.o, turns=Math.ceil(n/per), r0=.25, band=(1-r0)/(turns+1), a=2*Math.PI/per, ext=d3.extent(rs,r=>r[y]), t=v=>(v-ext[0])/((ext[1]-ext[0])||1), h=clamp3(o.height,.02,.6), lift=clamp3(o.lift,0,3); c.scaleExt=ext;
+  rs.forEach((r,i)=>{ const rr=r0+(i/per)*band, it=item3(sc,{tip:`${label(r[x])}: ${fmt(r[y])}`, center:[Math.sin((i%per+.5)*a)*rr,0,Math.cos((i%per+.5)*a)*rr]}); ring3(it, rr, rr+band*.9, (i%per)*a+.004, (i%per+1)*a-.004, 0, h*.4+h*lift*1.4*t(r[y]), c.seq(t(r[y])), [0,0,0], {seg:Math.max(72,per*4)}); });
+  draw3(sc); return sc; };
+/* maps: arcs, routes and bubbles above the world */
+function proj3(L, D, lls){ const proj=d3.geoNaturalEarth1(); let fit={type:'Sphere'};
+  if (lls && lls.length) { const ex=d3.extent(lls,p=>p[0]), ey=d3.extent(lls,p=>p[1]); if (ex[1]-ex[0]<=150 && ey[1]-ey[0]<=70) { const dx=Math.max(12,(ex[1]-ex[0])*.25), dy=Math.max(8,(ey[1]-ey[0])*.25), cl=(v,a)=>Math.max(-a,Math.min(a,v));
+    fit={type:'MultiPoint', coordinates:[[cl(ex[0]-dx,180),cl(ey[0]-dy,85)],[cl(ex[1]+dx,180),cl(ey[1]+dy,85)],[cl(ex[0]-dx,180),cl(ey[1]+dy,85)],[cl(ex[1]+dx,180),cl(ey[0]-dy,85)]]}; } }
+  proj.fitExtent([[0,0],[L,D]], fit); if (fit.type!=='Sphere') proj.clipExtent([[0,0],[L,D]]); return proj; }
+function geoFlow3(c, rid, mode){ if (!WORLD || WORLD.error) { geoBase(c); return; } const sc=Scene3(c,rid), o=sc.o, L=10, D=L*0.52, proj=proj3(L, D, mode==='route' && c.e.lat && c.e.lon ? c.rows.filter(r=>isNum(r[c.e.lat])&&isNum(r[c.e.lon])).map(r=>[r[c.e.lon],r[c.e.lat]]) : null), W3=p=>[p[0],0,D-p[1]], lift=clamp3(o.lift,.05,3);
+  sc.flat=[]; WORLD.features.forEach(f=>geoRings3(f,proj).forEach(r=>sc.flat.push({pts:r.map(W3), fill:c.land||'#E5E7EB', stroke:c.bg==='none'?'#fff':c.bg, sw:.4})));
+  if (mode==='route') { const {lat,lon,x}=c.e; if (!lat||!lon) return emptyMsg(c); const pts=c.rows.filter(r=>isNum(r[lat])&&isNum(r[lon])).map(r=>({ll:[r[lon],r[lat]], k:x?label(r[x]):''})); if (pts.length<2) return emptyMsg(c);
+    const P=pts.map(p=>{ const q=proj(p.ll); return q?W3(q):null; }); const it=item3(sc,{tip:'Route', center:[L/2,0,D/2]});
+    for (let i=1;i<P.length;i++) if (P[i-1]&&P[i]) arc3(it,P[i-1],P[i],.25*lift,.03,c.col(0)); P.forEach((p,i)=>{ if (!p) return; const end=i===0||i===P.length-1, pin=item3(sc,{tip:pts[i].k, center:p}); pin.spheres.push({p:[p[0],.08,p[2]], r:end?.14:.09, col:end?c.col(1):c.col(0)}); if (c.labels && !c.mini && pts[i].k) text3(sc,p,trunc(pts[i].k,12),{dy:-12,cls:'label',fs:c.fs-2,w:600}); }); }
+  else if (mode==='balls') { const pts=pointsOf(c); if (!pts.length) return emptyMsg(c,'No country names matched the map.'); const rr=d3.scaleSqrt([0,d3.max(pts,p=>p.v)||1],[.06,.55*lift]);
+    pts.forEach((p,i)=>{ const q=proj(p.ll); if (!q) return; const b=W3(q), r=rr(p.v), it=item3(sc,{tip:`${p.k}: ${fmt(p.v)}`, center:[b[0],r,b[2]]}); it.spheres.push({p:[b[0],r,b[2]], r, col:over3(c,p.k)||c.col(i%10)}); if (c.labels && !c.mini && r>.3) text3(sc,[b[0],2*r,b[2]],trunc(p.k,10),{dy:-8,cls:'label',fs:c.fs-2,w:600}); }); }
+  else { const Ls=links(c).map(l=>{ const a=findCountry(l.s), b=findCountry(l.t); return a&&b?{...l,a:mainCentroid(a),b:mainCentroid(b)}:null; }).filter(Boolean); if (!Ls.length) return emptyMsg(c,'No country names matched the map.');
+    const wv=d3.scaleLinear([0,d3.max(Ls,l=>l.v)],[.015,.07]), names=uniq(Ls.map(l=>l.s)), ends=new Map();
+    Ls.forEach(l=>{ const A=proj(l.a), B=proj(l.b); if (!A||!B) return; const a=W3(A), b=W3(B), it=item3(sc,{tip:`${l.s} → ${l.t}: ${fmt(l.v)}`, center:V3.mean([a,b])}); arc3(it,a,b,(mode==='great'?.35:.6)*lift*Math.hypot(b[0]-a[0],b[2]-a[2])/4+.15,wv(l.v),over3(c,l.s)||c.col(names.indexOf(l.s))); ends.set(l.s,a); ends.set(l.t,b); });
+    ends.forEach((p,k)=>{ const it=item3(sc,{tip:k, center:p}); it.spheres.push({p:[p[0],.06,p[2]], r:.08, col:names.includes(k)?c.col(names.indexOf(k)):c.fg}); if (c.labels && !c.mini) text3(sc,p,trunc(k,14),{dy:-10,cls:'label',fs:c.fs-2,w:500}); }); }
+  walls3(sc,{x:[0,L],y:[0,1],z:[0,D]}); sc.floorOnly=true; if (!o.wallcolor) sc.o=Object.assign({}, o, {wallcolor:c.ocean||null}); draw3(sc); return sc; }
+function arc3(it, a, b, h, r, col){ const N=14, P=t=>[a[0]+(b[0]-a[0])*t, Math.sin(Math.PI*t)*h+.02, a[2]+(b[2]-a[2])*t]; for (let i=0;i<N;i++) tube3(it,P(i/N),P((i+1)/N),r,col,10,false); }
+R3.flowMap = c=>geoFlow3(c,'flowMap','flow'); R3.connectionMap = c=>geoFlow3(c,'connectionMap','great'); R3.routeMap = c=>geoFlow3(c,'routeMap','route'); R3.cartogram = c=>geoFlow3(c,'cartogram','balls');
+
+/* ---------- flows: Sankey & alluvial as thick slabs ---------- */
+function bez3(a, b, t){ const xm=(a[0]+b[0])/2, u=1-t; return [u*u*u*a[0]+3*u*u*t*xm+3*u*t*t*xm+t*t*t*b[0], u*u*u*a[1]+3*u*u*t*a[1]+3*u*t*t*b[1]+t*t*t*b[1]]; }
+function sankey3(c, rid, L, stages){ if (!L.length) return emptyMsg(c); if (!d3.sankey) return emptyMsg(c,'Sankey layout could not load.'); const names=nodesOf(L), sc=Scene3(c,rid), o=sc.o, W=10, H=6, Zr=clamp3(o.depth,.15,4)*0.9;
+  let G; try { G=d3.sankey().nodeId(d=>d.name).nodeWidth(.3).nodePadding(Math.max(.1,Math.min(.4,H/names.length/2))).nodeAlign(d3.sankeyJustify).extent([[0,0],[W,H]])({nodes:names.map(name=>({name})), links:L.map(l=>({source:l.s,target:l.t,value:l.v}))}); }
+  catch(e){ return emptyMsg(c,'These flows loop back on themselves, so a Sankey can’t lay them out.'); }
+  const nm=s=>String(s).replace(/^\d+:/,''), ci=n=>over3(c,nm(n.name))||c.col(names.indexOf(n.name)), Y=v=>H-v, M=(a,u,w)=>[u,a,w], z0=Zr*.22, z1=Zr*.78, N=18;
+  G.links.forEach(l=>{ const col=ci(l.source), w=Math.max(.02,l.width), A=[l.source.x1,l.y0], B=[l.target.x0,l.y1], up=d3.range(N+1).map(i=>{ const p=bez3(A,B,i/N); return [p[0], Y(p[1]-w/2)]; }), lo=d3.range(N+1).map(i=>{ const p=bez3(A,B,i/N); return [p[0], Y(p[1]+w/2)]; });
+    const it=item3(sc,{tip:`${nm(l.source.name)} → ${nm(l.target.name)}: ${fmt(l.value)}`, center:[(A[0]+B[0])/2, Y((A[1]+B[1])/2), Zr/2], op:.78, bias:.01});
+    face3(it, [...lo.map(p=>[p[0],p[1],z0]).reverse(), ...up.map(p=>[p[0],p[1],z0])], col, {n:[0,0,-1]});
+    for (let i=0;i<N;i++){ [[up,1],[lo,-1]].forEach(([P,s])=>{ const q=[[P[i][0],P[i][1],z0],[P[i+1][0],P[i+1][1],z0],[P[i+1][0],P[i+1][1],z1],[P[i][0],P[i][1],z1]]; let nn=newell(q); if (nn[1]*s<0) nn=nn.map(v=>-v); face3(it, q, col, {n:nn, smooth:true}); }); } });
+  G.nodes.forEach(n=>{ const col=ci(n), it=item3(sc,{tip:`${nm(n.name)}: ${fmt(n.value)}`, center:[(n.x0+n.x1)/2, Y((n.y0+n.y1)/2), Zr/2]}); solid3(it,'box',M,Y(n.y1),Y(n.y0),(n.x0+n.x1)/2,Zr/2,(n.x1-n.x0)/2,Zr/2,col);
+    if (!c.mini) { const last=n.x1>W-0.5; text3(sc,[last?n.x0:n.x1, Y((n.y0+n.y1)/2), 0],trunc(nm(n.name),18)+(c.labels?'  '+fmt(n.value):''),{a:last?'end':'start',dx:last?-8:8,cls:'label',fs:c.fs-1,w:500}); } });
+  if (stages && !c.mini) { const xs=uniq(G.nodes.map(n=>n.x0)).sort((a,b)=>a-b); stages.forEach((k,i)=>{ if (xs[i]!=null) text3(sc,[xs[i]+.15,0,0],k,{dy:18,ax:'c',w:600}); }); }
+  walls3(sc,{x:[-.2,W+.2],y:[0,H],z:[0,Zr]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.sankey = c=>sankey3(c,'sankey',links(c));
+R3.alluvial = c=>{ const st=(c.e.stages||[]).filter(Boolean), y=c.e.y; if (st.length<2) return emptyMsg(c,'Choose two or more category columns as stages.'); const L=[];
+  c.rows.forEach(r=>{ for (let i=0;i<st.length-1;i++){ const a=label(r[st[i]]), b=label(r[st[i+1]]); if (a&&b) L.push({s:i+':'+a, t:(i+1)+':'+b, v:y?(isNum(r[y])?r[y]:0):1}); } });
+  const agg=d3.rollups(L,v=>d3.sum(v,l=>l.v),l=>l.s,l=>l.t).flatMap(([a,arr])=>arr.map(([b,v])=>({s:a,t:b,v}))).filter(l=>l.v>0); return sankey3(c,'alluvial',agg,st); };
+
+/* ---------- chords: a ring with arcs vaulting over the middle ---------- */
+function chord3(c, rid, ribbon){ const L=links(c); if (!L.length) return emptyMsg(c); const names=nodesOf(L), idx=new Map(names.map((n,i)=>[n,i])), sc=Scene3(c,rid), o=sc.o, lift=clamp3(o.lift,0,3), h=.14;
+  const col=i=>over3(c,names[i])||c.col(i), wv=d3.scaleLinear([0,d3.max(L,l=>l.v)],[.01,.045*o.ball]); let ang;
+  if (ribbon) { const Mx=names.map(()=>names.map(()=>0)); L.forEach(l=>Mx[idx.get(l.s)][idx.get(l.t)]+=l.v); const ch=d3.chord().padAngle(.035).sortSubgroups(d3.descending)(Mx);
+    ch.groups.forEach(g=>{ const it=item3(sc,{tip:`${names[g.index]}: ${fmt(g.value)}`, center:[Math.sin((g.startAngle+g.endAngle)/2),h/2,Math.cos((g.startAngle+g.endAngle)/2)]}); ring3(it,1,1.12,g.startAngle,g.endAngle,0,h,col(g.index)); });
+    ang=ch.map(d=>({a:(d.source.startAngle+d.source.endAngle)/2, b:(d.target.startAngle+d.target.endAngle)/2, i:d.source.index, v:d.source.value, tip:`${names[d.source.index]} → ${names[d.target.index]}: ${fmt(d.source.value)}`}));
+    if (!c.mini) ch.groups.forEach(g=>{ const m=(g.startAngle+g.endAngle)/2; if (g.endAngle-g.startAngle<0.06) return; text3(sc,[Math.sin(m)*1.25,0,Math.cos(m)*1.25],trunc(names[g.index],16),{ax:'c',fs:c.fs-1,w:500}); }); }
+  else { const a=i=>i*2*Math.PI/names.length; names.forEach((n,i)=>{ const p=[Math.sin(a(i)),.1,Math.cos(a(i))], it=item3(sc,{tip:n, center:p}); it.spheres.push({p, r:.07*o.ball, col:col(i)}); if (!c.mini) text3(sc,[Math.sin(a(i))*1.18,0,Math.cos(a(i))*1.18],trunc(n,16),{ax:'c',fs:c.fs-1,w:500}); });
+    ang=L.map(l=>({a:a(idx.get(l.s)), b:a(idx.get(l.t)), i:idx.get(l.s), v:l.v, tip:`${l.s} — ${l.t}: ${fmt(l.v)}`})); }
+  ang.forEach(d=>{ const r0=ribbon?.97:1, A=[Math.sin(d.a)*r0,h,Math.cos(d.a)*r0], B=[Math.sin(d.b)*r0,h,Math.cos(d.b)*r0], C=[0,h+.35+lift*.55*(1-Math.cos((d.a-d.b)))/2,0], N=18, P=t=>[0,1,2].map(k=>(1-t)*(1-t)*A[k]+2*(1-t)*t*C[k]+t*t*B[k]);
+    const it=item3(sc,{tip:d.tip, center:P(.5), op:.85}); for (let i=0;i<N;i++) tube3(it,P(i/N),P((i+1)/N),wv(d.v),col(d.i),10,false); });
+  walls3(sc,{x:[-1.3,1.3],y:[0,.2],z:[-1.3,1.3]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.chord = c=>chord3(c,'chord',true); R3.nonRibbonChord = c=>chord3(c,'nonRibbonChord',false);
+
+/* ---------- arc diagram: arches standing over a line of nodes ---------- */
+R3.arcDiagram = c=>{ const L=links(c); if (!L.length) return emptyMsg(c); const names=nodesOf(L), sc=Scene3(c,'arcDiagram'), o=sc.o, W=10, x=i=>(i+.5)/names.length*W, lift=clamp3(o.lift,.1,3);
+  const deg=new Map(); L.forEach(l=>{ deg.set(l.s,(deg.get(l.s)||0)+l.v); deg.set(l.t,(deg.get(l.t)||0)+l.v); }); const nr=d3.scaleSqrt([0,d3.max([...deg.values()])],[.05,.22*o.ball]), wv=d3.scaleLinear([0,d3.max(L,l=>l.v)],[.012,.05]);
+  L.forEach(l=>{ const i=names.indexOf(l.s), j=names.indexOf(l.t), x1=x(i), x2=x(j), r=Math.abs(x2-x1)/2, cx=(x1+x2)/2, N=20, P=t=>[cx-Math.cos(Math.PI*t)*r*Math.sign(x2-x1), Math.sin(Math.PI*t)*r*lift*.8+.05, 0];
+    const it=item3(sc,{tip:`${l.s} — ${l.t}: ${fmt(l.v)}`, center:[cx,r*.4,0], op:.85}); for (let k=0;k<N;k++) tube3(it,P(k/N),P((k+1)/N),wv(l.v),over3(c,l.s)||c.col(i),10,false); });
+  names.forEach((n,i)=>{ const p=[x(i),nr(deg.get(n)||0),0], it=item3(sc,{tip:`${n}: ${fmt(deg.get(n)||0)}`, center:p}); it.spheres.push({p, r:nr(deg.get(n)||0), col:over3(c,n)||c.col(i)}); if (!c.mini) text3(sc,[x(i),0,0],trunc(n,16),{a:'end',dx:-2,dy:12,rot:-40,ax:'c',fs:c.fs-1}); });
+  walls3(sc,{x:[0,W],y:[0,1],z:[-.6,.6]}); sc.floorOnly=true; draw3(sc); return sc; };
+
+/* ---------- networks: a real 3D force layout ---------- */
+function force3(names, L){ const n=names.length, idx=new Map(names.map((v,i)=>[v,i])), rnd=lcg3(), P=names.map(()=>[rnd()*2-1, rnd()*2-1, rnd()*2-1]), E=L.map(l=>[idx.get(l.s), idx.get(l.t)]), k=1.1;
+  for (let it=0; it<260; it++){ const F=P.map(()=>[0,0,0]), temp=.12*(1-it/260)+.005;
+    for (let i=0;i<n;i++) for (let j=i+1;j<n;j++){ const d=V3.sub(P[i],P[j]), dist=Math.max(.05,Math.hypot(...d)), f=k*k/dist/dist; for (let q=0;q<3;q++){ F[i][q]+=d[q]/dist*f; F[j][q]-=d[q]/dist*f; } }
+    E.forEach(([a,b])=>{ const d=V3.sub(P[a],P[b]), dist=Math.max(.05,Math.hypot(...d)), f=dist*dist/k*0.9; for (let q=0;q<3;q++){ F[a][q]-=d[q]/dist*f; F[b][q]+=d[q]/dist*f; } });
+    P.forEach((p,i)=>{ for (let q=0;q<3;q++) F[i][q]-=p[q]*0.08; const m=Math.hypot(...F[i])||1, s=Math.min(m,temp*4)/m; for (let q=0;q<3;q++) p[q]+=F[i][q]*s; }); }
+  const ex=[0,1,2].map(q=>d3.extent(P,p=>p[q])), cen=ex.map(e=>(e[0]+e[1])/2), sc=3/Math.max(...ex.map(e=>(e[1]-e[0])/2||1)); return P.map(p=>p.map((v,q)=>(v-cen[q])*sc)); }
+function net3(c, rid, sized){ const L=links(c); if (!L.length) return emptyMsg(c); const names=nodesOf(L).slice(0,80), keep=new Set(names), LL=L.filter(l=>keep.has(l.s)&&keep.has(l.t)), sc=Scene3(c,rid), o=sc.o;
+  const P=force3(names, LL).map(p=>[p[0], p[1]+3.6, p[2]]), deg=new Map(); LL.forEach(l=>{ deg.set(l.s,(deg.get(l.s)||0)+l.v); deg.set(l.t,(deg.get(l.t)||0)+l.v); });
+  const nr=sized ? d3.scaleSqrt([0,d3.max([...deg.values()])],[.08,.42]) : ()=>.16, wv=d3.scaleLinear([0,d3.max(LL,l=>l.v)],[.015,.06]);
+  LL.forEach(l=>{ const a=P[names.indexOf(l.s)], b=P[names.indexOf(l.t)], it=item3(sc,{tip:`${l.s} — ${l.t}: ${fmt(l.v)}`, center:V3.mean([a,b]), op:.7}); tube3(it,a,b,wv(l.v),c.muted,6); });
+  names.forEach((n,i)=>{ const p=P[i], r=nr(deg.get(n)||0)*o.ball, it=item3(sc,{tip:`${n}: ${fmt(deg.get(n)||0)} connection${(deg.get(n)||0)===1?'':'s'}`, center:p}); it.spheres.push({p, r, col:over3(c,n)||c.col(sized?i:0)});
+    if (o.drop && !c.mini) it.lines.push({a:p, b:[p[0],0,p[2]], col:c.muted, w:.8, dash:'2 4', op:.35}); if (!c.mini && (c.labels || names.length<=30)) text3(sc,p,trunc(n,14),{dy:-14-r*30,cls:'label',fs:c.fs-2,w:500}); });
+  walls3(sc,{x:[-3.4,3.4],y:[0,7.2],z:[-3.4,3.4]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.network = c=>net3(c,'network',false); R3.sociogram = c=>net3(c,'sociogram',true);
+
+/* ---------- trees in space ---------- */
+function tree3(c, rid, kind){ const hh=hier(c); if (!hh) return emptyMsg(c); const sc=Scene3(c,rid), o=sc.o, tops=hh.children||[], lift=clamp3(o.lift,.1,3), col=n=>n.depth?(over3(c,n.data.name)||topColour(c,n,tops)):c.fg, nodes=hh.descendants();
+  const tipOf=n=>`${n.ancestors().map(a=>a.data.name).reverse().join(' → ')}${n.value?': '+fmt(n.value):''}`, maxD=hh.height||1;
+  if (kind==='cone') { const dy=1.6*lift; (function place(n,p,R){ n.p=p; const k=(n.children||[]).length; if (!k) return; const r=k===1?0:Math.max(.5,R); n.children.forEach((ch,i)=>{ const a=i/k*2*Math.PI+n.depth*0.6; place(ch,[p[0]+Math.cos(a)*r, p[1]-dy, p[2]+Math.sin(a)*r], R*0.55); }); })(hh,[0,dy*(maxD+.6),0], Math.max(1.4, Math.sqrt(hh.leaves().length)*0.55)); }
+  else if (kind==='sphere') { const leaves=hh.leaves(), N=leaves.length, ga=Math.PI*(3-Math.sqrt(5)); leaves.forEach((n,i)=>{ const yy=N>1?1-2*(i+.5)/N:0, r=Math.sqrt(1-yy*yy); n.dir=[Math.cos(ga*i)*r, yy*.75, Math.sin(ga*i)*r]; });
+    hh.eachAfter(n=>{ if (n.children) n.dir=V3.norm(V3.mean(n.children.map(ch=>ch.dir))); }); nodes.forEach(n=>{ const R=n.depth/maxD*3*lift; n.p=[n.dir[0]*R, 3.4+n.dir[1]*R, n.dir[2]*R]; }); }
+  else if (kind==='org') { const W=Math.max(6, hh.leaves().length*1.3), dy=1.3*lift, dz=1.1; d3.tree().size([W,1]).separation(()=>1)(hh); nodes.forEach(n=>{ n.p=[n.x, dy*(maxD-n.depth)+.4, n.depth*dz]; }); }
+  else { d3.tree().size([2*Math.PI, 1]).separation((a,b)=>(a.parent===b.parent?1:2)/Math.max(1,a.depth))(hh); nodes.forEach(n=>{ const R=n.depth/maxD*3.2; n.p=[Math.sin(n.x)*R, (maxD-n.depth)*.55*lift+.25, Math.cos(n.x)*R]; }); }
+  /* links */
+  hh.links().forEach(l=>{ const a=l.source.p, b=l.target.p, it=item3(sc,{tip:`${l.source.data.name} → ${l.target.data.name}`, center:V3.mean([a,b]), op:.9});
+    if (kind==='org') { const m=[a[0],(a[1]+b[1])/2,(a[2]+b[2])/2], m2=[b[0],m[1],m[2]]; tube3(it,a,m,.03,c.axisc); tube3(it,m,m2,.03,c.axisc); tube3(it,m2,b,.03,c.axisc); }
+    else { const N=8; for (let i=0;i<N;i++){ const P=t=>[a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*(t*t*(3-2*t)), a[2]+(b[2]-a[2])*t]; tube3(it,P(i/N),P((i+1)/N),kind==='mind'?.05-.01*Math.min(3,l.source.depth):.025,kind==='mind'?col(l.target):c.axisc,10,false); } } });
+  /* nodes */
+  nodes.forEach(n=>{ const p=n.p, cl=col(n), it=item3(sc,{tip:tipOf(n), center:p});
+    if (kind==='org') { const bw=.95, bh=.42; solid3(it,'box',(a,u,w)=>[u,a,w],p[1]-bh/2,p[1]+bh/2,p[0],p[2],bw/2,.12,n.depth<=1?cl:(c.bg==='none'?'#ffffff':c.bg));
+      if (!c.mini) text3(sc,[p[0],p[1],p[2]-.13],trunc(n.data.name,14),{cls:'label',fs:Math.min(c.fs-1,13),f:n.depth<=1?textOn(cl):c.fg,w:600}); }
+    else { const r=(kind==='mind'?Math.max(.1,.32-.07*n.depth):n.children?.11:.13)*o.ball; it.spheres.push({p, r, col:cl});
+      if (!c.mini && (!n.children || kind!=='cone' || n.depth<2 || c.labels)) text3(sc,p,trunc(n.data.name,18)+(c.labels&&!n.children&&n.value?'  '+fmt(n.value):''),{dy:-12-r*24,cls:'label',fs:c.fs-(n.children?1:2),w:n.children?600:400}); } });
+  const ex=[0,2].map(q=>d3.extent(nodes,n=>n.p[q])); walls3(sc,{x:[ex[0][0]-.8,ex[0][1]+.8],y:[0,d3.max(nodes,n=>n.p[1])+.5],z:[ex[1][0]-.8,ex[1][1]+.8]}); sc.floorOnly=true; draw3(sc); return sc; }
+R3.dendrogram = c=>tree3(c,'dendrogram','cone'); R3.hyperbolicTree = c=>tree3(c,'hyperbolicTree','sphere'); R3.orgChart = c=>tree3(c,'orgChart','org'); R3.mindMap = c=>tree3(c,'mindMap','mind');
+
+/* ---------- route the chosen charts through 3D when it is switched on ---------- */
+Object.keys(R3).forEach(rid=>{ const base=R[rid].draw, d3draw=R3[rid]; R[rid].draw = c => is3(rid) ? d3draw(c) : base(c); });
+
+/* ---------- Pick a chart: 2D / 3D switch ---------- */
+const _goalList3 = goalList; goalList = function(){ const l=_goalList3.apply(this, arguments); return dim3() ? l.filter(r=>R3[r]) : l; };
+const thumb3 = new Map(); const _thumbFor3 = thumbFor;
+thumbFor = function(rid){ if (!is3(rid)) return _thumbFor3(rid); let el=thumb3.get(rid); if (!el) { el=thumb(rid, thumbSample(R[rid].ex), null, true); if (!thumbOk(el)) el=thumb(rid, sampleData(R[rid].ex), null, true); thumb3.set(rid, el); } return el; };
+function syncDimbar(){ const on=dim3(); $$('.dimseg button').forEach(b=>b.setAttribute('aria-pressed', String((b.dataset.dim==='3d')===on)));
+  const n2=$('#dimN2'), n3=$('#dimN3'); if (n2) n2.textContent=`All ${ORDER.length} charts`; if (n3) n3.textContent=`${Object.keys(R3).length} have a 3D version`; const nt=$('#dimNote'); if (nt) nt.hidden=!on; }
+function setDim(v){ if ((S.opts.dim||'2d')===v) return; S.opts.dim=v; G.expanded=false; renderGallery(); if (S.stage==='work') stChanged(); save(); }
+const _renderGallery3 = renderGallery;
+renderGallery = function(){ _renderGallery3.apply(this, arguments); syncDimbar();
+  if (dim3()) { $$('#gallery .gt').forEach(b=>{ const r=b.dataset.rid; if (!NAME3[r]) return; const nm=b.querySelector('.nm'); if (nm) nm.textContent=NAME3[r]; b.setAttribute('aria-label', b.getAttribute('aria-label').replace(RINFO[r].name, NAME3[r])); }); $('#refsLine').innerHTML=''; } };
+const _showPeek3 = showPeek; showPeek = function(a, rid){ _showPeek3.apply(this, arguments); if (is3(rid)) $('#peekName').textContent=NAME3[rid]; };
+
+/* ---------- Modify chart: names, 3D tab, drag to rotate ---------- */
+const _render3 = render;
+render = function(){ document.body.classList.toggle('v3on', S.stage==='work' && is3(S.chart)); _render3.apply(this, arguments);
+  if (is3(S.chart)) { $('#chartName').textContent=NAME3[S.chart]; if ($('#crChart')) $('#crChart').textContent=NAME3[S.chart]; } const hud=$('#v3hud'); if (hud) hud.hidden=!(S.stage==='work' && is3(S.chart)); };
+const pctF3 = v=>Math.round(v*100)+'%', degF = v=>Math.round(v)+'°';
+Object.assign(CTL, {
+  v3Yaw:     {l:'Turn (left ↔ right)', t:'range', min:-90, max:90, step:1, def:()=>v3def(S.chart).Yaw, fmt:degF},
+  v3Pitch:   {l:'Tilt (viewing height)', t:'range', min:0, max:85, step:1, def:()=>v3def(S.chart).Pitch, fmt:degF},
+  v3Proj:    {l:'Projection', t:'seg', opts:[['ortho','Flat (isometric)'],['persp','Perspective']], def:'persp'},
+  v3Persp:   {l:'Perspective strength', t:'range', min:.05, max:1, step:.05, def:.25, fmt:pctF3, off:()=>v3o(S.chart).proj!=='persp'},
+  v3Zoom:    {l:'Size in the frame', t:'range', min:.5, max:1.3, step:.05, def:1, fmt:pctF3},
+  v3Shape:   {l:'Shape', t:'seg', opts:[], def:'box'},
+  v3Depth:   {l:'Depth', t:'range', min:.2, max:3, step:.05, def:1, fmt:pctF3},
+  v3Gap:     {l:'Gap between shapes', t:'range', min:0, max:.8, step:.02, def:.3, fmt:pctF3},
+  v3Rows:    {l:'Arrange the series', t:'seg', opts:[['rows','In rows, front to back'],['side','Side by side']], def:'rows'},
+  v3Ball:    {l:'Ball size', t:'range', min:.3, max:2, step:.05, def:1, fmt:pctF3},
+  v3Lift:    {l:'Height of the blocks', t:'range', min:0, max:2.5, step:.05, def:1, fmt:pctF3},
+  v3Height:  {l:'Thickness', t:'range', min:.04, max:.6, step:.01, def:.2, fmt:pctF3},
+  v3Explode: {l:'Pull slices apart', t:'range', min:0, max:.4, step:.01, def:0, fmt:pctF3},
+  v3Shade:   {l:'Shading strength', t:'range', min:0, max:1, step:.05, def:.6, fmt:pctF3},
+  v3Light:   {l:'Light comes from', t:'range', min:-90, max:90, step:5, def:-35, fmt:v=>v<0?`${-v}° left`:v>0?`${v}° right`:'Straight on'},
+  v3Edges:   {l:'Edges', t:'seg', opts:[['','Subtle'],['strong','Strong'],['none','None']], def:''},
+  v3Walls:   {l:'Show walls & floor', t:'check', def:true},
+  v3WallColor:{l:'Wall colour', t:'color', def:()=>d3.interpolateRgb(BG[S.opts.bg].bg==='none'?'#ffffff':BG[S.opts.bg].bg, BG[S.opts.bg].fg)(S.opts.bg==='dark'?0.07:0.045), off:()=>!v3o(S.chart).walls},
+  v3Drop:    {l:'Drop lines to the floor', t:'check', def:true},
+  v3Shadow:  {l:'Soft shadows on the floor', t:'check', def:true} });
+Object.defineProperty(CTL.v3Shape, 'opts', {get(){ const k=KIND3(S.chart); return k==='stack' ? [['cyl','Round'],['box','Square']] : S.chart==='boxplot' ? [['box','Box'],['cyl','Cylinder']] : S.chart==='waffle' ? [['box','Cubes'],['cyl','Discs']] : S.chart==='stackedBar' ? [['box','Box'],['cyl','Cylinder']] : [['box','Box'],['cyl','Cylinder'],['cone','Cone'],['pyr','Pyramid']]; }});
+Object.defineProperty(CTL.v3Shape, 'def', {get(){ return v3def(S.chart).Shape; }});
+const V3VIEWS = [['Front',0,6],['Classic',26,18],['Isometric',45,35],['Bird’s-eye',22,62],['Low angle',30,4],['From the side',68,14]];
+function shapeKeys3(rid){ const k=KIND3(rid);
+  switch (k) { case 'bars': return ['Shapes & depth',['v3Shape','v3Depth','v3Gap', ...(rid==='groupedBar'?['v3Rows']:[])]];
+    case 'ribbon': return ['Ribbons & depth',['v3Depth','v3Gap']]; case 'pie': return ['Thickness & slices',['v3Height','v3Explode']];
+    case 'pts': return rid==='connectedScatter' ? ['Depth & points',['v3Depth','v3Ball']] : ['Depth axis & points',['@v3z','v3Depth','v3Drop']];
+    case 'lolli': return ['Sticks & balls',['v3Ball','v3Depth','v3Gap']]; case 'balls': return ['Balls & depth',['v3Ball','v3Depth']];
+    case 'blocks': return ['Blocks',[...(rid==='waffle'?['v3Shape']:[]),'v3Lift','v3Gap']]; case 'props': return ['Spacing',['v3Gap']];
+    case 'stack': return ['Layers',['v3Shape','v3Gap']]; case 'hex': return ['Columns',['v3Lift','v3Gap']]; case 'surface': return ['Surface',['v3Lift']];
+    case 'map': return ['Height on the map',['v3Lift']]; case 'distv': return ['Shapes & depth', rid==='boxplot'?['v3Shape','v3Depth','v3Gap']:rid==='violin'?['v3Gap']:['v3Ball','v3Depth']];
+    case 'disth': return ['Points & depth',['v3Ball','v3Depth']]; case 'rings': return ['Thickness & height',['v3Height','v3Lift']]; case 'gauge': return ['Thickness',['v3Height']];
+    case 'radar': return ['Layers',['v3Height','v3Gap']]; case 'mekko': return ['Depth',['v3Depth']];
+    case 'flow': return ['Thickness',['v3Depth']]; case 'chord': return ['Arcs',['v3Lift','v3Ball']]; case 'net': return rid==='arcDiagram' ? ['Arches & nodes',['v3Lift','v3Ball']] : ['Nodes',['v3Ball','v3Drop']]; case 'tree': return ['Nodes & levels',['v3Ball','v3Lift']]; }
+  return ['Shapes',['v3Depth']]; }
+function v3Groups(){ const rid=S.chart, G=[['v3mode','2D or 3D',['@v3mode']]]; if (!is3(rid)) return G; const k=KIND3(rid), [nm, keys]=shapeKeys3(rid);
+  G.push(['v3view','Camera & view',['@v3views','v3Yaw','v3Pitch','v3Proj','v3Persp','v3Zoom'],'You can also drag the chart itself to turn and tilt it.']);
+  G.push(['v3shape', nm, keys, k==='pts'&&rid!=='connectedScatter' ? 'The third axis runs into the picture. Pick which number column it shows.' : rid==='connectedScatter' ? 'The order of the rows runs into the picture, so the path reads front to back.' : '']);
+  G.push(['v3light','Light & shading',['v3Shade','v3Light','v3Edges', ...(NOWALL3.has(k)?[]:['v3Shadow'])]]);
+  if (!NOWALL3.has(k)) G.push(['v3walls',FLOOR3.has(k)?(k==='map'?'Sea & floor':'Floor'):'Walls & floor',FLOOR3.has(k)?['v3Walls','v3WallColor']:['v3Walls','v3WallColor','o.grid','gridColor']]);
+  return G; }
+TABS.v3 = {box:'#v3Groups', head:null, reset:'#v3Reset', get groups(){ return v3Groups(); }}; EXTRA_KEYS.v3 = [];
+Object.assign(GI, {v3mode:'<path d="M3 6.5 10 3l7 3.5v7L10 17l-7-3.5z"/><path d="M3 6.5 10 10l7-3.5M10 10v7"/>', v3view:'<path d="M2.5 10s3-5.5 7.5-5.5 7.5 5.5 7.5 5.5-3 5.5-7.5 5.5S2.5 10 2.5 10z"/><circle cx="10" cy="10" r="2.3"/>',
+  v3shape:'<path d="M4 7l4-2 4 2v8l-4 2-4-2z"/><path d="M4 7l4 2 4-2M8 9v8"/><path d="M14 9.5V16M16.5 8v8"/>', v3light:'<circle cx="10" cy="10" r="3.2"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/>',
+  v3walls:'<path d="M3 15.5 8 13V3.5L3 6z"/><path d="M8 13l9 2.5-5 2.5-9-2.5"/><path d="M8 3.5l9 2.5v9.5"/>'});
+const _groupSum3 = groupSum;
+groupSum = function(gid){ const o=v3o(S.chart);
+  switch (gid) { case 'v3mode': return dim3() ? (R3[S.chart] ? '3D' : '3D isn’t available for this chart') : '2D';
+    case 'v3view': return `${Math.round(o.yaw)}° turn · ${Math.round(o.pitch)}° tilt · ${o.proj==='persp'?'perspective':'flat'}`;
+    case 'v3shape': { const k=KIND3(S.chart); if (k==='lolli'||k==='balls') return `${Math.round(o.ball*100)}% ball size`; if (k==='blocks'||k==='hex') return `${Math.round(o.lift*100)}% height`; if (k==='props') return `${Math.round(o.gap*100)}% spacing`; if (k==='stack') return (o.shape==='cyl'?'Round':'Square')+` · ${Math.round(o.gap*100)}% gaps`; if (k==='rings'||k==='gauge'||k==='radar') return `${Math.round(o.height*100)}% thick`; if (k==='surface'||k==='map') return `${Math.round(o.lift*100)}% height`; if (k==='distv'||k==='disth'||k==='mekko') return `${Math.round(o.depth*100)}% deep`; return k==='pie' ? `${Math.round(o.height*100)}% thick`+(o.explode?' · pulled apart':'') : k==='pts' ? `Depth: ${zcol3({e:encFor(S.chart), types:Object.fromEntries(S.cols.map(c=>[c.name,c.type])), mini:false})||'by group'}` : (k==='bars' ? ({box:'Boxes',cyl:'Cylinders',cone:'Cones',pyr:'Pyramids'})[o.shape]+' · ' : '')+`${Math.round(o.depth*100)}% deep`; }
+    case 'v3light': return `${Math.round(o.shade*100)}% shading · ${({'':'subtle',strong:'strong',none:'no'})[o.edges]} edges`;
+    case 'v3walls': return o.walls ? 'Shown'+(S.opts.grid?' · gridlines':'') : 'Hidden'; }
+  return _groupSum3.apply(this, arguments); };
+function v3modeHTML(){ const on=dim3(), has=!!R3[S.chart]; let note='';
+  if (on && !has) { const alts=Object.keys(R3).filter(r=>FITS[r]!==false && fits(R[r], S.cols)).slice(0,6);
+    note=`<p class="hint st-help">${esc(RINFO[S.chart].name)} has no 3D version.${alts.length?' These work with your data in 3D:':''}</p>${alts.length?`<div class="v3alts">${alts.map(r=>`<button type="button" class="btn btn-line" data-v3go="${r}">${esc(NAME3[r])}</button>`).join('')}</div>`:''}`; }
+  else if (!on && has) note=`<p class="hint st-help">This chart also comes in 3D: ${esc(NAME3[S.chart])}.</p>`;
+  return `<div class="st-c field"><span class="st-l">Draw the chart in</span><div class="seg v3seg"><button type="button" data-v3mode="2d" aria-pressed="${!on}">2D</button><button type="button" data-v3mode="3d" aria-pressed="${on}">3D</button></div></div>${note}`; }
+function v3viewsHTML(){ const o=v3o(S.chart); return `<div class="st-c field"><span class="st-l">Quick views</span><div class="v3views">${V3VIEWS.map(([n,y,p])=>`<button type="button" data-v3view="${y},${p}" aria-pressed="${Math.round(o.yaw)===y&&Math.round(o.pitch)===p}"><svg viewBox="0 0 24 24" aria-hidden="true">${viewIcon(y,p)}</svg><span>${n}</span></button>`).join('')}</div></div>`; }
+function viewIcon(yaw, pitch){ const cam=cam3({yaw, pitch}), P=p=>{ const v=cam.rot(p); return [12+v[0]*6.2, 12-v[1]*6.2]; }, f=pts=>'M'+pts.map(p=>P(p).map(v=>v.toFixed(1)).join(',')).join('L')+'Z';
+  const b=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]], fs=[[0,1,2,3,[0,0,-1]],[1,5,6,2,[1,0,0]],[5,4,7,6,[0,0,1]],[4,0,3,7,[-1,0,0]],[3,2,6,7,[0,1,0]],[4,5,1,0,[0,-1,0]]];
+  return fs.filter(q=>cam.rot(q[4])[2]<-0.01).map(q=>`<path d="${f(q.slice(0,4).map(i=>b[i]))}" fill="${q[4][1]===1?'currentColor':'none'}" fill-opacity=".25"/>`).join(''); }
+function v3zHTML(){ const enc=encFor(S.chart), nums=S.cols.filter(c=>c.type==='number' && ![enc.x,enc.y,enc.s].includes(c.name)).map(c=>c.name), cur=zcol3({e:enc, types:Object.fromEntries(S.cols.map(c=>[c.name,c.type])), mini:false});
+  return `<label class="st-c field"><span class="st-l">Depth axis shows</span><select data-v3z>${nums.length?nums.map(n=>`<option value="${esc(n)}" ${n===cur?'selected':''}>${esc(n)}</option>`).join(''):'<option value="">No other number column — grouped by colour</option>'}</select></label>`; }
+const _ctlHTML3 = ctlHTML; ctlHTML = function(k){ if (k==='@v3mode') return v3modeHTML(); if (k==='@v3views') return v3viewsHTML(); if (k==='@v3z') return v3zHTML(); return _ctlHTML3.apply(this, arguments); };
+const _bindCtls3 = bindCtls;
+bindCtls = function(root){ _bindCtls3.apply(this, arguments);
+  root.querySelectorAll('[data-v3mode]').forEach(b=>b.onclick=()=>{ S.opts.dim=b.dataset.v3mode; thumb3.clear(); stChanged(); toast(S.opts.dim==='3d' ? (R3[S.chart]?'Drawn in 3D. Drag the chart to turn it.':'This chart has no 3D version — pick one below.') : 'Back to 2D.'); });
+  root.querySelectorAll('[data-v3go]').forEach(b=>b.onclick=()=>openChart(b.dataset.v3go));
+  root.querySelectorAll('[data-v3view]').forEach(b=>b.onclick=()=>{ const [y,p]=b.dataset.v3view.split(',').map(Number), st=stOf(); st.v3Yaw=y; st.v3Pitch=p; stChanged(); });
+  root.querySelectorAll('[data-v3z]').forEach(s=>s.onchange=()=>{ if (s.value) stOf().v3Z=s.value; else delete stOf().v3Z; stChanged(); }); };
+const _renderStGroups3 = renderStGroups; renderStGroups = function(){ _renderStGroups3.apply(this, arguments); renderTab('v3'); };
+const _tabBadges3 = tabBadges; tabBadges = function(){ _tabBadges3.apply(this, arguments); const b=$('.ptab-n[data-n="v3"]'); if (!b) return; const n=countSet('v3'); b.hidden=!n; b.textContent=n; };
+/* clicking a 3D shape or the walls opens their settings in the side panel */
+Object.assign(EL_TAG, {m3:'3D shape', walls:'Walls & floor'});
+Object.defineProperty(ELEMS, 'm3', {get(){ const multi=(LASTLEG||[]).length>1; return ['3D shapes', [...(multi?['@series']:['colorMode','monoColor']), '@hiCat', ...shapeKeys3(S.chart)[1].filter(k=>k!=='@v3z'), 'v3Shade','v3Light','v3Edges','markOpacity']]; }});
+ELEMS.walls = ['Walls & floor', ['v3Walls','v3WallColor','o.grid','gridColor','gridDash','gridWidth']];
+function v3Init(){
+  $$('.dimseg button').forEach(b=>b.onclick=()=>setDim(b.dataset.dim)); syncDimbar();
+  const rb=$('#v3Reset'); if (rb) rb.onclick=()=>{ const st=stOf(); Object.keys(st).filter(k=>/^v3/.test(k)).forEach(k=>delete st[k]); stChanged(); toast('3D view reset to the defaults.'); };
+  const zb=$('#stage'); if (zb && !$('#v3hud')) { zb.insertAdjacentHTML('beforebegin', `<div class="v3hud" id="v3hud" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 6.5A6.5 6.5 0 1 0 16.5 11"/><path d="M16 3v4h-4"/></svg><span>Drag the chart to turn and tilt it</span><button type="button" id="v3hudReset">Reset view</button></div>`);
+    $('#v3hudReset').onclick=()=>{ const st=stOf(); delete st.v3Yaw; delete st.v3Pitch; stChanged(); }; }
+  /* drag to rotate (a short click still selects and edits a part of the chart) */
+  const svg=$('#chart'); if (!svg) return; let st0=null, moved=false, raf=0, swallow=false;
+  svg.addEventListener('pointerdown', e=>{ if (e.button!==0 || !document.body.classList.contains('v3on') || document.body.classList.contains('panning')) return; const o=v3o(S.chart); st0={x:e.clientX, y:e.clientY, yaw:o.yaw, pitch:o.pitch, id:e.pointerId}; moved=false; });
+  window.addEventListener('pointermove', e=>{ if (!st0 || e.pointerId!==st0.id) return; const dx=e.clientX-st0.x, dy=e.clientY-st0.y; if (!moved && Math.hypot(dx,dy)<5) return;
+    if (!moved) { moved=true; document.body.classList.add('rot3d'); const hl=$('#hl'); if (hl) hl.hidden=true; try { svg.setPointerCapture(e.pointerId); } catch(err){} }
+    e.preventDefault(); const st=stOf(); st.v3Yaw=Math.round(clamp3(st0.yaw+dx*0.45,-90,90)); st.v3Pitch=Math.round(clamp3(st0.pitch+dy*0.35,0,85)); if (!raf) raf=requestAnimationFrame(()=>{ raf=0; render(); }); });
+  const end=e=>{ if (!st0 || (e && e.pointerId!==st0.id)) return; if (moved) { swallow=true; setTimeout(()=>{ swallow=false; }, 80); document.body.classList.remove('rot3d'); save(); } st0=null; moved=false; };
+  window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
+  svg.addEventListener('click', e=>{ if (swallow) { swallow=false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  svg.addEventListener('mousemove', e=>{ if (moved) { e.stopImmediatePropagation(); } }, true);
+  document.body.classList.toggle('v3on', S.stage==='work' && is3(S.chart)); }
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', v3Init, {once:true}); else v3Init();
+try { window.DVN3 = {S, openChart, render, R3, NAME3, setWorld:w=>{ WORLD=w; }}; } catch(e) {}
 
 try { Object.assign(window,{DVN:{R,SAMPLES,S,buildFile,specOf,presetOf,zipStore,SHEET,doExport}}); } catch(e) {}
 }
