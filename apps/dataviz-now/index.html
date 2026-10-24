@@ -4083,10 +4083,12 @@ const BG = {
 /* ---------- State ---------- */
 const S = { stage:'start', startMode:'pick', dataChosen:false, goal:'best', raw:'', dsKey:'budget', dsName:'', cols:[], rows:[], typeOverride:{}, chart:'barV', enc:{}, palette:'swiss', custom:[...PALETTES.custom.c], scale:'palette', reverse:false,
   opts:{title:'', subtitle:'', source:'', legend:true, labels:true, grid:true, sort:'none', size:'land', bg:'white', fs:12, st:{}}, userRaw:null, titleAuto:true };
-function save(){ try{ localStorage.setItem('dvn-state', JSON.stringify({raw:S.raw, dsKey:S.dsKey, dsName:S.dsName, chart:S.chart, palette:S.palette, custom:S.custom, scale:S.scale, reverse:S.reverse, opts:S.opts, size:S.size, userRaw:S.userRaw, typeOverride:S.typeOverride, enc:S.enc, titleAuto:S.titleAuto, goal:S.goal, stage:S.stage, startMode:S.startMode, dataChosen:S.dataChosen, sheet:sheetSnap()})); }catch(e){} }
+/* work is kept for this tab only: a reload keeps it, a new visit starts fresh */
+function save(){ try{ sessionStorage.setItem('dvn-state', JSON.stringify({raw:S.raw, dsKey:S.dsKey, dsName:S.dsName, chart:S.chart, palette:S.palette, custom:S.custom, scale:S.scale, reverse:S.reverse, opts:S.opts, size:S.size, userRaw:S.userRaw, typeOverride:S.typeOverride, enc:S.enc, titleAuto:S.titleAuto, goal:S.goal, stage:S.stage, startMode:S.startMode, dataChosen:S.dataChosen, sheet:sheetSnap()})); }catch(e){} }
 /* the unsaved table on step 1 survives a page reload */
 function sheetSnap(){ try { if (S.dataChosen || !SE.cells || !SE.cells.length || !seDims().R) return null; return {csv:seCSV(), src:SE.src||null, file:SE.file||null}; } catch(e){ return null; } }
-function restore(){ try{ const j=JSON.parse(localStorage.getItem('dvn-state')||'null'); if(j && j.raw){ Object.assign(S, j, {opts:Object.assign({}, S.opts, j.opts||{})}); if(!PALETTES[S.palette]) S.palette='swiss'; if(!S.size && OLD_SIZES[S.opts.size]) { const id=OLD_SIZES[S.opts.size]; S.size={g:presetOf(id).g, id, q:{}, custom:{w:1600,h:900,u:'px',ratio:'16:9'}}; } return true; } }catch(e){} return false; }
+function restore(){ try { localStorage.removeItem('dvn-state'); localStorage.removeItem('dvn-view'); } catch(e){}
+  try{ const j=JSON.parse(sessionStorage.getItem('dvn-state')||'null'); if(j && j.raw){ Object.assign(S, j, {opts:Object.assign({}, S.opts, j.opts||{})}); if(!PALETTES[S.palette]) S.palette='swiss'; if(!S.size && OLD_SIZES[S.opts.size]) { const id=OLD_SIZES[S.opts.size]; S.size={g:presetOf(id).g, id, q:{}, custom:{w:1600,h:900,u:'px',ratio:'16:9'}}; } return true; } }catch(e){} return false; }
 
 /* ---------- Parsing ---------- */
 const MONTHS='jan feb mar apr may jun jul aug sep oct nov dec'.split(' ');
@@ -5085,7 +5087,7 @@ function askStartOver(){ if (!hasWork()) { goStart('pick'); return; }
   const close=()=>{ d.hidden=true; $('#leaveScrim').hidden=true; };
   $('#leaveNo').onclick=close; $('#leaveScrim').onclick=close; d.onkeydown=e=>{ if(e.key==='Escape'){ e.stopPropagation(); close(); } };
   $('#leaveYes').onclick=()=>{ close(); startFresh(); }; }
-function startFresh(){ try { localStorage.removeItem('dvn-state'); localStorage.removeItem('dvn-view'); } catch(e){}
+function startFresh(){ try { sessionStorage.removeItem('dvn-state'); localStorage.removeItem('dvn-state'); localStorage.removeItem('dvn-view'); } catch(e){}
   try { sessionStorage.setItem('dvn-fresh','1'); } catch(e){}
   location.reload(); }
 
