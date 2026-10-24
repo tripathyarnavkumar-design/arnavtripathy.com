@@ -1553,6 +1553,11 @@ body.sp-open.ws-rail .work-grid{padding-left:calc(var(--rail) + clamp(280px,20vw
 .credit a:focus-visible,.ws-credit a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .ws-credit{align-self:stretch;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--rule);font-size:15px;color:var(--ink-3)}
 
+/* first paint: the page waits for the app to finish drawing, then everything appears together (a fallback shows it anyway after 4s) */
+html:not([data-dvn-ready="1"]) body{opacity:0;animation:dvnShow 0s 4s forwards}
+html[data-dvn-ready="1"] body{animation:fadeIn .22s ease-out}
+@keyframes dvnShow{to{opacity:1}}
+
 /* ---------- 3D preview: 2D / 3D switch on Pick a chart ---------- */
 .dimbar{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin:0 0 18px}
 .dimbar-l{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
@@ -5076,7 +5081,10 @@ function buildMarquee(){ const box=$('#marqBox'); if(!box || box.dataset.built) 
     b.innerHTML=`<span class="th"></span><span class="nm">${esc(RINFO[rid].name)}</span>`; return b; };
   const tracks=$$('#marqBox .marq-track'); let queue=[];
   rows.forEach((list,ri)=>{ const t=tracks[ri]; [0,1].forEach(copy=>list.forEach(rid=>{ const el=mk(rid); if(copy) { el.setAttribute('aria-hidden','true'); el.tabIndex=-1; } t.append(el); queue.push(el); })); });
-  let i=0; const step=()=>{ const t0=performance.now(); while(i<queue.length && performance.now()-t0<12){ const el=queue[i++]; el.firstChild.appendChild(thumbFor(el.dataset.rid).cloneNode(true)); } if(i<queue.length) setTimeout(step,16); }; setTimeout(step,120);
+  /* draw the thumbnails in view straight away, so the strip arrives with the rest of the page; the hidden ones follow in small slices */
+  const fill=el=>{ if (!el.firstChild.firstChild) el.firstChild.appendChild(thumbFor(el.dataset.rid).cloneNode(true)); };
+  const per=Math.ceil((box.clientWidth||1000)/110)+1; rows.forEach((list,ri)=>{ const kids=tracks[ri].children; for (let j=0;j<Math.min(per,list.length);j++){ fill(kids[j]); fill(kids[list.length+j]); } });
+  let i=0; const step=()=>{ const t0=performance.now(); while(i<queue.length && performance.now()-t0<12) fill(queue[i++]); if(i<queue.length) setTimeout(step,16); }; setTimeout(step,120);
   box.addEventListener('click', e=>{ const b=e.target.closest('.mq'); if(!b) return; const rid=b.dataset.rid; setStartMode('data', $('#optA')); setTimeout(()=>{ openSheet(rid); }, 30); });
 }
 
