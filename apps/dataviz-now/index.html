@@ -1597,6 +1597,69 @@ body.rot3d #hl{display:none!important}
 body:not(.ws-rail) .v3hud{display:none}
 @media (max-width:1100px){ .v3hud{position:static;margin:8px auto 0;width:max-content;max-width:calc(100% - 16px)} }
 
+/* ================= Landing, split view on a 12-column grid (preview) =================
+   One grid drives every size:  container 1280px max · 12 columns · gutter --g (24px, 32px on wide screens)
+   ≥1200px  pitch: columns 1–5 · column 6 left empty as air · chart frame: columns 7–12 (container 1040px max)
+   960–1199 pitch: columns 1–6 · frame: columns 7–12
+   <960     everything spans all columns, stacked
+   Inside the frame the thumbnails are exactly 2 columns + 1 gutter wide, so the frame shows three across,
+   and the rows, the frame padding and the gaps between blocks all use the same gutter.               */
+body.landing .pick.split{--g:24px;--cw:min(1040px, 100vw - 2*clamp(24px, 7vw, 160px));
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);row-gap:calc(var(--g)*2);align-items:start;align-content:center;
+  width:var(--cw);margin:0 auto;min-height:100dvh;box-sizing:border-box;padding:calc(var(--g)*3) 0}
+@media (min-width:1440px){ body.landing .pick.split{--g:24px} }
+.pick.split .split-l{grid-column:1 / span 5;display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--g)*1.25);min-width:0}
+.pick.split .split-r{grid-column:7 / span 6;min-width:0;align-self:stretch;display:flex;flex-direction:column}
+/* the pitch: a hanging left edge, text held to a readable measure */
+.pick.split .hero{align-items:flex-start;text-align:left;gap:calc(var(--g)*.6)}
+.pick.split .hero-mark{font-size:30px;gap:10px;line-height:1}
+.pick.split .hero-mark svg{width:30px;height:30px}
+.pick.split .hero-sub{font-size:16px;line-height:1.55;max-width:42ch;text-wrap:pretty}
+.pick.split .pick-opts.single{width:100%;grid-template-columns:minmax(0,1fr)}
+.pick.split .pick-opts.single .opt{display:flex;flex-direction:column;gap:5px;padding:16px 18px 14px}
+.pick.split .pick-opts.single .opt-ill{display:block;width:100%;max-width:160px;height:auto;margin:0 0 4px}
+.pick.split .pick-opts.single .opt-t{margin-top:0;font-size:16px}
+.pick.split .pick-opts.single .opt-d{font-size:15px;text-wrap:pretty}
+.pick.split .pick-opts.single .opt-m{margin-top:4px;padding-top:8px;align-self:stretch}
+.pick.split .credit{margin:0;max-width:52ch;text-align:left;font-size:15px}
+/* the frame: its top edge lines up with the logo; label sits on the same hanging line */
+.pick.split .marq{width:100%;flex:1;margin:0;gap:12px;align-items:stretch;display:flex;flex-direction:column}
+.pick.split .marq-h{text-align:left;margin:0;padding:0;font-size:15px;line-height:20px}
+/* the frame takes whatever height the left column has: it starts with the logo and ends with the credit line */
+.pick.split .marq-box{--p:calc(var(--g)*.67);flex:1;min-height:300px;container-type:size;padding:var(--p) 0;gap:var(--p);justify-content:space-between}
+.pick.split .marq-row{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.pick.split .marq-track{gap:var(--g);animation-name:marqG}
+.pick.split .marq-row:nth-child(3) .marq-track{animation-duration:250s}
+@keyframes marqG{from{transform:translateX(0)}to{transform:translateX(calc(-50% - var(--g)/2))}}
+/* three rows always fill the frame: thumbnail height = (frame inner height − 2 gaps − 3 names) / 3, width follows at 8:5 */
+.pick.split .mq{--th:calc((100cqh - 2*var(--p) - 3*19px) / 3);width:calc(var(--th) * 1.6);gap:5px}
+.pick.split .mq .th{width:100%;height:var(--th)}
+.pick.split .mq .nm{font-size:11px;line-height:14px}
+/* grid overlay for review: press G */
+.pick.split::before{content:"";position:absolute;inset:0;left:50%;width:var(--cw);transform:translateX(-50%);pointer-events:none;z-index:50;opacity:0;transition:opacity .2s;
+  background:repeating-linear-gradient(90deg, rgba(224,56,28,.07) 0 calc((var(--cw) - 11*var(--g))/12), transparent calc((var(--cw) - 11*var(--g))/12) calc((var(--cw) - 11*var(--g))/12 + var(--g)))}
+body.landing .pick.split{position:relative}
+body.show-grid .pick.split::before{opacity:1}
+@media (max-width:1199px){
+  .pick.split .split-l{grid-column:1 / span 6}
+  .pick.split .split-r{grid-column:7 / span 6}
+  .pick.split .hero-mark{font-size:28px} .pick.split .hero-mark svg{width:28px;height:28px}
+}
+@media (max-width:959px){
+  body.landing .pick.split{min-height:0;padding:calc(var(--g)*2) 0;row-gap:calc(var(--g)*1.5);align-content:start}
+  .pick.split .split-l{display:contents}
+  .pick.split .hero,.pick.split .pick-opts.single,.pick.split .split-r,.pick.split .credit{grid-column:1 / -1}
+  .pick.split .hero{order:1} .pick.split .pick-opts.single{order:2} .pick.split .split-r{order:3} .pick.split .credit{order:4}
+  .pick.split .marq-box{flex:none;height:360px}
+}
+@media (max-width:600px){
+  body.landing .pick.split{--g:16px}
+  .pick.split .hero-mark{font-size:26px;gap:8px} .pick.split .hero-mark svg{width:26px;height:26px}
+  .pick.split .hero-sub{font-size:16px}
+  .pick.split .pick-opts.single .opt-ill{display:none}
+  .pick.split .marq-box{height:320px}
+}
+
 </style>
 <header class="mast" id="mast" hidden>
   <a class="mark" href="#" id="homeLink" aria-label="DataViz Now, back to the start">
@@ -1623,7 +1686,8 @@ body:not(.ws-rail) .v3hud{display:none}
   <section class="view create" id="view-create">
     <!-- Start: choose A or B, then the choice fills the screen -->
     <div class="start" id="startView">
-      <div class="pick" id="pickView">
+      <div class="pick split" id="pickView">
+        <div class="split-l">
         <div class="hero"><h1 class="hero-mark"><svg width="64" height="64" viewBox="3.2 3 15.8 15.8" aria-hidden="true"><path d="M10.4 11.6V5A6.6 6.6 0 1 0 17 11.6Z" fill="var(--red)"/><path d="M12 10V3.4A6.6 6.6 0 0 1 18.6 10Z" fill="#A5B4FC"/></svg><span>DataViz Now</span></h1><p class="hero-sub">Turn any table into the right chart. Add your data, pick from <span id="heroN">115+</span> visualization techniques, and export for web, print or publication.</p></div>
         <div class="pick-opts single">
           <button class="opt" type="button" data-go="data" id="optA" aria-describedby="optAd">
@@ -1640,11 +1704,14 @@ body:not(.ws-rail) .v3hud{display:none}
             <span class="opt-m">CSV · TSV · JSON · Excel <span class="opt-go">Start<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span></span>
           </button>
         </div>
+          <p class="credit">This tool is developed by <a href="https://www.linkedin.com/in/arnav-kumar-tripathy/" target="_blank" rel="noopener">Arnav<span class="vh"> (LinkedIn, opens in a new tab)</span></a>. Have an idea that would make it better? <a href="mailto:arnavkumar.tripathy@gmail.com?subject=DataViz%20Now%20suggestion">I’d be glad to hear from you</a>.</p>
+        </div>
+        <div class="split-r">
         <section class="marq" id="marq" aria-labelledby="marqH">
           <p class="marq-h" id="marqH">Visualize your data with <b><span id="marqN">115</span>+ visualization techniques</b></p>
-          <div class="marq-box" id="marqBox"><div class="marq-row" data-dir="l"><div class="marq-track"></div></div><div class="marq-row" data-dir="r"><div class="marq-track"></div></div></div>
+          <div class="marq-box" id="marqBox"><div class="marq-row" data-dir="l"><div class="marq-track"></div></div><div class="marq-row" data-dir="r"><div class="marq-track"></div></div><div class="marq-row" data-dir="l"><div class="marq-track"></div></div></div>
         </section>
-        <p class="credit">This tool is developed by <a href="https://www.linkedin.com/in/arnav-kumar-tripathy/" target="_blank" rel="noopener">Arnav<span class="vh"> (LinkedIn, opens in a new tab)</span></a>. Have an idea that would make it better? <a href="mailto:arnavkumar.tripathy@gmail.com?subject=DataViz%20Now%20suggestion">I’d be glad to hear from you</a>.</p>
+        </div>
       </div>
 
       <div class="mode" id="modeView" hidden>
@@ -5076,7 +5143,7 @@ function bindSheetRange(){ const g=$('#seGrid'), w=$('#seWrap'); let drag=false;
 /* ---------- Landing: endless strip of chart thumbnails ---------- */
 function buildMarquee(){ const box=$('#marqBox'); if(!box || box.dataset.built) return; box.dataset.built='1';
   $('#marqN').textContent = Math.floor(ORDER.length/5)*5; if ($('#heroN')) $('#heroN').textContent = Math.floor(ORDER.length/5)*5+'+';
-  const ids=ORDER.slice(); const half=Math.ceil(ids.length/2), rows=[ids.slice(0,half), ids.slice(half)];
+  const ids=ORDER.slice(), nR=Math.max(1,$$('#marqBox .marq-track').length), per0=Math.ceil(ids.length/nR), rows=d3.range(nR).map(r=>ids.slice(r*per0,(r+1)*per0));
   const mk=rid=>{ const b=document.createElement('button'); b.type='button'; b.className='mq'; b.dataset.rid=rid; b.title=RINFO[rid].name; b.setAttribute('aria-label', `${RINFO[rid].name}: start with this chart`);
     b.innerHTML=`<span class="th"></span><span class="nm">${esc(RINFO[rid].name)}</span>`; return b; };
   const tracks=$$('#marqBox .marq-track'); let queue=[];
