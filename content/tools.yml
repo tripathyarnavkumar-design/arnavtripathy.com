@@ -2,10 +2,10 @@
 # Edit this file in the website admin (Pages CMS), or here directly.
 intro: These are tools I have built for the design and research community, and they are free to use. Explore them and put them to work in your own projects. If there is a feature you would like added, or something that could work better, write to me at {email}. Your feedback shapes what each tool becomes.
 design:
-- name: DataViz Now
+- name: Vizify
   description: Turn any table into the right chart. Upload or paste your data, pick from 115+ visualization techniques, style every element and export for web, print or publication.
-  url: dataviz-now/
-  thumbnail: /media/dataviz-now.png
+  url: vizify/
+  thumbnail: /media/vizify.png
   thumbnail_position: ''
   thumbnail_zoom: 100%
   hidden: false
