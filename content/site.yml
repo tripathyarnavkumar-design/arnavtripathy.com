@@ -1,15 +1,16 @@
-# Site settings: name, email, résumé, profile links
-# Edit this file in the website admin (Pages CMS), or here directly.
 name: Arnav Kumar Tripathy
 email: arnavkumar.tripathy@gmail.com
-resume: /media/files/Arnav_Kumar_Tripathy_Resume.pdf
-hidden_pages: []
+resume: /media/arnavkumartripathycvprint.pdf
 profiles:
-- label: LinkedIn
-  url: https://www.linkedin.com/in/arnav-kumar-tripathy/
-- label: Google Scholar
-  url: https://scholar.google.com/citations?user=6_UEEDIAAAAJ&hl=en
-- label: ResearchGate
-  url: https://www.researchgate.net/profile/Arnav_Tripathy
-- label: Instagram
-  url: https://www.instagram.com/arnav_tripathy/
+  - label: LinkedIn
+    url: https://www.linkedin.com/in/arnav-kumar-tripathy/
+    hidden: false
+  - label: Google Scholar
+    url: https://scholar.google.com/citations?user=6_UEEDIAAAAJ&hl=en
+    hidden: false
+  - label: ResearchGate
+    url: https://www.researchgate.net/profile/Arnav_Tripathy
+    hidden: false
+  - label: Instagram
+    url: https://www.instagram.com/arnav_tripathy/
+    hidden: false
