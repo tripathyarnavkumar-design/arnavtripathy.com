@@ -941,3 +941,7 @@ html, body{ color-scheme:only light; }
 /* Home: tighter spacing between Practice, About and Contact */
 .home .rows > .row + .row{ padding-top:var(--s5); }
 @media (max-width:820px){ .home .rows > .row{ padding-block:var(--s4); } .home .rows > .row:first-child{ padding-top:0; } }
+
+/* Home contact: profile links sit close under the email address */
+.contact .mail{ margin-bottom:0; }
+.contact .contact-links{ margin-top:-4px; }
