@@ -9,7 +9,7 @@ This is Arnav Kumar Tripathy's personal website. It's a static site built by `bu
   - Links and media paths must go through `{{ base }}` or the `url` filter, so the site also works under a sub-path.
   - Macros are imported `with context`.
 - **Project pages.** Each project page is generated as `design-<slug>.html` from `content/projects/<slug>.md`.
-- **Web apps.** `apps/<name>/` is copied unchanged into `_site/<name>/` (e.g. Vizify at `/vizify/`; `apps/dataviz-now/` only redirects there from the tool's old name). It is built elsewhere as one self-contained `index.html`; replace that file to update the app.
+- **Web apps.** `apps/<name>/` is copied unchanged into `_site/<name>/` (e.g. Graphyzo at `/graphyzo/`; `apps/vizify/` and `apps/dataviz-now/` only redirect there from the tool's old names). It is built elsewhere as one self-contained `index.html`; replace that file to update the app.
 - **Categories.** Project categories are defined in `CATEGORIES` in `build.py`, and their colours are in `assets/styles.css` (`--t-*`).
 
 ## Design system
