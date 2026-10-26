@@ -937,3 +937,7 @@ html, body{ color-scheme:only light; }
 /* Rows that don't fill the full width sit in the middle */
 .art-justified .art-row{ justify-content:center; width:100%; margin-inline:auto; }
 @media (max-width:640px){ .art-justified{ justify-content:center; } }
+
+/* Home: tighter spacing between Practice, About and Contact */
+.home .rows > .row + .row{ padding-top:var(--s5); }
+@media (max-width:820px){ .home .rows > .row{ padding-block:var(--s4); } .home .rows > .row:first-child{ padding-top:0; } }
