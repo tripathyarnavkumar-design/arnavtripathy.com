@@ -1,0 +1,2050 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><title>Thematis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Thematis is a browser tool for thematic analysis: upload qualitative data, code passages, and build a codebook with definitions and inclusion and exclusion criteria.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2.5' width='7.5' height='7.5' fill='%23111'/%3E%3Crect x='2' y='14' width='7.5' height='7.5' fill='%23E8590C'/%3E%3Cpath d='M9.5 6.25 15 10.5M9.5 17.75 15 13.5' stroke='%23111' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='17.5' cy='12' r='4.5' fill='%230B6E79'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<style>
+/* =====================================================================
+   Thematis — follows the DataViz Now / Validex interface.
+   Landing: mark, one start card, a strip of data types.
+   Workspace: black masthead with numbered steps (Data, Code, Codebook);
+   Code view = documents | reader | codes; Codebook = rail | entries.
+   ===================================================================== */
+:root{
+  --paper:#FFFFFF; --ink:#111111; --ink-2:#4A4A4A; --ink-3:#6E6E6E; --rule:#DADADA; --rule-strong:#111111;
+  --field:#F3F3F3; --hover:#F0F0F0; --acc:#0B6E79; --acc-ink:#08545C; --on-acc:#FFFFFF; --tint:#E3F4F5;
+  --bad:#C2261D; --bad-bg:#FBE4E2; --ok:#0B7A43;
+  --mast-bg:#0A0A0A; --mast-fg:#FFFFFF; --mast-dim:#A1A1AA; --mast-line:#3F3F46; --mast-acc:#5CC8D2;
+  --shadow:0 14px 36px rgba(0,0,0,.16); --scrim:rgba(10,10,10,.45);
+  --c0:#E8590C; --c1:#2F9E44; --c2:#1C7ED6; --c3:#AE3EC9; --c4:#E67700; --c5:#D6336C; --c6:#5C940D; --c7:#7048E8; --c8:#C92A2A; --c9:#8D5524;
+  --hlmix:22%;
+  --face:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --mast:56px; --gut:24px; --pad:clamp(16px,2.2vw,44px); --rail:clamp(260px,22vw,340px);
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0E0E0E; --ink:#F2F2F2; --ink-2:#C4C4C4; --ink-3:#9A9A9A; --rule:#2E2E2E; --rule-strong:#F2F2F2;
+  --field:#1B1B1B; --hover:#1E1E1E; --acc:#5CC8D2; --acc-ink:#8EDDE3; --on-acc:#062A2E; --tint:#11292B;
+  --bad:#F2716A; --bad-bg:#331716; --ok:#3CC47C; --shadow:0 14px 36px rgba(0,0,0,.6); --scrim:rgba(0,0,0,.6);
+  --c0:#FF8A4C; --c1:#51CF66; --c2:#4DABF7; --c3:#DA77F2; --c4:#FFC078; --c5:#F783AC; --c6:#A9E34B; --c7:#9775FA; --c8:#FF6B6B; --c9:#D19A6A;
+  --hlmix:30%; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#0E0E0E; --ink:#F2F2F2; --ink-2:#C4C4C4; --ink-3:#9A9A9A; --rule:#2E2E2E; --rule-strong:#F2F2F2;
+  --field:#1B1B1B; --hover:#1E1E1E; --acc:#5CC8D2; --acc-ink:#8EDDE3; --on-acc:#062A2E; --tint:#11292B;
+  --bad:#F2716A; --bad-bg:#331716; --ok:#3CC47C; --shadow:0 14px 36px rgba(0,0,0,.6); --scrim:rgba(0,0,0,.6);
+  --c0:#FF8A4C; --c1:#51CF66; --c2:#4DABF7; --c3:#DA77F2; --c4:#FFC078; --c5:#F783AC; --c6:#A9E34B; --c7:#9775FA; --c8:#FF6B6B; --c9:#D19A6A;
+  --hlmix:30%; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--face);font-size:14px;line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--paper)}
+body.ws::before{background:var(--mast-bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{text-wrap:balance}
+p,li{text-wrap:pretty}
+::selection{background:var(--ink);color:var(--paper)}
+.rd-body ::selection,.rd-body::selection{background:color-mix(in srgb,var(--acc) 40%,transparent);color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+*{scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:0;z-index:90;padding:10px 14px;background:var(--acc);color:var(--on-acc);font-weight:700}
+.skip:focus{left:8px;top:8px}
+.muted{color:var(--ink-3)}
+.mono{font-family:var(--mono)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes mastIn{from{transform:translateY(-100%)}to{transform:none}}
+@keyframes flash{0%,100%{outline-color:transparent}30%{outline-color:var(--ink)}}
+
+/* ---------- Controls ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;border:1px solid transparent;border-radius:0;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;background:none;
+  transition:background-color .15s,color .15s,border-color .15s,transform .16s var(--ease-out)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn-acc{background:var(--acc);color:var(--on-acc)}
+.btn-acc:hover{background:var(--acc-ink)}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-ink:hover{background:var(--ink-2)}
+.btn-line{background:transparent;border-color:var(--ink);color:var(--ink)}
+.btn-line:hover{background:var(--ink);color:var(--paper)}
+.btn-sm{height:30px;padding:0 12px;font-size:12.5px}
+.btn-lg{height:40px;padding:0 20px}
+.btn[data-armed]{background:var(--bad);border-color:var(--bad);color:#fff}
+.linkbtn{border:0;background:none;padding:0;font-weight:600;font-size:13px;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
+.linkbtn:hover{text-decoration-thickness:2px}
+.linkbtn[data-armed],.linkbtn.danger{color:var(--bad)}
+input[type=text],input[type=search],select,textarea{width:100%;min-width:0;height:34px;padding:0 10px;background:var(--paper);border:1px solid var(--rule);border-radius:0;color:var(--ink);transition:border-color .15s}
+input:hover,select:hover,textarea:hover{border-color:var(--ink-3)}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:-1px}
+input::placeholder,textarea::placeholder{color:var(--ink-3);opacity:1}
+[aria-invalid="true"]{border-color:var(--bad)!important;background:var(--bad-bg)!important}
+select{appearance:none;padding-right:28px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 15px) 15px,calc(100% - 10px) 15px;background-size:5px 5px;background-repeat:no-repeat}
+textarea{height:auto;padding:10px 12px;line-height:1.55;resize:vertical}
+textarea.mono{font-family:var(--mono);font-size:12px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>span,.field>label{font-size:12px;font-weight:600;color:var(--ink-2)}
+.field .req{color:var(--acc);font-weight:700}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink);background:var(--paper)}
+.seg button,.seg label span{display:flex;align-items:center;border:0;background:var(--paper);height:30px;padding:0 12px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink);white-space:nowrap;transition:background-color .15s,color .15s}
+.seg>*+*{border-left:1px solid var(--ink)}
+.seg button:hover,.seg label:hover span{background:var(--field)}
+.seg button[aria-pressed="true"],.seg input:checked+span{background:var(--ink);color:var(--paper)}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg input:focus-visible+span{outline:2px solid var(--acc);outline-offset:-2px}
+.sub{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin:0}
+.sub .muted{text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
+.lead{color:var(--ink-2);max-width:68ch;font-size:14px}
+.lead b{color:var(--ink)}
+.sw{display:inline-block;width:12px;height:12px;flex:none;background:var(--k,var(--ink-3))}
+.chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;height:22px;padding:0 8px 0 0;font-size:12px;font-weight:600;background:color-mix(in srgb,var(--k) var(--hlmix),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip::before{content:"";width:4px;align-self:stretch;background:var(--k);flex:none}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- Landing on a 12-column grid ----------
+   row 1: mark + description across all 12 columns, left aligned
+   row 2: Option A (cols 1-6) | Option B (cols 7-12) · below 960px they stack
+   row 3: saved study / project file · row 4: credit                              */
+.landing{--g:24px;--cw:min(1040px, 100vw - 2*max(clamp(24px, 7vw, 160px), env(safe-area-inset-left,0px), env(safe-area-inset-right,0px)));display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);row-gap:calc(var(--g)*1.5);align-content:center;width:var(--cw);margin:0 auto;min-height:100dvh;padding-block:calc(var(--g)*3)}
+.landing>*{grid-column:1 / -1;min-width:0}
+.hero{display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--g)*.6);margin-bottom:calc(var(--g)*-.5)}
+.hero-mark{display:flex;align-items:center;gap:12px;font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;margin:0}
+.hero-mark svg{width:40px;height:40px;flex:none}
+.hero-sub{font-size:17px;line-height:1.55;color:var(--ink-2);max-width:none;text-wrap:pretty}
+.landing>.opt-a{grid-column:1 / span 6}
+.landing>.opt-b{grid-column:7 / span 6}
+.opt{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:16px;row-gap:3px;padding:10px 14px 10px;background:var(--paper);border:1px solid var(--ink);color:var(--ink);transition:background-color .2s ease}
+.opt::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:3px;background:var(--acc);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease-out)}
+.opt.drag{background:var(--tint)}
+.opt.drag::before,.opt:focus-within::before{transform:scaleX(1)}
+.opt>*{grid-column:2}
+.opt-k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc)}
+.opt>.opt-ill{grid-column:1;grid-row:1 / 4;align-self:center;display:block;width:100%;height:auto;margin:0;overflow:visible}
+.opt-t{font-size:17px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.opt-d{font-size:13.5px;color:var(--ink-2);line-height:1.45;text-wrap:pretty}
+.opt-types{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.opt-types .seg{align-self:flex-start}
+.opt-m{grid-column:1 / -1;margin-top:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding-top:8px;border-top:1px solid var(--rule)}
+.opt-m .acts{display:flex;gap:10px;flex-wrap:wrap}
+.opt-m .btn{font-family:var(--face);letter-spacing:0;text-transform:none}
+.opt-m .btn svg{transition:transform .2s var(--ease-out)}
+.ill .d-box{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.ill .d-ln{fill:var(--ink-3);opacity:.45}
+.ill .d-hl{fill:var(--acc);opacity:.22;transition:transform .36s cubic-bezier(.77,0,.175,1)}
+.ill .d-hl2{fill:var(--c0);opacity:.22}
+.ill .d-tag{fill:var(--acc);transition:transform .36s cubic-bezier(.77,0,.175,1)}
+.ill .d-tag2{fill:var(--c0)}
+.ill .d-wire{fill:none;stroke:var(--ink);stroke-width:1;stroke-dasharray:2 3}
+.ill .d-book{fill:none;stroke:var(--ink);stroke-width:1.5}
+.ill .d-bl{fill:var(--ink);opacity:.8}
+.ill .d-clip{fill:var(--field);stroke:var(--ink);stroke-width:1.5}
+.ill .d-paste{transition:transform .36s cubic-bezier(.77,0,.175,1)}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .opt:hover{background:var(--hover)}
+  .opt:hover::before{transform:scaleX(1)}
+  .opt:hover .btn-acc svg,.opt:hover .btn-ink svg{transform:translateX(3px)}
+  .opt-a:hover .d-hl,.opt-a:hover .d-tag{transform:translateY(16px)}
+  .opt-b:hover .d-paste{transform:translate(-4px,-4px)}
+}
+.l-more{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.l-more:has(> #l-resume[hidden]){display:none}
+.l-save{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px 14px;padding:10px 14px;border:1px solid var(--rule);background:var(--field)}
+.l-save-i{width:18px;height:18px;fill:none;stroke:var(--ink-3);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.l-save-x{display:flex;flex-direction:column;gap:2px;min-width:0}
+.l-save-x h2{font-size:13.5px;font-weight:700;line-height:1.35;color:var(--ink)}
+.l-save-x p{font-size:13px;line-height:1.45;color:var(--ink-2);max-width:80ch}
+.l-save .btn{white-space:nowrap}
+@media (max-width:760px){.l-save{grid-template-columns:auto minmax(0,1fr)}.l-save .btn{grid-column:1/-1;justify-self:start}}
+.l-resume{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;flex:1 1 360px;padding:10px 12px;border-left:3px solid var(--acc);background:var(--tint)}
+.l-resume .status{font-size:13px;color:var(--ink-2);flex:1 1 200px}
+.l-resume .status b{color:var(--ink)}
+.credit{margin:0;padding-top:calc(var(--g)*.75);border-top:1px solid var(--rule);font-size:15px;line-height:1.6;color:var(--ink-3)}
+.credit a{color:var(--ink-2)}
+.credit a:hover{color:var(--ink)}
+@media (max-width:959px){
+  .landing{min-height:0;padding-block:calc(var(--g)*2);align-content:start}
+  .landing>.opt-a,.landing>.opt-b{grid-column:1 / -1}
+  .hero-mark{font-size:34px} .hero-mark svg{width:34px;height:34px}
+}
+@media (max-width:600px){
+  .landing{--g:16px;width:auto;margin:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .hero-mark{font-size:30px;gap:10px} .hero-mark svg{width:30px;height:30px}
+  .hero-sub{font-size:16px}
+  .opt{grid-template-columns:minmax(0,1fr)}
+  .opt>.opt-ill{display:none}
+}
+
+/* ---------- Masthead ---------- */
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;height:var(--mast);padding-left:max(var(--gut),env(safe-area-inset-left,0px));padding-right:max(var(--gut),env(safe-area-inset-right,0px));display:flex;align-items:center;gap:20px;background:var(--mast-bg);color:var(--mast-fg)}
+.mast.in{animation:mastIn .36s var(--ease-out) both}
+.mark{display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;cursor:pointer;font-weight:800;font-size:19px;letter-spacing:-.02em;white-space:nowrap;color:var(--mast-fg)}
+.mark svg{width:22px;height:22px;flex:none}
+.mast-note{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mast-dim);white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mast-note svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mast-note.off{color:#F08A4B}
+#m-saved:not(:empty)::before{content:"·";margin-right:6px;color:#52525B}
+@media (max-width:1180px){#m-saved{display:none}}
+.steps{display:flex;align-items:center;margin-left:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.step-b{display:inline-flex;align-items:center;gap:8px;height:var(--mast);padding:0;border:0;background:none;color:var(--mast-dim);font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex:none}
+.step-b .sn{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:700;border:1.5px solid #52525B;color:var(--mast-dim);flex:none;transition:background-color .2s ease,border-color .2s ease,color .2s ease}
+.step-b .sc{font-family:var(--mono);font-size:11px;font-weight:500;color:#71717A}
+.step-b.done .sn{background:var(--mast-acc);border-color:var(--mast-acc);color:var(--mast-bg)}
+.step-b[aria-current="page"]{color:var(--mast-fg)}
+.step-b[aria-current="page"] .sn{background:var(--mast-fg);border-color:var(--mast-fg);color:var(--mast-bg)}
+.step-b[aria-current="page"] .sc{color:var(--mast-dim)}
+.step-b:not([aria-current="page"]):hover{color:var(--mast-fg)}
+.step-b:not([aria-current="page"]):hover .sl{text-decoration:underline;text-underline-offset:3px}
+.step-ln{width:24px;height:2px;background:var(--mast-line);margin:0 8px;flex:none}
+.step-ln.done{background:var(--mast-acc)}
+.mast-x{margin-left:12px;height:34px;background:var(--mast-acc);color:var(--mast-bg);border:0;flex:none}
+.mast-x:hover{background:#8EDDE3}
+.mast :focus-visible{outline-color:var(--mast-fg)}
+
+/* ---------- Shared workspace pieces ---------- */
+.view{min-height:calc(100dvh - var(--mast))}
+.split{display:grid;grid-template-columns:var(--rail) minmax(0,1fr)}
+.rail{position:sticky;top:calc(var(--mast) + env(safe-area-inset-top,0px));align-self:start;max-height:calc(100dvh - var(--mast));min-height:min(100%,calc(100dvh - var(--mast)));overflow:auto;display:flex;flex-direction:column;gap:20px;padding-block:28px 28px;padding-left:max(var(--gut),env(safe-area-inset-left,0px));padding-right:var(--gut);border-right:1px solid var(--rule)}
+/* Left panels: one structure on every step (eyebrow, title, lead, help, sections) */
+.pane-intro{display:flex;flex-direction:column;gap:8px}
+.pane-intro .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc)}
+.pane-intro .pt{font-size:24px;font-weight:800;letter-spacing:-.025em;line-height:1.1;margin:0}
+.pane-lead{font-size:13px;line-height:1.5;color:var(--ink-2)}
+.pane-sec{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rail ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--ink-2);font-size:13px}
+.note{border-left:3px solid var(--acc);background:var(--tint);padding:10px 12px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.note b{color:var(--ink)}
+.main{display:flex;flex-direction:column;gap:28px;min-width:0;padding-block:28px 64px;padding-left:var(--pad);padding-right:max(var(--pad),env(safe-area-inset-right,0px))}
+.main.enter>*{animation:rise .3s var(--ease-out) backwards}
+.main.enter>*:nth-child(2){animation-delay:40ms}
+.main.enter>*:nth-child(3){animation-delay:80ms}
+.blk{display:flex;flex-direction:column;gap:12px;min-width:0}
+.blk-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:8px;border-bottom:2px solid var(--rule-strong)}
+.row{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.drop{display:flex;align-items:center;gap:16px;padding:22px;border:1.5px dashed var(--ink-3);background:var(--field);cursor:pointer;transition:background-color .15s,border-color .15s}
+.drop:hover,.drop.drag{border-color:var(--acc);background:var(--tint)}
+.drop svg{width:28px;height:28px;flex:none;fill:none;stroke:var(--ink);stroke-width:1.5}
+.drop b{font-size:15px}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.tablewrap{overflow-x:auto;border:1px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:9px 12px;background:var(--field);border-bottom:1px solid var(--ink);white-space:nowrap}
+td{padding:6px 12px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:12.5px}
+td .cell-in{border-color:transparent;background:transparent;font-weight:600;padding:0 6px;margin-left:-7px}
+td .cell-in:hover{border-color:var(--rule)}
+td select{height:30px;font-size:12.5px;min-width:170px}
+td.act{white-space:nowrap;text-align:right}
+td.act>*+*{margin-left:12px}
+.empty{padding:28px 20px;border:1px solid var(--rule);display:flex;flex-direction:column;gap:10px;align-items:flex-start;color:var(--ink-2);background:var(--paper)}
+.empty b{color:var(--ink);font-size:15px}
+.sample-band{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:10px 14px;background:var(--tint);border-left:3px solid var(--acc);font-size:13px;color:var(--ink-2)}
+.sample-band b{color:var(--ink)}
+
+/* Data step: project files rail */
+.rail:has(.rail-go),.docs:has(.rail-go){padding-bottom:0}
+@media (max-width:1100px){.docs .rail-go{position:static;padding-bottom:4px}}
+.flist{display:flex;flex-direction:column;border-top:1px solid var(--ink)}
+.fitem{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px;padding:9px 0;border-bottom:1px solid var(--rule);transition:background-color .6s}
+.fitem.new{background:var(--tint)}
+.fitem .fn{display:flex;flex-direction:column;gap:1px;min-width:0}
+.fitem .fn b{font-size:13.5px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.fitem .ft{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3)}
+.f-empty{padding:12px 0;font-size:12.5px;line-height:1.5;color:var(--ink-3);border-top:1px solid var(--ink)}
+.rail-go{position:sticky;bottom:0;margin-top:auto;display:flex;flex-direction:column;gap:6px;padding:14px 0 18px;background:var(--paper);border-top:1px solid var(--rule)}
+.rail-go .btn{width:100%}
+.rail-go .btn[disabled]{background:var(--field);color:var(--ink-3);cursor:not-allowed}
+
+/* ---------- Code view ---------- */
+.cv{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) clamp(290px,25vw,370px);height:calc(100dvh - var(--mast) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.cv>*{min-width:0;overflow:auto;overscroll-behavior:contain}
+.docs{border-right:1px solid var(--rule);padding-block:28px;padding-left:max(var(--gut),env(safe-area-inset-left,0px));padding-right:var(--gut);display:flex;flex-direction:column;gap:20px}
+.docs-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.dlist{display:flex;flex-direction:column;border-top:1px solid var(--ink)}
+.ditem{display:flex;flex-direction:column;gap:2px;padding:10px 10px 10px 12px;border:0;border-bottom:1px solid var(--rule);background:var(--paper);text-align:left;cursor:pointer;position:relative;color:var(--ink)}
+.ditem:hover{background:var(--hover)}
+.ditem[aria-current="true"]{background:var(--field)}
+.ditem[aria-current="true"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc)}
+.ditem .dn{font-weight:700;font-size:13.5px;line-height:1.3;overflow-wrap:anywhere}
+.ditem .dm{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--ink-3);text-transform:uppercase}
+.reader{padding-block:24px 80px;padding-inline:clamp(16px,3vw,48px)}
+.rd-wrap{max-width:74ch;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.rd-head{display:flex;flex-direction:column;gap:6px;padding-bottom:14px;border-bottom:2px solid var(--rule-strong)}
+.rd-head h2{font-size:clamp(22px,2.2vw,28px);font-weight:800;letter-spacing:-.025em;line-height:1.15;overflow-wrap:anywhere}
+.rd-meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.rd-tip{display:none!important}
+@media (max-width:1100px){.docs .pane-intro{flex-direction:row;align-items:baseline;gap:12px}.docs .pane-lead{display:none}.rd-tip{display:flex!important}}
+.rd-tip{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+.rd-tip svg{width:14px;height:14px;fill:none;stroke:var(--acc);stroke-width:1.8;flex:none}
+.rd-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15.5px;line-height:2;color:var(--ink);cursor:text}
+.rd-body .spk{font-weight:700}
+.rd-body .ts{font-family:var(--mono);font-size:.84em;color:var(--ink-2)}
+.hl{background-color:color-mix(in srgb,var(--k) var(--hlmix),transparent);background-repeat:no-repeat;padding:3px 0 calc(var(--n,1) * 3px + 1px);-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:pointer;outline:2px solid transparent;outline-offset:1px;transition:background-color .2s}
+.hl:hover{background-color:color-mix(in srgb,var(--k) calc(var(--hlmix) + 14%),transparent)}
+.hl.flash{animation:flash 1.2s ease 2}
+.rd-body[data-focus] .hl:not(.on){background-color:transparent;background-image:none!important}
+.rd-body[data-focus] .hl:not(.on):hover{background-color:var(--hover)}
+.pend{scroll-margin-top:calc(var(--mast) + 24px);background:color-mix(in srgb,var(--acc) 30%,transparent)!important;outline:1px dashed var(--acc);outline-offset:1px;cursor:text}
+.codes{border-left:1px solid var(--rule);padding-block:20px;padding-left:18px;padding-right:max(var(--gut),env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.grp{display:flex;flex-direction:column}
+.grp-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 6px;border-bottom:1px solid var(--ink);display:flex;justify-content:space-between;gap:8px}
+.crow{display:grid;grid-template-columns:12px minmax(0,1fr);align-items:center;gap:10px;width:100%;padding:8px 6px 8px 2px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.crow:hover{background:var(--hover)}
+.crow .cn{font-weight:600;font-size:13.5px;line-height:1.3;overflow-wrap:anywhere}
+.crow .cc{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.crow[aria-pressed="true"]{background:color-mix(in srgb,var(--k) var(--hlmix),transparent)}
+.cdet{padding:10px 8px 12px 24px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--ink-2);background:var(--field)}
+.cdet p{white-space:pre-line}
+.cdet b{color:var(--ink);font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.cdet .acts{display:flex;gap:14px;flex-wrap:wrap}
+.slist{display:flex;flex-direction:column;border-top:1px solid var(--ink)}
+.sitem{display:grid;grid-template-columns:minmax(0,1fr) auto;border-bottom:1px solid var(--rule)}
+.sgo{display:flex;flex-direction:column;gap:5px;padding:9px 4px 9px 0;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink);min-width:0}
+.sgo:hover .sq{color:var(--ink)}
+.sgo .chips{display:flex;flex-wrap:wrap;gap:4px}
+.sq{font-size:12.5px;line-height:1.45;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ix{width:30px;border:0;background:none;cursor:pointer;color:var(--ink-3);display:grid;place-items:center}
+.ix:hover{color:var(--bad)}
+.ix.sure,.linkbtn.sure{width:auto;padding:0 10px;font-size:12px;font-weight:700;color:#fff;background:var(--bad)}
+.linkbtn.sure{padding:2px 6px;text-decoration:none}
+.ix svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* ---------- Popover ---------- */
+.pop{position:fixed;z-index:50;width:min(360px,calc(100vw - 32px));max-height:min(460px,calc(100dvh - 90px));display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow);animation:rise .18s var(--ease-out)}
+.pop-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 0}
+.pop-q{margin:8px 12px 0;padding:6px 10px;border-left:3px solid var(--acc);background:var(--tint);font-size:12.5px;line-height:1.45;color:var(--ink-2);max-height:66px;overflow:auto}
+.pop-in{padding:10px 12px}
+.pop-list{overflow:auto;border-top:1px solid var(--rule);min-height:0;flex:1}
+.prow{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:8px 12px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.prow:hover,.prow:focus-visible{background:var(--hover)}
+.prow .pn{font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.prow .pt{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;font-weight:400}
+.prow[disabled]{cursor:default;opacity:.55}
+.pop-new{display:flex;align-items:center;gap:8px;width:100%;padding:11px 12px;border:0;border-top:1px solid var(--ink);background:var(--field);text-align:left;font-weight:700;font-size:13.5px;cursor:pointer;color:var(--ink);overflow-wrap:anywhere}
+.pop-new:hover{background:var(--ink);color:var(--paper)}
+.pop-new svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex:none}
+.pinfo{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.pinfo .acts{display:flex;gap:14px}
+.x{width:28px;height:28px;border:0;background:none;cursor:pointer;color:var(--ink-2);display:grid;place-items:center;flex:none}
+.x:hover{color:var(--ink);background:var(--hover)}
+.x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* ---------- Dialogs ---------- */
+dialog{padding:0;border:1px solid var(--ink);background:var(--paper);color:var(--ink);width:min(720px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:hidden;box-shadow:var(--shadow)}
+dialog::backdrop{background:var(--scrim)}
+dialog[open]{animation:rise .22s var(--ease-out)}
+#code-form{display:flex;flex-direction:column;max-height:calc(100dvh - 34px)}
+#code-form .dlg-b{overflow:auto;min-height:0;padding:14px 18px;gap:10px}
+#code-form .dlg-f{padding:10px 18px;flex:none}
+#code-form .dlg-h{padding:10px 12px 10px 18px;flex:none}
+#code-form .field{gap:4px}
+#code-form textarea{padding:7px 10px;font-size:13.5px;line-height:1.45}
+.grid2.solo{grid-template-columns:minmax(0,1fr)}
+.f-color{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.f-color>span{font-size:12px;font-weight:600;color:var(--ink-2)}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:var(--mast-bg);color:var(--mast-fg)}
+.dlg-h h2{font-size:18px;font-weight:800;letter-spacing:-.015em}
+.dlg-h .x{color:var(--mast-dim)}
+.dlg-h .x:hover{color:var(--mast-fg);background:#27272A}
+.dlg-b{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.dlg-f{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--rule);background:var(--field)}
+.dlg-f .group{display:flex;gap:10px;margin-left:auto}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.grid-ie{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.excerpt{padding:6px 10px;border-left:3px solid var(--acc);background:var(--tint);font-size:12.5px;line-height:1.45;color:var(--ink-2);max-height:58px;overflow:auto;flex:none}
+.excerpt b{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-right:8px}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.swatches label{position:relative;cursor:pointer}
+.swatches input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.swatches span{display:grid;place-items:center;width:24px;height:24px;background:var(--k);border:2px solid var(--paper);outline:1px solid transparent;transition:outline-color .15s}
+.swatches input:checked+span{outline:2px solid var(--ink)}
+.swatches input:focus-visible+span{outline:2px solid var(--acc)}
+.swatches .add span{background:var(--paper);border:1px dashed var(--ink-3);color:var(--ink-2)}
+.swatches .add:hover span{border-color:var(--ink);color:var(--ink)}
+.swatches .add svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.swatches .add input{width:100%;height:100%}
+.swatches .sep{width:1px;align-self:stretch;background:var(--rule);margin:0 4px}
+/* code tooltip beside the popover */
+.tip{position:fixed;z-index:60;width:min(300px,calc(100vw - 32px));padding:12px 14px;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;font-size:12.5px;line-height:1.45;color:var(--ink-2);pointer-events:none}
+.tip h4{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin:0}
+.tip h4 i{width:10px;height:10px;flex:none;background:var(--k)}
+.tip b{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.tip p{white-space:pre-line;margin:0}
+.tip .inc b::before{content:"+ ";color:var(--ok)}
+.tip .exc b::before{content:"\2212  ";color:var(--bad)}
+.err{color:var(--bad);font-size:12.5px;font-weight:600}
+.xlist{display:flex;flex-direction:column;border:1px solid var(--ink)}
+.xrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px;padding:12px 14px;border-bottom:1px solid var(--rule)}
+.xrow:last-child{border-bottom:0}
+.xt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.xt b{font-size:14px}
+.xt span{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.xf{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.xf .btn{min-width:54px}
+@media (max-width:600px){.xrow{grid-template-columns:1fr}.xf{justify-content:flex-start}}
+.xbtn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 14px;border:0;border-bottom:1px solid var(--rule);background:var(--paper);text-align:left;cursor:pointer;color:var(--ink)}
+.xbtn:last-child{border-bottom:0}
+.xbtn:hover{background:var(--hover)}
+.xbtn b{font-size:14px}
+.xbtn span{grid-column:1;font-size:12.5px;color:var(--ink-2)}
+.xbtn i{grid-row:1/3;grid-column:2;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink-3);text-transform:uppercase}
+
+/* ---------- Codebook ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--ink);border-right:0}
+.stat{padding:14px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.stats .stat:last-child{border-right:1px solid var(--ink)}
+.stat b{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.stat span{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.toolbar input{max-width:280px}
+/* Themes board: code cards, theme groups, drop zone */
+.th-tools{display:flex;justify-content:space-between;align-items:center;gap:12px 16px;flex-wrap:wrap}
+.th-tools h2{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.th-tools .acts{display:flex;gap:8px;flex-wrap:wrap}
+.th-hint{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.th-hint svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--acc);stroke-width:1.6}
+.pool{border:1px dashed var(--ink-3);background:var(--field);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px;transition:background-color .15s,border-color .15s}
+.pool.over{border-color:var(--acc);background:var(--tint)}
+.cards{display:flex;flex-direction:column;gap:5px}
+.cards-empty{padding:10px;font-size:12px;color:var(--ink-3);text-align:center;border:1px dashed var(--rule);line-height:1.45}
+.ccard{position:relative;display:flex;align-items:center;min-width:0;padding:6px 9px 6px 12px;background:var(--paper);border:1px solid var(--ink);cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:transform .16s var(--ease-out),box-shadow .16s,opacity .16s,background-color .15s}
+.ccard::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:4px;background:var(--k)}
+.ccard b{font-size:12.5px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.ccard.lifted{opacity:.3}
+@media (hover:hover) and (pointer:fine){.ccard:hover{transform:translateX(2px);box-shadow:0 3px 10px rgba(0,0,0,.08)}}
+.tgroups{display:flex;flex-direction:column;gap:10px}
+.tgroup{display:grid;grid-template-columns:minmax(170px,.5fr) minmax(0,1.5fr);border:1px solid var(--ink);border-left:6px solid var(--k);background:var(--paper);min-width:0;transition:box-shadow .15s}
+.tgroup.over{box-shadow:0 0 0 3px var(--acc)}
+.tg-h{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 11px;background:color-mix(in srgb,var(--k) 9%,var(--paper));border-right:1px solid var(--rule);min-width:0}
+.tg-t{display:flex;align-items:center;gap:6px;cursor:help;max-width:100%}
+.tg-t h3{font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.25;overflow-wrap:anywhere}
+.tg-def{font-size:11.5px;color:var(--ink-2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tg-acts{display:flex;gap:12px;margin-top:auto;padding-top:2px}
+.tg-acts .linkbtn{font-size:11.5px}
+.tg-acts .linkbtn[data-armed]{color:var(--bad);text-decoration-thickness:2px}
+.tgroup .cards{flex-direction:row;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:6px;padding:8px;min-height:44px}
+.tgroup .cards-empty{flex:1;padding:6px}
+.ccard.pill{width:auto;max-width:100%;gap:4px;padding:3px 3px 3px 10px}
+.ccard.pill b{font-size:12px;font-weight:600}
+@media (hover:hover) and (pointer:fine){.ccard.pill:hover{transform:translateY(-1px)}}
+.px{width:20px;height:20px;flex:none;display:grid;place-items:center;border:0;background:none;color:var(--ink-3);cursor:pointer;padding:0}
+.px:hover,.px:focus-visible{background:var(--bad-bg);color:var(--bad)}
+.px svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+@media (max-width:760px){.tgroup{grid-template-columns:minmax(0,1fr)}.tg-h{border-right:0;border-bottom:1px solid var(--rule)}}
+/* How it works: collapsed behind ? */
+.howto{position:relative;display:flex;align-items:center;gap:8px;margin-top:-6px}
+.qbtn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font-size:12px;font-weight:800;line-height:1;cursor:help;display:grid;place-items:center;padding:0}
+.qbtn:hover,.qbtn:focus-visible{background:var(--ink);color:var(--paper)}
+.howto-tip{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:20;padding:12px 14px;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow);font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.howto-tip ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.howto-tip p{font-size:12px;border-top:1px solid var(--rule);padding-top:8px;margin-top:8px}
+.howto-tip b{color:var(--ink)}
+.howto-tip{pointer-events:none}
+.qbtn:hover~.howto-tip,.qbtn:focus-visible~.howto-tip{display:block}
+.th-new{position:fixed;z-index:25;display:none;align-items:center;justify-content:center;gap:10px;padding:8px 14px;border:2px dashed var(--acc);background:var(--tint);box-shadow:var(--shadow);color:var(--ink);font-weight:700;font-size:15px;text-align:center;transition:background-color .15s,transform .2s var(--ease-out)}
+.th-new .zsub{font-weight:500;font-size:12px;color:var(--ink-2)}
+.th-new.over .zsub{color:inherit}
+.th-new.show{display:flex;position:static;min-height:140px;flex-direction:column;gap:4px;box-shadow:none}
+.th-new svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.th-new.over{background:var(--acc);color:var(--on-acc);border-style:solid;transform:scale(1.01)}
+body.th-dragging .th-new{display:flex}
+body.th-dragging .th-new:not(.show){animation:zoneIn .18s var(--ease-out)}
+@keyframes zoneIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.th-new.over{transform:none}
+body.th-dragging .toast{display:none}
+body.th-dragging,body.th-dragging *{cursor:grabbing!important;user-select:none!important}
+.ghost{position:fixed;left:0;top:0;z-index:75;pointer-events:none;box-shadow:var(--shadow);transform-origin:20% 50%}
+.ghost .ccard{cursor:grabbing;transform:rotate(-2deg)}
+.gh-act{position:absolute;left:8px;top:calc(100% + 8px);white-space:nowrap;padding:4px 8px;background:var(--ink);color:var(--paper);font-size:11.5px;font-weight:700}
+.gh-act:empty{display:none}
+.excerpt .chip{margin:2px 4px 2px 0;vertical-align:middle}
+/* Codebook modal */
+#dlg-book,#dlg-tbook{width:min(1240px,calc(100vw - 32px));height:calc(100dvh - 32px);overflow:hidden}
+#dlg-book[open],#dlg-tbook[open]{display:flex;flex-direction:column}
+.bk-tools{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--rule);flex:none}
+.bk-tools input{width:min(100%,280px)}
+.bk-tools select{width:auto}
+.bk-dl{display:inline-flex;align-items:center;gap:8px}
+#p-add svg{width:15px;height:15px;stroke-width:2;transition:transform .2s var(--ease-out)}
+@media (hover:hover) and (pointer:fine){#p-add:hover svg{transform:translateX(-3px)}}
+#dlg-file{width:min(1100px,calc(100vw - 32px));height:calc(100dvh - 32px)}
+#dlg-file[open]{display:flex;flex-direction:column}
+#file-form{display:flex;flex-direction:column;flex:1;min-height:0}
+#file-form .dlg-b{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+.df-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px;align-items:end}
+.df-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;padding-bottom:9px}
+#df-text{flex:1;min-height:200px;resize:none;font-family:var(--face);font-size:14.5px;line-height:1.7;padding:14px 16px}
+.df-warn{border-left:3px solid var(--acc);background:var(--tint);padding:8px 12px;font-size:12.5px;color:var(--ink-2)}
+@media (max-width:760px){.df-row{grid-template-columns:1fr}}
+.xrow.off .xt b,.xrow.off .xt span{color:var(--ink-3)}
+.xrow .xneed{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3)}
+.xf .btn[disabled]{opacity:.45;cursor:not-allowed}
+.imp-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;align-self:flex-start}
+.imp-link svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#dlg-imp{width:min(760px,calc(100vw - 32px))}
+.dlg-sm{width:min(520px,calc(100vw - 32px))}
+.dlg-sm .lead b{color:var(--ink)}
+#dlg-imp[open]{display:flex;flex-direction:column}
+.imp-b{min-height:0;overflow:hidden;flex:1}
+.imp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.imp-top>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.imp-top b{font-size:14px;overflow-wrap:anywhere}
+.imp-opts{align-items:center;gap:10px 18px}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer}
+.chk input,.irow input{width:16px;height:16px;accent-color:var(--acc);margin:0;flex:none}
+.imp-list{border:1px solid var(--ink);overflow:auto;max-height:min(46dvh,420px)}
+.irow{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px 12px;border-bottom:1px solid var(--rule);cursor:pointer}
+.irow:last-child{border-bottom:0}
+.irow:hover{background:var(--hover)}
+.irow.off{opacity:.55;cursor:default}
+.irow input{margin-top:2px}
+.imp-n{display:flex;flex-direction:column;gap:2px;min-width:0}
+.imp-n b{font-size:13.5px}
+.ith{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em}
+.idef{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.imiss{font-size:11.5px;color:var(--warn,#B4400A)}
+.ist{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;padding:2px 6px;white-space:nowrap}
+.ist.new{background:var(--tint);color:var(--acc-ink)}
+.ist.up{background:var(--field);color:var(--ink)}
+.ist.skip{color:var(--ink-3)}
+.bk-tools .count{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.bk-wrap{flex:1;min-height:0;overflow:auto}
+.bk{min-width:980px;font-size:13px}
+.bk th{position:sticky;top:0;z-index:1}
+.bk td{vertical-align:top;padding:10px 12px;line-height:1.5;color:var(--ink-2);white-space:pre-line;overflow-wrap:anywhere}
+.bk td.cn{white-space:normal;color:var(--ink);font-weight:700;width:18%}
+.bk td.cn .sw{margin-right:8px;vertical-align:-1px}
+.bk td.num{white-space:nowrap;color:var(--ink)}
+.bk td.act{white-space:nowrap}
+.bk td.act>*+*{margin-left:12px}
+.bk tr.flash td{animation:flash 1.2s ease 2;outline:2px solid transparent}
+.bk tr.hit td{background:var(--tint)}
+.bk th.inc::before{content:"+ ";color:var(--ok)}
+.bk th.exc::before{content:"\2212  ";color:var(--bad)}
+
+/* ---------- Toast ---------- */
+.toast{pointer-events:none;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:80;transform:translateX(-50%);max-width:calc(100vw - 32px);padding:10px 16px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;box-shadow:var(--shadow);animation:rise .2s var(--ease-out)}
+.toast.bad{background:var(--bad);color:#fff}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .cv{grid-template-columns:minmax(0,1fr) clamp(280px,32vw,340px);height:auto;min-height:calc(100dvh - var(--mast))}
+  .cv>*{overflow:visible}
+  .docs{grid-column:1/-1;border-right:0;border-bottom:1px solid var(--rule);padding-right:max(var(--gut),env(safe-area-inset-right,0px));padding-block:14px}
+  .dlist{flex-direction:row;overflow-x:auto;border-top:0;border-left:1px solid var(--ink);gap:0}
+  .ditem{min-width:200px;max-width:260px;border-bottom:1px solid var(--ink);border-top:1px solid var(--ink);border-right:1px solid var(--rule)}
+  .ditem[aria-current="true"]::before{top:auto;height:3px;width:auto;right:0}
+  .codes{position:sticky;top:calc(var(--mast) + env(safe-area-inset-top,0px));align-self:start;max-height:calc(100dvh - var(--mast));overflow:auto}
+}
+@media (max-width:900px){
+  .split{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;max-height:none;min-height:0;border-right:0;border-bottom:1px solid var(--rule);padding-right:max(var(--gut),env(safe-area-inset-right,0px))}
+  .main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (max-width:760px){
+  :root{--gut:16px}
+  .cv{grid-template-columns:minmax(0,1fr)}
+  .codes{position:static;max-height:none;border-left:0;border-top:2px solid var(--rule-strong);padding-left:max(16px,env(safe-area-inset-left,0px))}
+  .reader{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{border-bottom:1px solid var(--rule)}
+  .grid2,.grid-ie{grid-template-columns:1fr}
+  .step-b:not([aria-current="page"]) .sl,.step-b .sc,.mast-note{display:none}
+  .step-ln{width:14px;margin:0 6px}
+  .mast{gap:12px}
+  .pop{left:0!important;right:0;top:auto!important;bottom:0;width:auto;max-height:55dvh;border-width:1px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .pop-h,.pop-in,.prow,.pop-new,.pinfo{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .pop-q{margin-left:max(16px,env(safe-area-inset-left,0px));margin-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<a class="skip" href="#app-main">Skip to content</a>
+
+<!-- ================= Landing ================= -->
+<div id="landing" class="landing">
+  <header class="hero">
+    <h1 class="hero-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2.5" width="7.5" height="7.5" fill="currentColor"/><rect x="2" y="14" width="7.5" height="7.5" fill="var(--c0)"/><path d="M9.5 6.25 15 10.5M9.5 17.75 15 13.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="12" r="4.5" fill="var(--acc)"/></svg><span>Thematis</span></h1>
+    <p class="hero-sub">Thematic analysis for interview transcripts, open-ended survey responses and field notes. Select a passage, give it a code, and define what the code means and where its edges are. Every code goes straight into your codebook.</p>
+  </header>
+
+  <section class="opt opt-a" id="l-optA" aria-labelledby="l-a-t">
+    <span class="opt-k">Option A</span>
+    <svg class="opt-ill ill" viewBox="0 0 260 150" aria-hidden="true">
+      <rect class="d-box" x="6" y="8" width="150" height="134"/>
+      <rect class="d-hl" x="16" y="36" width="122" height="13"/>
+      <rect class="d-hl2" x="16" y="92" width="96" height="13"/>
+      <rect class="d-ln" x="18" y="24" width="112" height="4"/><rect class="d-ln" x="18" y="40" width="118" height="4"/><rect class="d-ln" x="18" y="56" width="94" height="4"/>
+      <rect class="d-ln" x="18" y="72" width="120" height="4"/><rect class="d-ln" x="18" y="96" width="90" height="4"/><rect class="d-ln" x="18" y="112" width="114" height="4"/><rect class="d-ln" x="18" y="126" width="70" height="4"/>
+      <path class="d-wire" d="M138 42 H170"/><path class="d-wire" d="M112 98 H170"/>
+      <rect class="d-book" x="176" y="20" width="78" height="110"/>
+      <rect class="d-tag" x="184" y="34" width="10" height="10"/><rect class="d-bl" x="200" y="36" width="44" height="5"/>
+      <rect class="d-ln" x="184" y="50" width="60" height="3"/><rect class="d-ln" x="184" y="58" width="52" height="3"/>
+      <rect class="d-tag2" x="184" y="80" width="10" height="10"/><rect class="d-bl" x="200" y="82" width="38" height="5"/>
+      <rect class="d-ln" x="184" y="96" width="60" height="3"/><rect class="d-ln" x="184" y="104" width="46" height="3"/>
+    </svg>
+    <h2 class="opt-t" id="l-a-t">Add your own data</h2>
+    <p class="opt-d">Upload or paste transcripts, survey responses or field notes, then code them and build themes.</p>
+    <div class="opt-m"><span>Upload · Paste</span><span class="acts"><button class="btn btn-acc btn-sm" id="l-upload" type="button">Add data <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button></span></div>
+  </section>
+
+  <section class="opt opt-b" aria-labelledby="l-b-t">
+    <span class="opt-k">Option B</span>
+    <svg class="opt-ill ill" viewBox="0 0 260 150" aria-hidden="true">
+      <rect class="d-clip" x="34" y="6" width="120" height="112"/>
+      <rect class="d-clip" x="20" y="18" width="120" height="112"/>
+      <g class="d-paste"><rect class="d-box" x="6" y="30" width="120" height="114"/>
+      <rect class="d-hl" x="14" y="50" width="96" height="12"/><rect class="d-ln" x="16" y="42" width="90" height="4"/><rect class="d-ln" x="16" y="54" width="92" height="4"/><rect class="d-ln" x="16" y="70" width="80" height="4"/>
+      <rect class="d-hl2" x="14" y="94" width="82" height="12"/><rect class="d-ln" x="16" y="84" width="96" height="4"/><rect class="d-ln" x="16" y="98" width="76" height="4"/><rect class="d-ln" x="16" y="114" width="88" height="4"/><rect class="d-ln" x="16" y="128" width="60" height="4"/></g>
+      <path class="d-wire" d="M130 60 H166M130 100 H166"/>
+      <rect class="d-tag" x="172" y="48" width="74" height="22"/><rect class="d-tag2" x="172" y="88" width="62" height="22"/>
+    </svg>
+    <h2 class="opt-t" id="l-b-t">Use example data</h2>
+    <p class="opt-d">Try the tool on an example study about remote work, already coded and grouped into themes.</p>
+    <div class="opt-m"><span>Example study</span><span class="acts"><button class="btn btn-ink btn-sm" id="l-sample" type="button">Open example <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button></span></div>
+  </section>
+
+  <div class="l-more">
+    <div class="l-resume" id="l-resume" hidden>
+      <span class="status" id="l-resume-t"></span>
+      <button class="btn btn-acc btn-sm" id="l-continue" type="button">Continue</button><button class="linkbtn danger" id="l-new" type="button">Start a new project</button>
+    </div>
+  </div>
+
+  <section class="l-save" aria-labelledby="l-save-t">
+    <svg class="l-save-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.3"/></svg>
+    <div class="l-save-x">
+      <h2 id="l-save-t">Thematis does not save your project automatically</h2>
+      <p>Nothing you add is kept after you close this page. Export the project file at the end of every session, and import it next time to carry on with the same project.</p>
+    </div>
+    <button class="btn btn-line btn-sm" id="l-open" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V5M4.5 8.5 8 5l3.5 3.5M3 2.5h10"/></svg>Import a Project File</button>
+  </section>
+
+  <p class="credit">This tool is developed by <a href="https://www.linkedin.com/in/arnav-kumar-tripathy/" target="_blank" rel="noopener">Arnav<span class="vh"> (LinkedIn, opens in a new tab)</span></a>. Have an idea that would make it better? <a href="mailto:arnavkumar.tripathy@gmail.com?subject=Thematis%20suggestion">I’d be glad to hear from you</a>.</p>
+</div>
+
+<!-- ================= Workspace ================= -->
+<div id="app" hidden>
+  <header class="mast" id="mast">
+    <button class="mark" id="m-home" type="button" aria-label="Start over"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2.5" width="7.5" height="7.5" fill="#FFFFFF"/><rect x="2" y="14" width="7.5" height="7.5" fill="#FF8A4C"/><path d="M9.5 6.25 15 10.5M9.5 17.75 15 13.5" stroke="#FFFFFF" stroke-width="1.6" fill="none"/><circle cx="17.5" cy="12" r="4.5" fill="#5CC8D2"/></svg>Thematis</button>
+    <span class="mast-note" id="m-hint"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2.5 4.5 7 9 11.5"/></svg>Click the logo to start over</span>
+    <span class="mast-note" id="m-saved"></span>
+    <nav class="steps" aria-label="Steps">
+      <button class="step-b" data-go="data" type="button"><span class="sn">1</span><span class="sl">Data</span><span class="sc" id="sc-data"></span></button>
+      <span class="step-ln" id="ln-1"></span>
+      <button class="step-b" data-go="code" type="button"><span class="sn">2</span><span class="sl">Code</span><span class="sc" id="sc-code"></span></button>
+      <span class="step-ln" id="ln-2"></span>
+      <button class="step-b" data-go="themes" type="button"><span class="sn">3</span><span class="sl">Themes</span><span class="sc" id="sc-book"></span></button>
+    </nav>
+    <button class="btn mast-x" id="m-export" type="button">Export</button>
+  </header>
+
+  <main id="app-main">
+    <!-- Data -->
+    <section class="view split" id="v-data" hidden>
+      <aside class="rail" aria-label="Project files">
+        <div class="pane-intro">
+          <span class="eyebrow">Step 1</span>
+          <h2 class="pt">Add data</h2>
+          <p class="pane-lead">Upload or paste transcripts, open-ended survey responses or field notes. Each one becomes a file in this project.</p>
+        </div>
+        <div class="field">
+          <label for="study-name">Project name</label>
+          <input type="text" id="study-name" autocomplete="off">
+        </div>
+        <div class="pane-sec" id="files-sec">
+          <h3 class="sub">Project files <span class="muted" id="f-count"></span></h3>
+          <div id="f-list"></div>
+        </div>
+        <div class="rail-go">
+          <button class="btn btn-acc btn-lg" type="button" id="d-code" disabled>Start adding codes <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+          <p class="hint" id="d-code-h">Add at least one file to start coding.</p>
+        </div>
+      </aside>
+      <div class="main" id="data-main">
+        <div class="blk">
+          <div class="blk-h"><h3 class="sub">Upload files</h3><span class="hint">Data types are detected; change them with View</span></div>
+          <label class="drop" id="drop" for="file-in">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 3h10l5 5v17H7z"/><path d="M17 3v5h5M14.5 21v-8M11 16.5l3.5-3.5 3.5 3.5"/></svg>
+            <span><b>Choose files or drop them here</b><br><span class="hint">.txt .md .docx .csv .tsv .xlsx .xls · each becomes a project file</span></span>
+            <input type="file" id="file-in" multiple accept=".txt,.md,.markdown,.csv,.tsv,.xlsx,.xls,.ods,.docx,text/plain,text/csv">
+          </label>
+        </div>
+
+        <div class="blk" id="paste-blk">
+          <div class="blk-h"><h3 class="sub">Or paste text</h3></div>
+          <div class="grid2">
+            <div class="field"><label for="p-name">File name</label><input type="text" id="p-name" placeholder="e.g. Interview P03, 12 March"></div>
+            <div class="field"><label for="p-type">Data type</label><select id="p-type"></select></div>
+          </div>
+          <div class="field"><label for="p-text">Text</label><textarea id="p-text" rows="10" placeholder="Paste a transcript, responses or notes. Keep speaker labels like “P03:” at the start of lines and they will show in bold."></textarea></div>
+          <div class="row" style="align-items:center"><button class="btn btn-ink" id="p-add" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4 3 8l4 4"/></svg>Save as project file</button><span class="hint">It appears under Project files on the left.</span><span class="err" id="p-err" aria-live="polite"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-code" hidden>
+      <div class="cv">
+        <nav class="docs" aria-label="Documents">
+          <div class="pane-intro">
+            <span class="eyebrow">Step 2</span>
+            <h2 class="pt">Code your data</h2>
+            <p class="pane-lead">Select a passage in the document, then give it a code.</p>
+          </div>
+          <div class="howto">
+            <h3 class="sub">How it works</h3>
+            <button class="qbtn" type="button" aria-label="How it works" aria-describedby="howto-tip2">?</button>
+            <div class="howto-tip" id="howto-tip2" role="tooltip">
+              <ul>
+                <li>Select a passage in the document to code it.</li>
+                <li>Pick a code, or type a new name to define one.</li>
+                <li>Hover a code in the picker to read its criteria.</li>
+                <li>Click highlighted text to see or remove its codes.</li>
+                <li>Click a code on the right to show only its passages.</li>
+                <li>Undo with <b>Ctrl+Z</b> (<b>⌘Z</b> on Mac), redo with <b>Ctrl+Shift+Z</b>.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pane-sec"><div class="docs-h"><h3 class="sub">Project files <span class="muted" id="cd-count"></span></h3><button class="linkbtn" data-go="data" type="button">Add</button></div>
+          <div class="dlist" id="cd-list"></div></div>
+          <div class="rail-go">
+            <p class="hint">Done with coding process?</p>
+            <button class="btn btn-acc btn-lg" type="button" id="c-themes">Move to Theme generation <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+          </div>
+        </nav>
+        <div class="reader" id="reader"></div>
+        <aside class="codes" aria-label="Codes">
+          <div class="pane-h"><h3 class="sub">Codes <span class="muted" id="cc-count"></span></h3><span style="display:flex;gap:8px"><button class="btn btn-line btn-sm" id="cc-book" type="button">Codebook</button><button class="btn btn-ink btn-sm" id="cc-new" type="button">New code</button></span></div>
+          <input type="search" id="cc-search" placeholder="Filter codes" aria-label="Filter codes">
+          <button class="linkbtn imp-link" type="button" data-impcodes="1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>Import codes from an earlier project</button>
+          <div id="cc-list"></div>
+          <div class="blk" style="gap:8px">
+            <h3 class="sub">Coded in this document <span class="muted" id="cs-count"></span></h3>
+            <div id="cs-list"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Themes -->
+    <section class="view split" id="v-themes" hidden>
+      <aside class="rail">
+        <div class="pane-intro">
+          <span class="eyebrow">Step 3</span>
+          <h2 class="pt">Build themes</h2>
+          <p class="pane-lead">Drag codes from the list below into themes on the right.</p>
+        </div>
+        <div class="howto">
+            <h3 class="sub">How it works</h3>
+            <button class="qbtn" type="button" aria-label="How it works" aria-describedby="howto-tip">?</button>
+            <div class="howto-tip" id="howto-tip" role="tooltip">
+              <ul>
+              <li>Drag a code from the list below onto a <b>theme</b> to add it there.</li>
+              <li>Drop a code on <b>Make a new theme</b> to start a theme. It appears at the bottom while you drag.</li>
+              <li>Drag a code from one theme to another, or back to this list to take it out of its theme.</li>
+              <li>Click <b>×</b> on a code to take it out of its theme.</li>
+              <li>Hover over a code or a theme name for its definition and criteria.</li>
+              <li>Undo with <b>Ctrl+Z</b> (<b>⌘Z</b> on Mac), redo with <b>Ctrl+Shift+Z</b>.</li>
+              </ul>
+            <p><b>Themes are built, not found.</b> Expect to merge, split and rename themes as you review the coded segments behind them.</p>
+            </div>
+          </div>
+        <div id="th-poolbox"></div>
+      </aside>
+      <div class="main" id="th-main">
+        <div class="th-tools">
+          <div class="blk" style="gap:4px">
+            <h2>Themes</h2>
+          </div>
+          <div class="acts">
+            <button class="btn btn-ink btn-sm" type="button" id="th-tbook">Theme book</button>
+            <button class="btn btn-line btn-sm" type="button" id="th-book">Codebook</button>
+          </div>
+        </div>
+        <div id="th-board" class="blk" style="gap:20px"></div>
+        <div class="th-new" id="th-new" aria-hidden="true"><svg viewBox="0 0 14 14"><path d="M7 2v10M2 7h10"/></svg>Make a new theme <span class="zsub">Drop a code here</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="pop" id="pop" hidden role="dialog" aria-label="Code this excerpt"></div>
+
+<dialog id="dlg-code" aria-labelledby="dc-title">
+  <form id="code-form" novalidate>
+    <div class="dlg-h"><h2 id="dc-title">New code</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="dlg-b">
+      <div class="excerpt" id="f-excerpt"></div>
+      <div class="grid2 solo" id="f-row1">
+        <div class="field"><label for="f-name">Code name <span class="req">*</span></label><input type="text" id="f-name" autocomplete="off" placeholder="Short and specific, e.g. Pressure to be always available"></div>
+        <div class="field" id="f-theme-wrap" hidden><label for="f-theme">Candidate theme</label><input type="text" id="f-theme" list="themes-dl" autocomplete="off" placeholder="Optional"><datalist id="themes-dl"></datalist></div>
+      </div>
+      <div class="field"><label for="f-def">Definition <span class="req">*</span></label><textarea id="f-def" rows="2" placeholder="What does this code capture? Write it so another coder could apply it without asking you."></textarea></div>
+      <div class="grid-ie">
+        <div class="field"><label for="f-inc">Include when <span class="req">*</span></label><textarea id="f-inc" rows="3" placeholder="Statements, examples or signals that count as this code."></textarea></div>
+        <div class="field"><label for="f-exc">Exclude when <span class="req">*</span></label><textarea id="f-exc" rows="3" placeholder="Near misses that do not count, and which code to use instead."></textarea></div>
+      </div>
+      <div class="f-color"><span id="f-col-l">Colour</span><div class="swatches" id="f-colors" role="radiogroup" aria-labelledby="f-col-l"></div></div>
+    </div>
+    <div class="dlg-f"><button class="linkbtn danger" type="button" id="f-del" hidden>Delete code</button><span class="err" id="f-err" aria-live="polite"></span><div class="group"><button class="btn btn-line" type="button" data-close>Cancel</button><button class="btn btn-acc" type="submit" id="f-submit">Save code</button></div></div>
+  </form>
+</dialog>
+
+<dialog id="dlg-book" aria-labelledby="db-title">
+  <div class="dlg-h"><h2 id="db-title">Codebook</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+  <div class="bk-tools">
+    <input type="search" id="bk-q" placeholder="Search names, definitions, criteria" aria-label="Search the codebook">
+    <div class="seg" role="radiogroup" aria-label="Show" id="bk-f">
+      <label><input type="radio" name="bkf" value="all" checked><span>All codes</span></label>
+      <label><input type="radio" name="bkf" value="doc"><span>In this document</span></label>
+      <label><input type="radio" name="bkf" value="unused"><span>Not yet used</span></label>
+    </div>
+    <select id="bk-s" aria-label="Sort"><option value="az">Name A–Z</option><option value="used">Most used</option><option value="new">Newest first</option></select>
+    <span class="count" id="bk-n"></span>
+    <span class="bk-dl"><button class="btn btn-line btn-sm" type="button" data-impcodes="1">Import codes</button><button class="btn btn-line btn-sm" type="button" data-export="codeset:json" title="Codes with definitions and criteria, to import into another project">Export code set</button></span>
+    <span class="bk-dl"><span class="hint">Download codebook</span><button class="btn btn-ink btn-sm" type="button" data-export="codebook:pdf">PDF</button><button class="btn btn-line btn-sm" type="button" data-export="codebook:csv">CSV</button><button class="btn btn-line btn-sm" type="button" data-export="codebook:txt">Text</button></span>
+  </div>
+  <div class="bk-wrap" id="bk-wrap"></div>
+</dialog>
+
+<dialog id="dlg-tbook" aria-labelledby="dt-title">
+  <div class="dlg-h"><h2 id="dt-title">Theme book</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+  <div class="bk-tools">
+    <input type="search" id="tb-q" placeholder="Search themes, definitions, criteria, codes" aria-label="Search the theme book">
+    <select id="tb-s" aria-label="Sort"><option value="az">Name A–Z</option><option value="codes">Most codes</option><option value="segs">Most segments</option></select>
+    <span class="count" id="tb-n"></span>
+    <span class="bk-dl"><span class="hint">Download theme book</span><button class="btn btn-ink btn-sm" type="button" data-export="themebook:pdf">PDF</button><button class="btn btn-line btn-sm" type="button" data-export="themebook:csv">CSV</button><button class="btn btn-line btn-sm" type="button" data-export="themebook:txt">Text</button></span>
+  </div>
+  <div class="bk-wrap" id="tb-wrap"></div>
+</dialog>
+
+<dialog id="dlg-x" aria-labelledby="dx-title">
+  <div class="dlg-h"><h2 id="dx-title">Export</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+  <div class="dlg-b">
+    <div class="xlist" id="x-menu"></div>
+    <div id="x-text" class="blk" hidden>
+      <p class="hint" id="x-text-h"></p>
+      <textarea id="x-ta" class="mono" rows="12" readonly></textarea>
+      <div class="row"><button class="btn btn-ink" type="button" id="x-copy">Copy to clipboard</button><button class="linkbtn" type="button" id="x-back">Back to export options</button></div>
+    </div>
+  </div>
+</dialog>
+
+<input type="file" id="json-in" accept=".json,application/json" hidden>
+<input type="file" id="codes-in" accept=".json,.csv,.tsv,.txt,.xlsx,.xls,.ods,application/json,text/csv" hidden>
+<dialog id="dlg-file" aria-labelledby="df-title">
+  <form id="file-form" novalidate>
+    <div class="dlg-h"><h2 id="df-title">File</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="dlg-b">
+      <div class="df-row">
+        <div class="field"><label for="df-name">File name</label><input type="text" id="df-name" autocomplete="off"></div>
+        <div class="field"><label for="df-type">Data type</label><select id="df-type"></select></div>
+        <span class="df-meta" id="df-meta" hidden></span>
+      </div>
+      <p class="df-warn" id="df-warn" hidden></p>
+      <label class="vh" for="df-text">File text</label>
+      <textarea id="df-text" spellcheck="true"></textarea>
+    </div>
+    <div class="dlg-f"><button class="linkbtn danger" type="button" id="df-del">Remove file</button><span class="err" id="df-err" aria-live="polite"></span><div class="group"><button class="btn btn-line" type="button" data-close>Cancel</button><button class="btn btn-acc" type="submit">Update file</button></div></div>
+  </form>
+</dialog>
+<dialog id="dlg-over" class="dlg-sm" aria-labelledby="so-title">
+  <div class="dlg-h"><h2 id="so-title">Start over?</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+  <div class="dlg-b"><p class="lead" id="so-body"></p></div>
+  <div class="dlg-f"><button class="btn btn-acc" type="button" id="so-save"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>Save project file</button><div class="group"><button class="btn btn-line" type="button" data-close>Cancel</button><button class="btn" type="button" id="so-go" style="background:var(--bad);color:#fff">Start over</button></div></div>
+</dialog>
+<dialog id="dlg-imp" aria-labelledby="di-title">
+  <div class="dlg-h"><h2 id="di-title">Import codes</h2><button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+  <div class="dlg-b imp-b">
+    <div class="imp-top"><div><b id="imp-file"></b><span class="hint" id="imp-sum"></span></div><button class="linkbtn" type="button" id="imp-all">Select all or none</button></div>
+    <div class="row imp-opts">
+      <div class="seg" role="radiogroup" aria-label="Codes that already exist" id="imp-dupopt"><label><input type="radio" name="impmode" value="skip" checked><span>Skip codes already here</span></label><label><input type="radio" name="impmode" value="update"><span>Update their definitions</span></label></div>
+      <label class="chk" id="imp-themeopt"><input type="checkbox" id="imp-themes"> Also bring their themes</label>
+    </div>
+    <div class="imp-list" id="imp-list"></div>
+  </div>
+  <div class="dlg-f"><span class="hint">Codes keep their definitions, criteria and colours.</span><div class="group"><button class="btn btn-line" type="button" data-close>Cancel</button><button class="btn btn-acc" type="button" id="imp-go">Import</button></div></div>
+</dialog>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+const LS='themex.study.v1';
+const NCOL=10;
+const TYPES={
+  interview:{label:'Interview transcripts',short:'Interview',d:'Speaker turns kept as written.',m:'TXT · MD · DOCX'},
+  survey:{label:'Open-ended survey responses',short:'Survey',d:'Each CSV row becomes one response, labelled by question.',m:'CSV · TSV · TXT'},
+  field:{label:'Field notes & observations',short:'Field notes',d:'Observation logs, memos and timestamped notes.',m:'TXT · MD · DOCX'},
+  other:{label:'Other qualitative data',short:'Other',d:'Diaries, documents, open comments, posts.',m:'TXT · MD · DOCX · CSV'}
+};
+const ICON_X='<svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>';
+const ICON_PLUS='<svg viewBox="0 0 14 14"><path d="M7 2v10M2 7h10"/></svg>';
+const fine=matchMedia('(hover:hover) and (pointer:fine)');
+const narrow=matchMedia('(max-width:760px)');
+
+let S=blank();
+let view='data', upType='interview', focusCode=null, editTheme=null;
+let P=null;          // pending selection {docId,start,end}
+let pop={open:false,mode:null,anchor:null};
+let staleReader=false;
+
+function blank(){return {v:1,name:'Untitled project',docs:[],codes:[],segs:[],active:null,sample:false}}
+const docById=id=>S.docs.find(d=>d.id===id);
+const codeById=id=>S.codes.find(c=>c.id===id);
+const segsOfDoc=id=>S.segs.filter(s=>s.docId===id);
+const segsOfCode=id=>S.segs.filter(s=>s.codeId===id);
+const words=t=>(t.match(/\S+/g)||[]).length;
+const fmtN=n=>n.toLocaleString('en-IN');
+const plural=(n,a,b)=>`${fmtN(n)} ${n===1?a:(b||a+'s')}`;
+const themesList=()=>[...new Set(S.codes.map(c=>(c.theme||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+const excerpt=s=>{const d=docById(s.docId);return d?d.text.slice(s.start,s.end):''};
+const clip=(t,n)=>t.length>n?t.slice(0,n).trimEnd()+'…':t;
+const colVal=c=>{const v=c&&c.color!=null?c.color:0;return typeof v==='string'?v:`var(--c${v%NCOL})`};
+const kvar=c=>`--k:${colVal(c)}`;
+
+/* ---------- Persistence ---------- */
+// Nothing is kept in the browser. The project lives in this page until it is exported as a project file.
+let dirty=false;
+function persist(){renderSaved()}
+try{localStorage.removeItem(LS)}catch(e){} // clear copies kept by earlier versions
+/* Undo / redo: snapshots of the study (which document is open is not part of history) */
+const H={undo:[],redo:[],cur:null,obj:null,at:0,MAX:150};
+const snap=()=>JSON.stringify({...S,active:undefined});
+function record(){
+  const s=snap();
+  if(H.obj!==S){H.undo=[];H.redo=[];H.cur=s;H.obj=S;H.at=0;return} // a different study was loaded
+  if(s===H.cur)return;
+  const now=Date.now();
+  if(now-H.at>700||!H.undo.length){H.undo.push(H.cur);if(H.undo.length>H.MAX)H.undo.shift()} // rapid edits (typing) merge into one step
+  H.redo=[];H.cur=s;H.at=now;
+}
+function save(){record();if(!S.sample&&S.docs.length)dirty=true;persist()}
+function baseline(){if(H.obj!==S){H.undo=[];H.redo=[];H.cur=snap();H.obj=S;H.at=0}}
+function restore(s){
+  const keep=S.active,sample=S.sample;S=Object.assign(blank(),JSON.parse(s));S.sample=sample;S.active=docById(keep)?keep:(S.docs[0]?.id||null);
+  H.cur=s;H.obj=S;H.at=0;
+  if(focusCode&&!codeById(focusCode))focusCode=null;
+  closePop(false);hideTip();persist();
+  if(!$('#app').hidden)render();
+}
+function undo(){if(!H.undo.length){toast('Nothing to undo');return}H.redo.push(H.cur);restore(H.undo.pop());toast('Undone · Ctrl+Shift+Z to redo')}
+function redo(){if(!H.redo.length){toast('Nothing to redo');return}H.undo.push(H.cur);restore(H.redo.pop());toast('Redone')}
+document.addEventListener('keydown',e=>{
+  if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
+  const k=e.key.toLowerCase();if(k!=='z'&&k!=='y')return;
+  if(e.target.closest?.('input,textarea,select,[contenteditable]'))return; // keep the browser's own text undo in fields
+  if(document.querySelector('dialog[open]')||$('#app').hidden||drag)return;
+  e.preventDefault();
+  if(k==='y'||e.shiftKey)redo();else undo();
+});
+function valid(o){return o&&Array.isArray(o.docs)&&Array.isArray(o.codes)&&Array.isArray(o.segs)}
+function renderSaved(){
+  const el=$('#m-saved');if(!el)return;
+  if(S.sample){el.className='mast-note';el.textContent='Sample study, not saved';return}
+  if(!S.docs.length){el.className='mast-note';el.textContent='';return}
+  if(dirty){el.className='mast-note off';el.textContent='Not saved. Export the project file to keep your work.'}
+  else{el.className='mast-note';el.innerHTML='<svg viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7"/></svg>Project file up to date'}
+}
+addEventListener('beforeunload',e=>{if(dirty&&S.docs.length&&!S.sample){e.preventDefault();e.returnValue=''}});
+
+/* ---------- Toast ---------- */
+let toastT=null;
+function toast(msg,bad){const t=$('#toast');t.textContent=msg;t.className='toast'+(bad?' bad':'');t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,bad?4200:2400)}
+
+/* ---------- Armed (two-step) buttons ---------- */
+function arm(btn,label,fn){
+  if(btn.hasAttribute('data-armed')){btn.removeAttribute('data-armed');btn.textContent=btn.dataset.orig;fn();return}
+  btn.dataset.orig=btn.textContent;btn.setAttribute('data-armed','');btn.textContent=label;
+  setTimeout(()=>{if(btn.isConnected&&btn.hasAttribute('data-armed')){btn.removeAttribute('data-armed');btn.textContent=btn.dataset.orig}},3500);
+}
+
+/* ---------- Import ---------- */
+function parseDelim(t,delim){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true; else if(c===delim){row.push(f);f=''}
+    else if(c==='\n'){row.push(f);rows.push(row);row=[];f=''} else if(c!=='\r')f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+function rowsToText(rows){
+  if(rows.length<2)return rows.map(r=>r.join(' ')).join('\n\n');
+  const h=rows[0];
+  return rows.slice(1).map((r,i)=>{const L=[`Response ${i+1}`];h.forEach((col,j)=>{const v=(r[j]||'').trim();if(v)L.push(h.length>1?`${(col||'').trim()||'Column '+(j+1)}: ${v}`:v)});return L.join('\n')}).join('\n\n');
+}
+const norm=t=>t.replace(/\r\n?/g,'\n').replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').trim();
+function addDoc(name,type,text){
+  text=norm(text);
+  if(!text)return null;
+  const d={id:uid('d'),name:name||'Untitled document',type,text,added:Date.now()};
+  S.docs.push(d); if(!S.active)S.active=d.id; fresh.add(d.id); return d;
+}
+function detectType(name,text){
+  if(/field|observ|ethnograph|site.?visit/i.test(name))return 'field';
+  if(/survey|questionnaire|responses?\b/i.test(name))return 'survey';
+  if(/interview|transcript/i.test(name))return 'interview';
+  const turns=(text.match(/^[A-Z][A-Za-z0-9 .'’()-]{0,24}:/gm)||[]).length;
+  if(turns>=3)return 'interview';
+  if(/^Response \d+$/m.test(text))return 'survey';
+  if((text.match(/^\s*\d{1,2}[:.]\d{2}\b/gm)||[]).length>=2)return 'field';
+  return 'other';
+}
+async function readFile(f){
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  const base=f.name.replace(/\.[^.]+$/,'');
+  if(ext==='docx'){
+    if(!window.mammoth)throw new Error(`${f.name}: the Word reader did not load. Save it as .txt, or paste the text.`);
+    const r=await window.mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});
+    return [{name:base,type:detectType(f.name,r.value),text:r.value}];
+  }
+  if(['xlsx','xls','ods'].includes(ext)){
+    if(!window.XLSX)throw new Error(`${f.name}: the Excel reader did not load. Save the sheet as .csv and upload that.`);
+    const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});
+    const out=[];
+    wb.SheetNames.forEach(sn=>{const rows=window.XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:false,defval:''}).map(r=>r.map(v=>String(v??''))).filter(r=>r.some(x=>x.trim()));
+      if(rows.length)out.push({name:wb.SheetNames.length>1?`${base} · ${sn}`:base,type:'survey',text:rowsToText(rows)})});
+    if(!out.length)throw new Error(`${f.name} has no filled cells.`);
+    return out;
+  }
+  if(ext==='csv'||ext==='tsv'){
+    const t=await f.text();
+    return [{name:base,type:'survey',text:rowsToText(parseDelim(t.replace(/^﻿/,''),ext==='tsv'?'\t':','))}];
+  }
+  if(['txt','md','markdown','text'].includes(ext)||f.type.startsWith('text/')){const t=await f.text();return [{name:base,type:detectType(f.name,t),text:t}]}
+  throw new Error(`${f.name} isn’t a supported format. Use .txt, .md, .docx, .csv or .xlsx, or paste the text.`);
+}
+let preSample=null;
+function leaveSample(){if(S.sample){S=preSample||blank();preSample=null;focusCode=null}}
+async function importFiles(list){
+  const files=[...list];if(!files.length)return 0;
+  const proj=files.find(f=>/\.json$/i.test(f.name));
+  if(proj){await openProjectFile(proj);return -1}
+  leaveSample();
+  let n=0,errs=[];
+  for(const f of files){
+    try{const rs=await readFile(f);let k=0;for(const r of rs)if(addDoc(r.name,r.type,r.text)){n++;k++}if(!k)errs.push(`${f.name} is empty.`)}
+    catch(e){errs.push(e.message)}
+  }
+  if(n){S.sample=false;save()}
+  if(errs.length)toast(errs[0],true); else if(n)toast(`Added ${plural(n,'document')}. Data types were detected; change any with View.`);
+  return n;
+}
+async function openProjectFile(f){
+  try{const o=JSON.parse(await f.text());if(!valid(o))throw 0;
+    S=Object.assign(blank(),o);S.sample=false;if(!docById(S.active))S.active=S.docs[0]?.id||null;
+    focusCode=null;H.obj=null;dirty=false;renderSaved();toast(`Opened “${S.name}”`);enterApp(S.docs.length?'code':'data');
+  }catch(e){toast('That file isn’t a Thematis project. Choose a .json file saved from Thematis.',true)}
+}
+
+/* ---------- Sample study ---------- */
+function loadSample(){
+  if(!S.sample)preSample=S.docs.length||S.codes.length?S:null;
+  S=blank();S.sample=true;S.name='Remote work and wellbeing';
+  const D={
+p01:['Interview P01','interview',`Interviewer: How has working from home changed your day?
+P01: Honestly, the first thing I notice is that there's no real end to the day anymore. I'll close the laptop at seven, and then at nine I'm back on it answering a message because it's right there on the dining table.
+Interviewer: Is that something you choose?
+P01: Partly. Nobody tells me I have to reply, but if my manager sees I've read it and didn't answer, I worry it looks like I'm not pulling my weight. So I keep Slack open on my phone, just in case.
+Interviewer: What has been better?
+P01: The commute. I used to lose almost two hours a day in traffic. Now I use that time to walk in the morning and actually eat breakfast with my daughter. That alone has made me calmer.
+Interviewer: And the team?
+P01: That's the part I miss. You don't bump into people anymore. The small conversations by the coffee machine, that's where I used to find out what other teams were doing. Now everything is a scheduled call with an agenda.
+Interviewer: Anything about the space itself?
+P01: Our flat is small. My desk is the dining table, so every evening I pack the work away, and every morning I set it up again. Some days my back hurts by lunch.`],
+p02:['Interview P02','interview',`Interviewer: Tell me about a typical week.
+P02: I'm in the office Tuesdays and Thursdays, at home the rest. On home days I start earlier, because I don't have to get ready and travel, and I like having that quiet hour before anyone messages.
+Interviewer: How do you decide when to stop working?
+P02: I set an alarm for six. When it goes off I physically switch off the second monitor. It sounds silly, but if I don't do that, I'll keep checking things until bedtime.
+Interviewer: How do you stay in touch with colleagues?
+P02: Mostly through chat. It works for tasks, but I've noticed the newer people on the team don't really know me. We've never had lunch together. It's very transactional.
+Interviewer: Do you ever feel you need to prove you're working?
+P02: All the time. I make sure my status is green. I'll send a quick update at the end of the day even if nobody asked, just so there's a record that I did something.`],
+srv:['Staff survey, open questions','survey',`Response 1
+What has changed most about how you work?: I can focus for longer stretches without interruptions.
+What do you find hardest?: Knowing when to stop. My laptop is in the same room I relax in.
+
+Response 2
+What has changed most about how you work?: I save money and time on travel.
+What do you find hardest?: I feel invisible to senior people. They notice who is in the office.
+
+Response 3
+What has changed most about how you work?: I take calls from my bedroom.
+What do you find hardest?: No separate space. My kids are around during calls.
+
+Response 4
+What has changed most about how you work?: More flexible hours, I can pick up my son from school.
+What do you find hardest?: Messages come in late at night and I feel I should answer them.
+
+Response 5
+What has changed most about how you work?: Fewer chats with colleagues, meetings are all business.
+What do you find hardest?: I miss learning from people sitting next to me.`],
+fn:['Field notes, co-working space visit','field',`Co-working space visit, 14 October
+
+10:40 Around twenty people in the open area, most with headphones on. Two people at the window table talk loudly on video calls; others move away from them.
+
+11:15 A participant (P04) says she comes here twice a week to see other faces. She knows the receptionist by name but none of the other members.
+
+12:30 Lunch area is busy. People eat at their desks rather than together; one group of three is the exception, they work for the same company.
+
+15:05 P04 shows me her phone: work notifications are on, and she checks them during our conversation without seeming to notice.
+
+17:45 Most people leave between 5:30 and 6. The space closes at 9 but the lights in the phone booths stay on.`]};
+  const ids={};for(const k in D){const d=addDoc(D[k][0],D[k][1],D[k][2]);ids[k]=d.id}
+  const C={
+k1:['Blurred work–home boundary','Work spills into home life',0,'Accounts of work time or work activity extending into hours or spaces meant for home life.','Working again after stopping for the day; checking or answering messages in personal time; work equipment taking over living space.','Flexible hours chosen on purpose for a personal reason (use Reclaimed time). Deliberate ways of stopping work (use Boundary rituals).'],
+k6:['No dedicated workspace','Work spills into home life',9,'Physical constraints of working where there is no separate room or desk for work.','Working from dining tables, bedrooms or shared rooms; family present during work; discomfort from improvised set-ups.','Preferences about offices or co-working spaces that are not about lacking space at home.'],
+k5:['Boundary rituals','Work spills into home life',2,'Deliberate actions people take to mark the start or end of work.','Alarms, switching off devices or screens, packing work away, routines that signal “work is over”.','Stopping work because of outside events, such as family arriving or a power cut.'],
+k2:['Pressure to be always available','Proving presence',3,'A felt expectation to respond quickly or appear online, whether stated by others or self-imposed.','Replying out of hours from worry; keeping status green; notifications always on; feeling one “should” answer.','Replying because the person wants to, with no sense of obligation.'],
+k7:['Visibility anxiety','Proving presence',7,'Worry that one’s work or commitment is not seen by managers or senior colleagues.','Sending updates nobody asked for; feeling invisible; believing attendance is judged.','Formal performance reviews described neutrally, with no worry attached.'],
+k3:['Reclaimed time','Autonomy as relief',1,'Time freed by not commuting or by flexible hours, and what people do with it.','Commute time saved; time with family; exercise; quiet focus time; school pick-ups.','Freed time that goes into more work (use Blurred work–home boundary).'],
+k4:['Loss of informal contact','Thin connection',5,'Missing unplanned, social or incidental contact with colleagues.','Chance conversations, shared lunches, learning by overhearing, not knowing new colleagues.','Complaints about how formal meetings are run, when nothing informal is missed.']};
+  const cid={};let t0=Date.now()-86400000;
+  for(const k in C){const [name,theme,color,def,inc,exc]=C[k];const c={id:uid('c'),name,theme,color,def,inc,exc,created:t0+=60000};S.codes.push(c);cid[k]=c.id}
+  codeById(cid.k5).theme='';
+  S.themes=[
+    ['Work spills into home life',8,'Work time, tasks and equipment move into hours and spaces meant for home, and people work to hold the line.','Codes about work extending into personal time or living space, and the ways people try to contain it.','Codes about the benefits of flexibility (see Autonomy as relief).'],
+    ['Proving presence',7,'People feel they must show they are working by staying reachable and visible to managers.','Codes about felt pressure to respond, appear online or be noticed.','Codes about workload or deadlines with no sense of being watched.'],
+    ['Autonomy as relief',1,'Freed time and flexible hours are experienced as a gain in control over the day.','Codes about time saved, chosen routines, and family or personal time gained.','Freed time that goes back into work (see Work spills into home life).'],
+    ['Thin connection',2,'Contact with colleagues narrows to planned, task-focused exchanges.','Codes about missing informal, social or incidental contact.','Codes about tools or meeting formats with no sense of loss.']
+  ].map(([name,color,def,inc,exc])=>({id:uid('t'),name,color,def,inc,exc}));
+  const G=[
+['k1','p01',"there's no real end to the day anymore. I'll close the laptop at seven, and then at nine I'm back on it answering a message because it's right there on the dining table."],
+['k2','p01',"if my manager sees I've read it and didn't answer, I worry it looks like I'm not pulling my weight. So I keep Slack open on my phone, just in case."],
+['k7','p01',"I worry it looks like I'm not pulling my weight."],
+['k3','p01',"I used to lose almost two hours a day in traffic. Now I use that time to walk in the morning and actually eat breakfast with my daughter."],
+['k4','p01',"You don't bump into people anymore. The small conversations by the coffee machine, that's where I used to find out what other teams were doing."],
+['k6','p01',"My desk is the dining table, so every evening I pack the work away, and every morning I set it up again. Some days my back hurts by lunch."],
+['k5','p01',"every evening I pack the work away"],
+['k3','p02',"I like having that quiet hour before anyone messages."],
+['k5','p02',"I set an alarm for six. When it goes off I physically switch off the second monitor."],
+['k1','p02',"if I don't do that, I'll keep checking things until bedtime."],
+['k4','p02',"the newer people on the team don't really know me. We've never had lunch together."],
+['k2','p02',"I make sure my status is green."],
+['k7','p02',"I'll send a quick update at the end of the day even if nobody asked, just so there's a record that I did something."],
+['k1','srv',"Knowing when to stop. My laptop is in the same room I relax in."],
+['k6','srv',"My laptop is in the same room I relax in."],
+['k3','srv',"I save money and time on travel."],
+['k7','srv',"I feel invisible to senior people. They notice who is in the office."],
+['k6','srv',"No separate space. My kids are around during calls."],
+['k3','srv',"I can pick up my son from school."],
+['k2','srv',"Messages come in late at night and I feel I should answer them."],
+['k4','srv',"I miss learning from people sitting next to me."],
+['k4','fn',"She knows the receptionist by name but none of the other members."],
+['k4','fn',"People eat at their desks rather than together"],
+['k2','fn',"work notifications are on, and she checks them during our conversation without seeming to notice."]];
+  for(const [ck,dk,q] of G){const d=docById(ids[dk]);const i=d.text.indexOf(q);if(i>=0)S.segs.push({id:uid('s'),docId:d.id,codeId:cid[ck],start:i,end:i+q.length,at:Date.now()})}
+  S.active=ids.p01;focusCode=null;save();
+}
+
+/* ---------- Navigation ---------- */
+function enterApp(v){
+  $('#landing').hidden=true;$('#app').hidden=false;document.body.classList.add('ws');
+  const m=$('#mast');m.classList.remove('in');void m.offsetWidth;m.classList.add('in');
+  go(v);
+}
+function leaveApp(){closePop();$('#app').hidden=true;$('#landing').hidden=false;document.body.classList.remove('ws');renderLanding();window.scrollTo(0,0)}
+function go(v){
+  closePop();view=v;
+  $('#v-data').hidden=v!=='data';$('#v-code').hidden=v!=='code';$('#v-themes').hidden=v!=='themes';
+  $$('.step-b').forEach(b=>b.dataset.go===v?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  render(true);window.scrollTo(0,0);
+}
+function render(enter){
+  baseline();
+  renderMast();
+  if(view==='data')renderData(enter);else if(view==='code')renderCode();else renderThemes(enter);
+  if($('#dlg-book').open)renderBookModal();
+  if($('#dlg-tbook').open)renderThemeBook();
+}
+function renderMast(){
+  const nd=S.docs.length,ns=S.segs.length,nc=S.codes.length;
+  $('#sc-data').textContent=nd?fmtN(nd):'';$('#sc-code').textContent=ns?fmtN(ns):'';$('#sc-book').textContent=themeList().length?fmtN(themeList().length):'';
+  const sb=$$('.step-b');sb[0].classList.toggle('done',nd>0);sb[1].classList.toggle('done',ns>0);sb[2].classList.toggle('done',S.codes.some(c=>c.theme));
+  $('#ln-1').classList.toggle('done',nd>0);$('#ln-2').classList.toggle('done',ns>0);
+  renderSaved();
+}
+
+/* ---------- Landing ---------- */
+function renderLanding(){
+  const r=$('#l-resume'),has=!S.sample&&(S.docs.length||S.codes.length);
+  r.hidden=!has;
+  if(has)$('#l-resume-t').innerHTML=`Current project: <b>${esc(S.name)}</b> · ${plural(S.docs.length,'file')} · ${plural(S.codes.length,'code')}${dirty?' · not exported yet':''}`;
+}
+/* ---------- Data view ---------- */
+function typeOptions(sel){return Object.entries(TYPES).map(([k,t])=>`<option value="${k}"${k===sel?' selected':''}>${esc(t.label)}</option>`).join('')}
+let fresh=new Set();
+function renderData(enter){
+  const m=$('#data-main');if(enter){m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter')}
+  const sn=$('#study-name');if(document.activeElement!==sn)sn.value=S.name;
+  const pt=$('#p-type');if(document.activeElement!==pt){const v=pt.value||'interview';pt.innerHTML=typeOptions(v)}
+  const n=S.docs.length;
+  $('#f-count').textContent=n||'';
+  const go=$('#d-code');go.disabled=!n;
+  $('#d-code-h').textContent=n?`${plural(n,'file')} ready. You can come back to add more at any time.`:'Add at least one file to start coding.';
+  const box=$('#f-list');
+  if(!n){box.innerHTML='<p class="f-empty">No files yet. Paste text or upload files, and each one appears here.</p>';return}
+  box.innerHTML=`<div class="flist">${S.docs.map(d=>`<div class="fitem${fresh.has(d.id)?' new':''}" data-fid="${d.id}"><span class="fn"><b>${esc(d.name)}</b><span class="ft">${esc(TYPES[d.type]?.label||'Other')}</span></span><button class="btn btn-line btn-sm" type="button" data-viewdoc="${d.id}" aria-label="View and edit ${esc(d.name)}">View</button></div>`).join('')}</div>`;
+  if(fresh.size){const ids=[...fresh];fresh.clear();$(`#f-list [data-fid="${ids[ids.length-1]}"]`)?.scrollIntoView({block:'nearest'});setTimeout(()=>ids.forEach(id=>$(`#f-list [data-fid="${id}"]`)?.classList.remove('new')),1600)}
+}
+
+/* ---------- Code view ---------- */
+function renderCode(){
+  const ct=$('#c-themes');ct.disabled=!S.codes.length;ct.title=S.codes.length?'':'Add at least one code first';
+  if(!docById(S.active))S.active=S.docs[0]?.id||null;
+  renderDocList();renderReader();renderCodeList();renderSegList();
+}
+function renderDocList(){
+  $('#cd-count').textContent=S.docs.length||'';
+  $('#cd-list').innerHTML=S.docs.length?S.docs.map(d=>{const n=segsOfDoc(d.id).length;return `<button class="ditem" type="button" data-doc="${d.id}" aria-current="${d.id===S.active}"><span class="dn">${esc(d.name)}</span><span class="dm">${esc(TYPES[d.type]?.label||'Other')}</span></button>`}).join(''):`<p class="hint" style="padding:10px 0">No documents yet.</p>`;
+}
+function fmtText(t,lineStart){
+  let h=esc(lineStart?'\n'+t:t);
+  h=h.replace(/\n(Response \d+)(?=\n|$)/g,'\n<b class="spk">$1</b>')
+     .replace(/\n(\d{1,2}[:.]\d{2})(?=[\s.])/g,'\n<span class="ts">$1</span>')
+     .replace(/\n([A-Z][A-Za-z0-9 .'’()-]{0,24}):/g,'\n<b class="spk">$1</b>:');
+  return lineStart?h.slice(1):h;
+}
+function renderReader(){
+  const rd=$('#reader');staleReader=false;
+  const d=docById(S.active);
+  const band='';
+  if(!d){rd.innerHTML=`<div class="rd-wrap">${band}<div class="empty"><b>Nothing to code yet</b><span>Add a transcript, survey export or field notes to begin.</span><button class="btn btn-acc" type="button" data-go="data">Add data</button></div></div>`;return}
+  const segs=segsOfDoc(d.id);
+  const all=segs.slice();if(P&&P.docId===d.id)all.push({id:'pend',start:P.start,end:P.end,pend:true});
+  const pts=[...new Set([0,d.text.length,...all.flatMap(s=>[s.start,s.end])])].sort((a,b)=>a-b);
+  let html='';
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],z=pts[i+1];if(z<=a)continue;
+    const piece=d.text.slice(a,z);const ls=a===0||d.text[a-1]==='\n';
+    const cov=all.filter(s=>s.start<=a&&s.end>=z);
+    if(!cov.length){html+=fmtText(piece,ls);continue}
+    if(cov.some(s=>s.pend)){html+=`<span class="pend">${fmtText(piece,ls)}</span>`;continue}
+    const codes=[...new Set(cov.map(s=>s.codeId))].map(codeById).filter(Boolean);
+    const on=focusCode&&codes.some(c=>c.id===focusCode);
+    const bands=codes.map((c,j)=>({img:`linear-gradient(${colVal(c)},${colVal(c)})`,pos:`0 calc(100% - ${j*3}px)`}));
+    const first=on?codeById(focusCode):codes[0];
+    html+=`<span class="hl${on?' on':''}" data-s="${cov.map(s=>s.id).join(' ')}" data-c="${codes.map(c=>c.id).join(' ')}" style="${kvar(first)};--n:${codes.length};background-image:${bands.map(b=>b.img).join(',')};background-size:${bands.map(()=>'100% 2px').join(',')};background-position:${bands.map(b=>b.pos).join(',')}" title="${esc(codes.map(c=>c.name).join(' · '))}">${fmtText(piece,ls)}</span>`;
+  }
+  const nc=new Set(segs.map(s=>s.codeId)).size;
+  rd.innerHTML=`<div class="rd-wrap">${band}<header class="rd-head"><span class="tag">${esc(TYPES[d.type]?.label||'Other')}</span><h2>${esc(d.name)}</h2></header><p class="rd-tip"><svg viewBox="0 0 14 14"><path d="M2 4h10M2 7h6M2 10h8"/></svg>Select any passage to code it. Select highlighted text to see or remove its codes.</p><div class="rd-body" id="rd-body"${focusCode?` data-focus="${focusCode}"`:''}>${html}</div></div>`;
+}
+function groupCodes(list){
+  const g=new Map();
+  list.forEach(c=>{const t=(c.theme||'').trim();if(!g.has(t))g.set(t,[]);g.get(t).push(c)});
+  return [...g.entries()].sort((a,b)=>!a[0]?1:!b[0]?-1:a[0].localeCompare(b[0])).map(([t,cs])=>[t,cs.sort((a,b)=>a.name.localeCompare(b.name))]);
+}
+function renderCodeList(){
+  const q=($('#cc-search').value||'').trim().toLowerCase();
+  $('#cc-count').textContent=S.codes.length||'';
+  const list=S.codes.filter(c=>!q||c.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  const box=$('#cc-list');
+  if(!S.codes.length){box.innerHTML=`<p class="hint">No codes yet. Select a passage in the document to create your first one, or define a code up front with New code.</p>`;return}
+  if(!list.length){box.innerHTML=`<p class="hint">No codes match “${esc(q)}”.</p>`;return}
+  const dId=S.active;
+  box.innerHTML=[list].map(cs=>`<div class="grp" style="border-top:1px solid var(--ink)">${cs.map(c=>{
+    const all=segsOfCode(c.id),here=all.filter(s=>s.docId===dId).length,on=focusCode===c.id;
+    return `<button class="crow" type="button" data-focus="${c.id}" aria-pressed="${on}" style="${kvar(c)}" title="${on?'Show all codes':'Show only this code in the document'}"><i class="sw"></i><span class="cn">${esc(c.name)}</span></button>${on?`<div class="cdet"><p>${esc(c.def)}</p><div class="acts"><button class="linkbtn" type="button" data-edit="${c.id}">Edit code</button><button class="linkbtn" type="button" data-inbook="${c.id}">Open in codebook</button></div></div>`:''}`}).join('')}</div>`).join('');
+}
+function renderSegList(){
+  const segs=segsOfDoc(S.active).sort((a,b)=>a.start-b.start||a.end-b.end);
+  $('#cs-count').textContent=segs.length||'';
+  $('#cs-list').innerHTML=segs.length?`<div class="slist">${segs.map(s=>{const c=codeById(s.codeId);return `<div class="sitem"><button class="sgo" type="button" data-goseg="${s.id}"><span class="chips"><span class="chip" style="${kvar(c)}">${esc(c?.name||'')}</span></span><span class="sq">${esc(excerpt(s))}</span></button><button class="ix" type="button" data-unseg="${s.id}" aria-label="Remove code ${esc(c?.name||'')} from this excerpt">${ICON_X}</button></div>`}).join('')}</div>`:`<p class="hint">Nothing coded in this document yet.</p>`;
+}
+
+/* ---------- Selection → popover ---------- */
+function readSel(){
+  const body=$('#rd-body');const sel=getSelection();
+  if(!body||!sel||!sel.rangeCount||sel.isCollapsed)return null;
+  const r=sel.getRangeAt(0);
+  if(!body.contains(r.startContainer)||!body.contains(r.endContainer))return null;
+  const pre=document.createRange();pre.setStart(body,0);
+  pre.setEnd(r.startContainer,r.startOffset);let start=pre.toString().length;
+  pre.setEnd(r.endContainer,r.endOffset);let end=pre.toString().length;
+  const t=docById(S.active).text;
+  while(start<end&&/\s/.test(t[start]))start++;
+  while(end>start&&/\s/.test(t[end-1]))end--;
+  if(end-start<2)return null;
+  return {docId:S.active,start,end};
+}
+function checkSel(){
+  if(view!=='code'||$('#dlg-code').open)return;
+  const r=readSel();
+  if(r){if(pop.open&&pop.mode==='apply'&&P&&P.start===r.start&&P.end===r.end)return;openApply(r);return}
+  if(staleReader)renderReader();
+}
+function openApply(r){
+  P=r;renderReader();getSelection().removeAllRanges();
+  pop.mode='apply';pop.open=true;pop.anchor=()=>$$('#rd-body .pend');
+  const q=docById(r.docId).text.slice(r.start,r.end);
+  const el=$('#pop');
+  el.setAttribute('aria-label','Code this excerpt');
+  el.innerHTML=`<div class="pop-h"><span class="sub">Code this excerpt</span><button class="x" type="button" data-popclose aria-label="Close">${ICON_X}</button></div><div class="pop-q">${esc(clip(q,240))}</div><div class="pop-in"><input type="search" id="pop-search" placeholder="Find a code, or type a new name" aria-label="Find or name a code" autocomplete="off"></div><div class="pop-list" id="pop-list"></div><button class="pop-new" type="button" id="pop-new"></button>`;
+  renderPopList('');el.hidden=false;place();
+  if(narrow.matches)$('#rd-body .pend')?.scrollIntoView({block:'start',behavior:'smooth'});
+  if(fine.matches&&!narrow.matches)$('#pop-search').focus({preventScroll:true});
+}
+function renderPopList(q){
+  const ql=q.trim().toLowerCase();
+  const applied=new Set(S.segs.filter(s=>P&&s.docId===P.docId&&s.start===P.start&&s.end===P.end).map(s=>s.codeId));
+  const list=S.codes.filter(c=>!ql||c.name.toLowerCase().includes(ql))
+    .sort((a,b)=>segsOfCode(b.id).length-segsOfCode(a.id).length||a.name.localeCompare(b.name));
+  $('#pop-list').innerHTML=list.length?list.map(c=>`<button class="prow" type="button" data-apply="${c.id}" data-tip="${c.id}" style="${kvar(c)}"${applied.has(c.id)?' disabled':''}><i class="sw"></i><span class="pn">${esc(c.name)}</span><span class="tag">${applied.has(c.id)?'Applied':segsOfCode(c.id).length}</span></button>`).join(''):`<p class="hint" style="padding:10px 12px">${S.codes.length?'No code matches. Create it below.':'No codes yet. Create the first one below.'}</p>`;
+  const exact=S.codes.some(c=>c.name.toLowerCase()===ql);
+  const nb=$('#pop-new');nb.hidden=exact;
+  nb.innerHTML=`${ICON_PLUS}<span>${q.trim()?`New code “${esc(clip(q.trim(),40))}”`:'New code, with definition and criteria'}</span>`;
+}
+function openInfo(span){
+  const ids=(span.dataset.s||'').split(' ');
+  const segs=ids.map(id=>S.segs.find(s=>s.id===id)).filter(Boolean);if(!segs.length)return;
+  const sid=segs[0].id;
+  pop.mode='info';pop.open=true;pop.anchor=()=>{const e=span.isConnected?span:$(`#rd-body [data-s~="${sid}"]`);return e?[e]:[]};
+  const el=$('#pop');el.setAttribute('aria-label','Codes on this excerpt');
+  el.innerHTML=`<div class="pop-h"><span class="sub">Coded here</span><button class="x" type="button" data-popclose aria-label="Close">${ICON_X}</button></div><div class="pop-list" style="margin-top:8px">${segs.map(s=>{const c=codeById(s.codeId);return `<div class="pinfo"><span class="chip" style="${kvar(c)}">${esc(c?.name||'')}</span><span class="sq" style="-webkit-line-clamp:3">${esc(excerpt(s))}</span><span class="acts"><button class="linkbtn" type="button" data-addhere="${s.id}">Add another code</button><button class="linkbtn" type="button" data-edit="${s.codeId}">Edit code</button><button class="linkbtn danger" type="button" data-unseg="${s.id}">Remove</button></span></div>`}).join('')}</div>`;
+  el.hidden=false;place();
+}
+function place(){
+  const el=$('#pop');if(!pop.open)return;
+  const els=(pop.anchor&&pop.anchor())||[];if(!els.length){closePop();return}
+  if(narrow.matches){el.style.left='';el.style.top='';pop.side='bottom';return}
+  let T=Infinity,B=-Infinity,L=Infinity,R=-Infinity;
+  els.forEach(e=>[...e.getClientRects()].forEach(r=>{T=Math.min(T,r.top);B=Math.max(B,r.bottom);L=Math.min(L,r.left);R=Math.max(R,r.right)}));
+  const w=el.offsetWidth,h=el.offsetHeight,m=12,gap=10,top0=$('#mast').getBoundingClientRect().bottom+m;
+  const clampY=y=>Math.min(Math.max(top0,y),innerHeight-h-m);
+  // sit right beside the selected text: after its right edge, else before its left edge
+  let x,y=clampY(T-6);
+  if(innerWidth-R-m>=w+gap){x=R+gap;pop.side='right'}
+  else if(L-m>=w+gap){x=L-w-gap;pop.side='left'}
+  else{ // no room beside it: sit just below the selection, or above it
+    x=Math.min(Math.max(m,L),innerWidth-w-m);pop.side='right';
+    y=B+10+h<=innerHeight-m?B+10:clampY(T-h-10);
+  }
+  el.style.left=x+'px';el.style.top=y+'px';
+  hideTip();
+}
+let tipFor=null;
+function critHTML(o){const f=(v)=>v?esc(v):'<span class="muted">Not written yet</span>';return `<div><b>Definition</b><p>${f(o.def)}</p></div><div class="inc"><b>Include when</b><p>${f(o.inc)}</p></div><div class="exc"><b>Exclude when</b><p>${f(o.exc)}</p></div>`}
+function showTip(el){
+  let html,style;
+  if(el.dataset.tip){const c=codeById(el.dataset.tip);if(!c)return;style=kvar(c);html=`<h4><i></i>${esc(c.name)}</h4>`+critHTML(c)}
+  else{const th=themeById(el.dataset.ttip);if(!th)return;style=`--k:${colVal(th)}`;html=`<h4><i></i>${esc(th.name)}</h4>`+critHTML(th)}
+  const t=$('#tip');tipFor=el;t.setAttribute('style',style);t.innerHTML=html;t.hidden=false;el.setAttribute('aria-describedby','tip');
+  const rr=el.getBoundingClientRect(),w=t.offsetWidth,h=t.offsetHeight,m=8;
+  const clampY=y=>Math.min(Math.max(m,y),innerHeight-h-m),clampX=x=>Math.min(Math.max(m,x),innerWidth-w-m);
+  let x,y;
+  if(el.closest('#pop')){
+    const pr=$('#pop').getBoundingClientRect();
+    if(narrow.matches){x=Math.max(16,(innerWidth-w)/2);y=Math.max(m,pr.top-h-m)}
+    else{const right=pr.right+m+w<=innerWidth-m,left=pr.left-m-w>=m;
+      const away=pop.side==='left'?(left?'left':'right'):(right?'right':'left');
+      x=away==='right'?pr.right+m:pr.left-w-m;if(!right&&!left)x=clampX(pr.left);y=clampY(rr.top)}
+  }else{
+    if(rr.right+m+w<=innerWidth-m){x=rr.right+m;y=clampY(rr.top)}
+    else if(rr.left-m-w>=m){x=rr.left-w-m;y=clampY(rr.top)}
+    else{x=clampX(rr.left);y=rr.bottom+m+h<=innerHeight-m?rr.bottom+m:clampY(rr.top-h-m)}
+  }
+  t.style.left=x+'px';t.style.top=y+'px';
+}
+function hideTip(){const t=$('#tip');if(t&&!t.hidden){t.hidden=true;tipFor?.removeAttribute('aria-describedby');tipFor=null}}
+function closePop(rerender=true){
+  if(!pop.open&&!P)return;
+  const hadP=!!P;pop.open=false;pop.mode=null;$('#pop').hidden=true;P=null;hideTip();
+  if(hadP){if(rerender)renderReader();else staleReader=true}
+}
+function applyCode(codeId,range){
+  const r=range||P;if(!r)return;
+  if(S.segs.some(s=>s.docId===r.docId&&s.start===r.start&&s.end===r.end&&s.codeId===codeId)){toast('This excerpt already has that code');return}
+  S.segs.push({id:uid('s'),docId:r.docId,codeId,start:r.start,end:r.end,at:Date.now()});
+  closePop(false);save();if(view==='code')renderCode();renderMast();
+  toast(`Coded as “${codeById(codeId).name}”`);
+}
+function removeSeg(id){
+  const s=S.segs.find(x=>x.id===id);if(!s)return;
+  S.segs=S.segs.filter(x=>x.id!==id);closePop(false);save();render();
+  toast(`Removed “${codeById(s.codeId)?.name||'code'}” from the excerpt`);
+}
+
+/* ---------- Code dialog ---------- */
+let dlgCtx=null;
+function openCodeDialog(ctx){
+  dlgCtx={kind:'code',...ctx};setDlgKind('code'); // {mode:'new'|'edit', id?, name?, range?}
+  const dl=$('#dlg-code');const c=ctx.mode==='edit'?codeById(ctx.id):null;
+  $('#dc-title').textContent=c?'Edit code':'New code';
+  $('#f-submit').textContent=c?'Save changes':(ctx.range?'Save code and apply':'Save code');
+  $('#f-del').hidden=!c;$('#f-del').removeAttribute('data-armed');$('#f-del').textContent='Delete code';
+  const showTheme=false;$('#f-theme-wrap').hidden=!showTheme;$('#f-row1').classList.toggle('solo',!showTheme);
+  $('#f-name').value=c?c.name:(ctx.name||'');$('#f-theme').value=c?(c.theme||''):'';
+  $('#f-def').value=c?c.def:'';$('#f-inc').value=c?c.inc:'';$('#f-exc').value=c?c.exc:'';
+  $('#themes-dl').innerHTML=themesList().map(t=>`<option value="${esc(t)}">`).join('');
+  const used=Array(NCOL).fill(0);S.codes.forEach(x=>{if(typeof x.color==='number')used[x.color%NCOL]++});
+  renderSwatches(c?String(typeof c.color==='number'?c.color%NCOL:c.color):String(used.indexOf(Math.min(...used))));
+  const ex=$('#f-excerpt');
+  if(ctx.range){ex.hidden=false;ex.innerHTML=`<b>First example</b>${esc(clip(docById(ctx.range.docId).text.slice(ctx.range.start,ctx.range.end),400))}`}else ex.hidden=true;
+  $('#f-err').textContent='';$$('#code-form [aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));
+  dl.showModal();
+  (ctx.name&&!c?$('#f-def'):$('#f-name')).focus();
+}
+function customColors(){
+  if(!Array.isArray(S.customColors))S.customColors=[];
+  S.codes.forEach(c=>{if(typeof c.color==='string'&&!S.customColors.includes(c.color))S.customColors.push(c.color)});
+  return S.customColors;
+}
+function renderSwatches(sel){
+  const cust=customColors();
+  $('#f-colors').innerHTML=Array.from({length:NCOL},(_,i)=>`<label style="--k:var(--c${i})"><input type="radio" name="fcol" value="${i}"${String(i)===sel?' checked':''} aria-label="Colour ${i+1}"><span></span></label>`).join('')
+    +(cust.length?'<i class="sep" aria-hidden="true"></i>':'')
+    +cust.map(hex=>`<label style="--k:${esc(hex)}"><input type="radio" name="fcol" value="${esc(hex)}"${hex===sel?' checked':''} aria-label="Custom colour ${esc(hex)}"><span></span></label>`).join('')
+    +`<label class="add" title="Add a custom colour"><input type="color" id="f-custom" value="#0b6e79" aria-label="Add a custom colour"><span>${ICON_PLUS}</span></label>`;
+}
+$('#f-colors').addEventListener('change',e=>{
+  if(e.target.id!=='f-custom')return;
+  const hex=e.target.value.toLowerCase();const cust=customColors();
+  if(!cust.includes(hex))cust.push(hex);save();renderSwatches(hex);
+});
+$('#code-form').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(dlgCtx.kind==='theme'){saveTheme();return}
+  const cv=$('input[name=fcol]:checked')?.value||'0';
+  const f={name:$('#f-name').value.trim(),def:$('#f-def').value.trim(),inc:$('#f-inc').value.trim(),exc:$('#f-exc').value.trim(),color:/^\d+$/.test(cv)?+cv:cv};
+  if(!$('#f-theme-wrap').hidden)f.theme=$('#f-theme').value.trim();
+  const miss=[];[['name','f-name','a code name'],['def','f-def','a definition'],['inc','f-inc','inclusion criteria'],['exc','f-exc','exclusion criteria']].forEach(([k,id,l])=>{const el=$('#'+id);if(!f[k]){el.setAttribute('aria-invalid','true');miss.push(l)}else el.removeAttribute('aria-invalid')});
+  if(miss.length){$('#f-err').textContent=`Add ${miss.length>1?miss.slice(0,-1).join(', ')+' and '+miss[miss.length-1]:miss[0]} to save this code.`;$('#code-form [aria-invalid]').focus();return}
+  const dup=S.codes.find(c=>c.name.toLowerCase()===f.name.toLowerCase()&&(!dlgCtx||c.id!==dlgCtx.id));
+  if(dup){$('#f-name').setAttribute('aria-invalid','true');$('#f-err').textContent=`A code called “${dup.name}” already exists. Apply that one, or choose another name.`;$('#f-name').focus();return}
+  let msg;
+  if(dlgCtx.mode==='edit'){Object.assign(codeById(dlgCtx.id),f);msg='Code updated in the codebook'}
+  else{const c={id:uid('c'),theme:'',...f,created:Date.now()};S.codes.push(c);
+    if(dlgCtx.range){S.segs.push({id:uid('s'),docId:dlgCtx.range.docId,codeId:c.id,start:dlgCtx.range.start,end:dlgCtx.range.end,at:Date.now()})}
+    msg=`“${c.name}” added to the codebook`}
+  $('#dlg-code').close();closePop(false);save();render();toast(msg);
+});
+
+/* ---------- Codebook ---------- */
+function stat(n,l){return `<div class="stat"><b>${fmtN(n)}</b><span>${l}</span></div>`}
+function themeList(){
+  if(!Array.isArray(S.themes))S.themes=[];
+  S.codes.forEach(c=>{const t=(c.theme||'').trim();if(t&&!S.themes.some(x=>x.name===t))S.themes.push({id:uid('t'),name:t})});
+  S.themes.forEach((t,i)=>{if(t.def==null)t.def=t.desc||'';if(t.inc==null)t.inc='';if(t.exc==null)t.exc='';if(t.color==null)t.color=(i*3+2)%NCOL});
+  return S.themes;
+}
+const themeById=id=>themeList().find(t=>t.id===id);
+const themeByName=n=>themeList().find(t=>t.name===n);
+const codesIn=t=>S.codes.filter(c=>c.theme===t.name).sort((a,b)=>a.name.localeCompare(b.name));
+const unthemed=()=>{const T=themeList();return S.codes.filter(c=>!c.theme||!T.some(t=>t.name===c.theme)).sort((a,b)=>a.name.localeCompare(b.name))};
+function codeCard(c,col){
+  return `<div class="ccard${col?' pill':''}" data-card="${c.id}" data-tip="${c.id}" tabindex="0" role="button" aria-roledescription="draggable code" style="--k:${col||colVal(c)}"><b>${esc(c.name)}</b>${col?`<button class="px" type="button" data-untheme="${c.id}" aria-label="Remove ${esc(c.name)} from this theme" title="Remove from theme"><svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2L2 8"/></svg></button>`:''}</div>`}
+function renderThemes(enter){
+  const m=$('#th-main');if(enter){m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter')}
+  const T=themeList(),un=unthemed();
+  const assigned=S.codes.length-un.length;
+  const box=$('#th-board'),pb=$('#th-poolbox'),zone=$('#th-new');
+  if(!S.codes.length){pb.innerHTML='';zone.classList.remove('show');box.innerHTML=`<div class="empty"><b>No codes to group yet</b><span>Code some passages first. Each code you define appears on the left as a card you can drag into themes.</span><button class="btn btn-acc" type="button" data-go="code">Start coding</button></div>`;return}
+  pb.innerHTML=`<section class="pool" id="th-pool" data-pool="1" aria-label="Codes without a theme"><h3 class="sub">Codes without a theme <span class="muted">${un.length}</span></h3><div class="cards">${un.length?un.map(c=>codeCard(c)).join(''):'<p class="cards-empty">Every code is in a theme. Drag a code here to take it out of its theme.</p>'}</div></section>`;
+  const groups=T.map(t=>{const cs=codesIn(t),col=colVal(t);
+    return `<section class="tgroup" data-tdrop="${t.id}" style="--k:${col}" aria-label="Theme ${esc(t.name)}"><div class="tg-h"><span class="tg-t" data-ttip="${t.id}" tabindex="0"><i class="sw"></i><h3>${esc(t.name)}</h3></span>${t.def?`<p class="tg-def">${esc(t.def)}</p>`:''}<span class="tg-acts"><button class="linkbtn" type="button" data-tedit="${t.id}">Edit</button><button class="linkbtn danger" type="button" data-tdel="${t.id}">Delete</button></span></div><div class="cards">${cs.length?cs.map(c=>codeCard(c,col)).join(''):'<p class="cards-empty">Drop codes here</p>'}</div></section>`}).join('');
+  zone.classList.toggle('show',!T.length);if(!T.length)zone.removeAttribute('style');
+  box.innerHTML=T.length?`<div class="tgroups">${groups}</div>`:'';
+}
+function setCodeTheme(id,name){const c=codeById(id);if(!c||(c.theme||'')===name)return;const was=c.theme;c.theme=name;save();renderThemes();renderMast();toast(name?`“${c.name}” added to “${name}”`:`“${c.name}” taken out of “${was}”`)}
+
+/* ---------- Theme dialog (shares the code dialog) ---------- */
+const DLG={
+  code:{name:'Code name',nameP:'Short and specific, e.g. Pressure to be always available',defP:'What does this code capture? Write it so another coder could apply it without asking you.',incP:'Statements, examples or signals that count as this code.',excP:'Near misses that do not count, and which code to use instead.'},
+  theme:{name:'Theme name',nameP:'e.g. Work spills into home life',defP:'What central idea or pattern does this theme capture across its codes?',incP:'Which codes or kinds of meaning belong in this theme.',excP:'What sits outside this theme, and where it belongs instead.'}};
+function setDlgKind(k){const d=DLG[k];
+  $('label[for=f-name]').innerHTML=`${d.name} <span class="req">*</span>`;
+  $('#f-name').placeholder=d.nameP;$('#f-def').placeholder=d.defP;$('#f-inc').placeholder=d.incP;$('#f-exc').placeholder=d.excP;}
+function openThemeDialog(ctx){ // {mode:'new'|'edit', id?, codeIds?}
+  dlgCtx={kind:'theme',...ctx};setDlgKind('theme');
+  const t=ctx.mode==='edit'?themeById(ctx.id):null;
+  $('#dc-title').textContent=t?'Edit theme':'Name this theme';
+  $('#f-submit').textContent=t?'Save changes':'Save theme';
+  $('#f-del').hidden=!t;$('#f-del').removeAttribute('data-armed');$('#f-del').textContent='Delete theme';
+  $('#f-theme-wrap').hidden=true;$('#f-row1').classList.add('solo');
+  $('#f-name').value=t?t.name:'';$('#f-def').value=t?t.def:'';$('#f-inc').value=t?t.inc:'';$('#f-exc').value=t?t.exc:'';
+  const used=Array(NCOL).fill(0);themeList().forEach(x=>{if(typeof x.color==='number')used[x.color%NCOL]++});
+  renderSwatches(t?String(t.color):String(used.indexOf(Math.min(...used))));
+  const cs=t?codesIn(t):(ctx.codeIds||[]).map(codeById).filter(Boolean);
+  const ex=$('#f-excerpt');
+  if(cs.length){ex.hidden=false;ex.innerHTML=`<b>${t?'Codes in this theme':'Grouping'}</b>${cs.map(c=>`<span class="chip" style="${kvar(c)}">${esc(c.name)}</span>`).join('')}`}else ex.hidden=true;
+  $('#f-err').textContent='';$$('#code-form [aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));
+  $('#dlg-code').showModal();$('#f-name').focus();
+}
+function saveTheme(){
+  const cv=$('input[name=fcol]:checked')?.value||'0';
+  const f={name:$('#f-name').value.trim(),def:$('#f-def').value.trim(),inc:$('#f-inc').value.trim(),exc:$('#f-exc').value.trim(),color:/^\d+$/.test(cv)?+cv:cv};
+  const miss=[];[['name','f-name','a theme name'],['def','f-def','a definition'],['inc','f-inc','inclusion criteria'],['exc','f-exc','exclusion criteria']].forEach(([k,id,l])=>{const el=$('#'+id);if(!f[k]){el.setAttribute('aria-invalid','true');miss.push(l)}else el.removeAttribute('aria-invalid')});
+  if(miss.length){$('#f-err').textContent=`Add ${miss.length>1?miss.slice(0,-1).join(', ')+' and '+miss[miss.length-1]:miss[0]} to save this theme.`;$('#code-form [aria-invalid]').focus();return}
+  const dup=themeList().find(t=>t.name.toLowerCase()===f.name.toLowerCase()&&t.id!==dlgCtx.id);
+  if(dup){$('#f-name').setAttribute('aria-invalid','true');$('#f-err').textContent=`A theme called “${dup.name}” already exists. Drop the codes onto it instead, or choose another name.`;$('#f-name').focus();return}
+  let msg;
+  if(dlgCtx.mode==='edit'){const t=themeById(dlgCtx.id);S.codes.forEach(c=>{if(c.theme===t.name)c.theme=f.name});Object.assign(t,f);msg='Theme updated'}
+  else{const t={id:uid('t'),...f,created:Date.now()};S.themes.push(t);(dlgCtx.codeIds||[]).forEach(id=>{const c=codeById(id);if(c)c.theme=t.name});
+    msg=dlgCtx.codeIds?.length?`Made “${t.name}” with ${plural(dlgCtx.codeIds.length,'code')}`:`Added theme “${t.name}”`}
+  $('#dlg-code').close();save();render();toast(msg);
+}
+function deleteTheme(id){const th=themeById(id);if(!th)return;S.codes.forEach(c=>{if(c.theme===th.name)c.theme=''});S.themes=S.themes.filter(x=>x.id!==id);save();render();toast(`Deleted “${th.name}”. Its codes are back in Codes without a theme.`)}
+
+/* ---------- Drag code cards (pointer events: mouse, pen and long-press touch) ---------- */
+let drag=null;
+function dropTarget(x,y){
+  const el=document.elementFromPoint(x,y);if(!el)return null;
+  const zone=el.closest('#th-new');if(zone)return {kind:'new',el:zone};
+  const g=el.closest('[data-tdrop]');if(g)return {kind:'theme',el:g,id:g.dataset.tdrop};
+  const p=el.closest('[data-pool]');if(p)return {kind:'pool',el:p};
+  return null;
+}
+function describe(tg){
+  const d=codeById(drag.id);if(!tg||!d)return '';
+  if(tg.kind==='new')return 'Make a new theme';
+  if(tg.kind==='pool')return d.theme?`Take out of “${d.theme}”`:'';
+  if(tg.kind==='theme'){const t=themeById(tg.id);return t&&d.theme!==t.name?`Add to “${t.name}”`:''}
+  return '';
+}
+function beginDrag(){
+  drag.started=true;hideTip();
+  const r=drag.el.getBoundingClientRect();drag.dx=drag.x-r.left;drag.dy=drag.y-r.top;
+  const g=document.createElement('div');g.className='ghost';g.style.width=r.width+'px';
+  g.innerHTML=drag.el.outerHTML+'<span class="gh-act"></span>';g.firstChild.removeAttribute('tabindex');
+  document.body.appendChild(g);drag.ghost=g;drag.el.classList.add('lifted');
+  const z=$('#th-new');
+  if(!z.classList.contains('show')){ // pop over the "Build themes" title, or pin under the masthead when scrolled
+    const r=$('.th-tools').getBoundingClientRect(),top0=$('#mast').getBoundingClientRect().bottom+8,pad=8;
+    z.style.left=(r.left-pad)+'px';z.style.width=(r.width+2*pad)+'px';z.style.top=Math.max(top0,r.top-pad)+'px';z.style.height=Math.max(64,r.height+2*pad)+'px';
+  }
+  document.body.classList.add('th-dragging');moveGhost();
+  if(navigator.vibrate&&drag.touch)try{navigator.vibrate(12)}catch(_){}
+  const loop=()=>{if(!drag||!drag.started)return;const e=40,v=14;
+    if(!(drag.tg&&drag.tg.kind==='new')){if(drag.y<e+60)scrollBy(0,-v);else if(drag.y>innerHeight-e)scrollBy(0,v)}
+    drag.raf=requestAnimationFrame(loop)};drag.raf=requestAnimationFrame(loop);
+}
+function moveGhost(){
+  drag.ghost.style.transform=`translate(${drag.x-drag.dx}px,${drag.y-drag.dy}px)`;
+  const tg=dropTarget(drag.x,drag.y);
+  if(drag.tg?.el!==tg?.el){drag.tg?.el.classList.remove('over');tg?.el.classList.add('over')}
+  drag.tg=tg;const label=describe(tg);
+  if(tg&&!label)tg.el.classList.remove('over');
+  drag.ghost.querySelector('.gh-act').textContent=label;
+}
+function endDrag(doDrop){
+  if(!drag)return;const d=drag;
+  clearTimeout(d.timer);cancelAnimationFrame(d.raf);
+  const ok=!!(doDrop&&d.started&&d.tg&&describe(d.tg));
+  drag=null;
+  d.el.classList.remove('lifted');d.ghost?.remove();d.tg?.el.classList.remove('over');document.body.classList.remove('th-dragging');
+  if(ok)performDrop(d.id,d.tg);
+}
+function performDrop(id,tg){
+  const dc=codeById(id);if(!dc)return;
+  if(tg.kind==='new'){openThemeDialog({mode:'new',codeIds:[id]});return}
+  if(tg.kind==='pool'){setCodeTheme(id,'');return}
+  if(tg.kind==='theme'){const t=themeById(tg.id);if(t)setCodeTheme(id,t.name)}
+}
+$('#v-themes').addEventListener('pointerdown',e=>{
+  const card=e.target.closest('[data-card]');if(!card||e.button>0||drag||e.target.closest('button'))return;
+  drag={id:card.dataset.card,el:card,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,touch:e.pointerType!=='mouse',started:false};
+  if(drag.touch)drag.timer=setTimeout(()=>{if(drag&&!drag.started)beginDrag()},300);
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag)return;drag.x=e.clientX;drag.y=e.clientY;
+  const moved=Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0);
+  if(!drag.started){if(drag.touch){if(moved>8)endDrag(false)}else if(moved>5)beginDrag();return}
+  moveGhost();
+});
+document.addEventListener('pointerup',()=>{if(drag)endDrag(true)});
+document.addEventListener('pointercancel',()=>{if(drag)endDrag(false)});
+document.addEventListener('touchmove',e=>{if(drag&&drag.started)e.preventDefault()},{passive:false});
+document.addEventListener('contextmenu',e=>{if(e.target.closest?.('[data-card]')&&view==='themes')e.preventDefault()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drag)endDrag(false)});
+// tooltips on cards and theme names
+$('#v-themes').addEventListener('mouseover',e=>{if(drag)return;const r=e.target.closest('[data-tip],[data-ttip]');if(r&&r!==tipFor)showTip(r)});
+$('#v-themes').addEventListener('mouseout',e=>{const r=e.target.closest('[data-tip],[data-ttip]');if(r&&!r.contains(e.relatedTarget))hideTip()});
+$('#v-themes').addEventListener('focusin',e=>{const r=e.target.closest('[data-tip],[data-ttip]');if(r)showTip(r)});
+$('#v-themes').addEventListener('focusout',()=>hideTip());
+addEventListener('scroll',()=>{if(tipFor&&!tipFor.closest('#pop'))hideTip()},true);
+
+/* ---------- Theme book ---------- */
+function sortedThemes(s){
+  const T=themeList().slice(),segN=t=>S.segs.filter(x=>codesIn(t).some(c=>c.id===x.codeId)).length;
+  return T.sort(s==='codes'?(a,b)=>codesIn(b).length-codesIn(a).length||a.name.localeCompare(b.name):s==='segs'?(a,b)=>segN(b)-segN(a)||a.name.localeCompare(b.name):(a,b)=>a.name.localeCompare(b.name));
+}
+function openThemeBook(){renderThemeBook();const d=$('#dlg-tbook');if(!d.open)d.showModal();$('#tb-q').focus()}
+function renderThemeBook(){
+  const q=($('#tb-q').value||'').trim().toLowerCase();
+  const T=themeList();
+  const list=sortedThemes($('#tb-s').value).filter(t=>!q||[t.name,t.def,t.inc,t.exc,...codesIn(t).map(c=>c.name)].some(v=>(v||'').toLowerCase().includes(q)));
+  const un=unthemed().length;
+  $('#tb-n').textContent=`${list.length} of ${plural(T.length,'theme')}${un?` · ${plural(un,'code')} without a theme`:''}`;
+  const w=$('#tb-wrap');
+  if(!T.length){w.innerHTML=`<div class="empty" style="margin:18px;border:0"><b>No themes yet</b><span>On the Themes step, drag one code card onto another to make your first theme.</span></div>`;return}
+  if(!list.length){w.innerHTML=`<div class="empty" style="margin:18px;border:0"><b>No themes match “${esc(q)}”</b><span>Search looks through names, definitions, criteria and code names.</span></div>`;return}
+  w.innerHTML=`<table class="bk"><thead><tr><th>Theme</th><th>Definition</th><th class="inc">Include when</th><th class="exc">Exclude when</th><th>Codes</th><th class="num">Segments</th><th class="num">Docs</th><th><span class="vh">Actions</span></th></tr></thead><tbody>${list.map(t=>{const cs=codesIn(t),sg=S.segs.filter(x=>cs.some(c=>c.id===x.codeId));
+    return `<tr><td class="cn" style="--k:${colVal(t)}"><i class="sw"></i>${esc(t.name)}</td><td>${esc(t.def)||'<span class="muted">Not written yet</span>'}</td><td>${esc(t.inc)||'<span class="muted">—</span>'}</td><td>${esc(t.exc)||'<span class="muted">—</span>'}</td><td style="white-space:normal">${cs.map(c=>`<span class="chip" style="--k:${colVal(t)};margin:0 4px 4px 0">${esc(c.name)}</span>`).join('')||'<span class="muted">No codes</span>'}</td><td class="num">${sg.length}</td><td class="num">${new Set(sg.map(x=>x.docId)).size}</td><td class="act"><button class="linkbtn" type="button" data-tedit="${t.id}">Edit</button></td></tr>`}).join('')}</tbody></table>`;
+}
+function themeBookCSV(){return csv([['Theme','Definition','Include when','Exclude when','Codes','Segments','Documents'],...sortedThemes($('#tb-s')?.value||'az').map(t=>{const cs=codesIn(t),sg=S.segs.filter(x=>cs.some(c=>c.id===x.codeId));return [t.name,t.def,t.inc,t.exc,cs.map(c=>c.name).join('; '),sg.length,new Set(sg.map(x=>x.docId)).size]})])}
+
+/* ---------- Codebook modal ---------- */
+function openBook(hit){
+  const d=$('#dlg-book');renderBookModal(hit);if(!d.open)d.showModal();
+  if(hit){const r=$(`#bk-wrap tr[data-row="${hit}"]`);if(r){r.scrollIntoView({block:'center'});r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),2600)}}
+  else $('#bk-q').focus();
+}
+function renderBookModal(hit){
+  const q=($('#bk-q').value||'').trim().toLowerCase(),f=$('input[name=bkf]:checked')?.value||'all',s=$('#bk-s').value;
+  let list=S.codes.filter(c=>!q||[c.name,c.def,c.inc,c.exc].some(v=>(v||'').toLowerCase().includes(q)));
+  if(f==='doc')list=list.filter(c=>S.segs.some(x=>x.codeId===c.id&&x.docId===S.active));
+  if(f==='unused')list=list.filter(c=>!S.segs.some(x=>x.codeId===c.id));
+  list.sort(s==='used'?(a,b)=>segsOfCode(b.id).length-segsOfCode(a.id).length||a.name.localeCompare(b.name):s==='new'?(a,b)=>(b.created||0)-(a.created||0):(a,b)=>a.name.localeCompare(b.name));
+  $('#bk-n').textContent=`${list.length} of ${plural(S.codes.length,'code')}`;
+  const w=$('#bk-wrap');
+  if(!S.codes.length){w.innerHTML=`<div class="empty" style="margin:18px;border:0"><b>No codes yet</b><span>Select a passage in a document and give it a code. It appears here with its definition and criteria.</span></div>`;return}
+  if(!list.length){w.innerHTML=`<div class="empty" style="margin:18px;border:0"><b>No codes match these filters</b><span>Clear the search or choose All codes.</span></div>`;return}
+  w.innerHTML=`<table class="bk"><thead><tr><th>Code</th><th>Definition</th><th class="inc">Include when</th><th class="exc">Exclude when</th><th class="num">Segments</th><th class="num">Docs</th><th><span class="vh">Actions</span></th></tr></thead><tbody>${list.map(c=>{const sg=segsOfCode(c.id);return `<tr data-row="${c.id}"${c.id===hit?' class="hit"':''}><td class="cn" style="${kvar(c)}"><i class="sw"></i>${esc(c.name)}</td><td>${esc(c.def)}</td><td>${esc(c.inc)}</td><td>${esc(c.exc)}</td><td class="num">${sg.length}</td><td class="num">${new Set(sg.map(x=>x.docId)).size}</td><td class="act"><button class="linkbtn" type="button" data-edit="${c.id}">Edit</button>${sg.length?`<button class="linkbtn" type="button" data-show="${c.id}">Show</button>`:''}</td></tr>`}).join('')}</tbody></table>`;
+}
+
+/* ---------- Export ---------- */
+const csvCell=v=>{const s=String(v??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+const csv=rows=>'﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+const slug=()=>(S.name||'study').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'study';
+const nDocs=sg=>new Set(sg.map(x=>x.docId)).size;
+const segsOfTheme=t=>{const ids=new Set(codesIn(t).map(c=>c.id));return S.segs.filter(s=>ids.has(s.codeId))};
+const sortCodes=s=>S.codes.slice().sort(s==='used'?(a,b)=>segsOfCode(b.id).length-segsOfCode(a.id).length||a.name.localeCompare(b.name):s==='new'?(a,b)=>(b.created||0)-(a.created||0):(a,b)=>a.name.localeCompare(b.name));
+const today=()=>new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+function sortedCodes(){return groupCodes(S.codes).flatMap(([,cs])=>cs)}
+function codebookCSV(){return csv([['Code','Theme','Definition','Include when','Exclude when','Segments','Documents','Example'],...sortCodes($('#bk-s')?.value||'az').map(c=>{const sg=segsOfCode(c.id);return [c.name,c.theme||'',c.def,c.inc,c.exc,sg.length,nDocs(sg),sg[0]?excerpt(sg[0]):'']})])}
+function segsCSV(){return csv([['Document','Data type','Code','Theme','Excerpt','Start','End'],...S.docs.flatMap(d=>segsOfDoc(d.id).sort((a,b)=>a.start-b.start).map(s=>{const c=codeById(s.codeId);return [d.name,TYPES[d.type]?.label||'',c?.name||'',c?.theme||'',excerpt(s),s.start,s.end]}))])}
+const line=(label,v)=>`   ${label}: ${String(v||'—').replace(/\s*\n+\s*/g,' ')}\n`;
+const RULE='='.repeat(64);
+function codebookTXT(){
+  const list=sortCodes($('#bk-s')?.value||'az');
+  let o=`CODEBOOK: ${S.name}\n${plural(S.codes.length,'code')} · ${plural(S.segs.length,'coded segment')} · ${plural(S.docs.length,'document')} · ${today()}\n${RULE}\n`;
+  list.forEach((c,i)=>{const sg=segsOfCode(c.id);
+    o+=`\n${i+1}. ${c.name}\n`+(c.theme?line('Theme',c.theme):'')+line('Definition',c.def)+line('Include when',c.inc)+line('Exclude when',c.exc)+line('Coded',`${plural(sg.length,'segment')} across ${plural(nDocs(sg),'document')}`)+(sg[0]?line('Example',`“${excerpt(sg[0])}” (${docById(sg[0].docId)?.name||''})`):'')});
+  return o;
+}
+function themebookTXT(){
+  const list=sortedThemes($('#tb-s')?.value||'az'),un=unthemed();
+  let o=`THEME BOOK: ${S.name}\n${plural(list.length,'theme')} · ${plural(S.codes.length-un.length,'code')} in themes · ${today()}\n${RULE}\n`;
+  list.forEach((t,i)=>{const cs=codesIn(t),sg=segsOfTheme(t);
+    o+=`\n${i+1}. ${t.name}\n`+line('Definition',t.def)+line('Include when',t.inc)+line('Exclude when',t.exc)+line('Codes',cs.map(c=>c.name).join('; ')||'None yet')+line('Coded',`${plural(sg.length,'segment')} across ${plural(nDocs(sg),'document')}`)});
+  if(un.length)o+=`\nCodes without a theme: ${un.map(c=>c.name).join('; ')}\n`;
+  return o;
+}
+const EXPORTS=[
+  {k:'proj',t:'Project file',d:'Everything in this project, to reopen later in Thematis or on another computer.',f:['json'],need:'docs'},
+  {k:'codebook',t:'Codebook',d:'Codes with definitions, inclusion and exclusion criteria, counts and an example.',f:['pdf','csv','txt'],need:'codes'},
+  {k:'codeset',t:'Code set',d:'Codes with their definitions, criteria and colours, to import into another project.',f:['json'],need:'codes'},
+  {k:'segs',t:'Coded segments',d:'Every coded excerpt with its document, data type, code and theme.',f:['csv'],need:'codes'},
+  {k:'themebook',t:'Theme book',d:'Themes with definitions, inclusion and exclusion criteria, and their codes.',f:['pdf','csv','txt'],need:'themes'},
+  {k:'report',t:'Full thematic analysis',d:'One PDF: summary, data sources, each theme with its codes and example quotes, the theme book and the codebook.',f:['pdf'],need:'themes'}];
+const NEED={docs:['Available once you add data',()=>S.docs.length>0],codes:['Available once you add codes',()=>S.codes.length>0],themes:['Available once you make themes',()=>themeList().length>0]};
+const FMT={pdf:'PDF',csv:'CSV',txt:'Text',json:'JSON'};
+function renderExportList(el){el.innerHTML=EXPORTS.map(x=>{const [msg,ok]=NEED[x.need],on=ok();return `<div class="xrow${on?'':' off'}"><div class="xt"><b>${x.t}</b><span>${x.d}</span>${on?'':`<span class="xneed">${msg}</span>`}</div><div class="xf">${x.f.map(f=>`<button class="btn btn-${f==='pdf'?'ink':'line'} btn-sm" type="button" data-export="${x.k}:${f}"${on?'':' disabled'}>${FMT[f]}</button>`).join('')}</div></div>`}).join('')}
+function makeFile(k,f){
+  const n=slug();
+  if(k==='codebook')return f==='csv'?{name:`${n}-codebook.csv`,data:codebookCSV()}:{name:`${n}-codebook.txt`,data:codebookTXT()};
+  if(k==='themebook')return f==='csv'?{name:`${n}-theme-book.csv`,data:themeBookCSV()}:{name:`${n}-theme-book.txt`,data:themebookTXT()};
+  if(k==='segs')return {name:`${n}-coded-segments.csv`,data:segsCSV()};
+  if(k==='codeset')return {name:`${n}-codes.thematis.json`,data:codesetJSON()};
+  return {name:`${n}.thematis.json`,data:JSON.stringify({...S,app:'Thematis',saved:new Date().toISOString()},null,1)};
+}
+let dlCap;
+async function downloads(){if(dlCap!==undefined)return dlCap;try{dlCap=window.claude?.use?await window.claude.use('downloads'):null}catch(e){dlCap=null}return dlCap}
+async function doExport(key,btn){
+  const [k,f]=key.split(':');
+  if((k==='codebook'||k==='report'||k==='codeset')&&!S.codes.length){toast('Define at least one code before exporting.',true);return}
+  if(k==='themebook'&&!themeList().length){toast('Make at least one theme before exporting the theme book.',true);return}
+  if(k==='segs'&&!S.segs.length){toast('Code at least one passage before exporting coded segments.',true);return}
+  if(f==='pdf')return makePDF(k,btn);
+  const {name,data}=makeFile(k,f);
+  const r=await offerFile(name,data);
+  if(r==='saved'&&k==='proj'){dirty=false;renderSaved()}
+  if(r)return;
+  showExportText(name,data.replace(/^\ufeff/,''));
+}
+async function offerFile(name,data){ // true when handled (saved, cancelled or busy)
+  const dl=await downloads();
+  if(!dl){ // standalone page (not inside Claude): ordinary browser download
+    if(window.claude)return false;
+    try{const blob=data instanceof Blob?data:new Blob([data],{type:'application/octet-stream'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast(`Saved ${name}`);return 'saved'}catch(e){return false}
+  }
+  try{await dl.save({filename:name,data});toast(`Saved ${name}`);return 'saved'}
+  catch(e){if(e&&e.code==='declined'){toast('Download cancelled');return true}if(e&&e.code==='rate_limited'){toast('A save is already waiting for your answer.',true);return true}return false}
+}
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function rgbOf(o){const v=typeof o.color==='string'?o.color:getComputedStyle(document.documentElement).getPropertyValue(`--c${(o.color||0)%NCOL}`).trim();const m=/^#?([0-9a-f]{6})$/i.exec(v);if(!m)return[110,110,110];const n=parseInt(m[1],16);return[n>>16,(n>>8)&255,n&255]}
+const pclean=t=>String(t??'').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/–|−/g,'-').replace(/—/g,'--').replace(/…/g,'...').replace(/[^\x00-\xff]/g,'?');
+async function pdfDoc(){
+  if(!window.jspdf)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  if(!window.jspdf.jsPDF.API.autoTable)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+  return new window.jspdf.jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+}
+const PM=40; // page margin
+function pdfDims(doc){return {W:doc.internal.pageSize.getWidth(),H:doc.internal.pageSize.getHeight()}}
+function pdfTitle(doc,title,sub,y=PM+8){
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(17);doc.text(pclean(title),PM,y);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(110);doc.text(pclean(sub),PM,y+16);
+  return y+34;
+}
+function pdfText(doc,text,y,{size=10,style='normal',color=60,indent=0,gap=4}={}){
+  const {W,H}=pdfDims(doc);doc.setFont('helvetica',style);doc.setFontSize(size);doc.setTextColor(color);
+  const lines=doc.splitTextToSize(pclean(text),W-2*PM-indent),lh=size*1.35;
+  for(const l of lines){if(y+lh>H-PM){doc.addPage();y=PM+10}doc.text(l,PM+indent,y);y+=lh}
+  return y+gap;
+}
+function pdfTable(doc,y,head,rows,items,cols){
+  doc.autoTable({startY:y,margin:{top:PM,left:PM,right:PM,bottom:PM+10},theme:'grid',head:[head],body:rows.map(r=>r.map(v=>typeof v==='number'?v:pclean(v))),
+    styles:{font:'helvetica',fontSize:8.5,cellPadding:5,valign:'top',lineColor:[218,218,218],lineWidth:.5,textColor:[60,60,60]},
+    headStyles:{fillColor:[17,17,17],textColor:255,fontStyle:'bold'},columnStyles:cols(pdfDims(doc).W-2*PM),
+    didDrawCell:d=>{if(items&&d.section==='body'&&d.column.index===0){doc.setFillColor(...rgbOf(items[d.row.index]));doc.rect(d.cell.x,d.cell.y,3,d.cell.height,'F')}}});
+  return doc.lastAutoTable.finalY+18;
+}
+function codeTable(doc,y,list){
+  return pdfTable(doc,y,['Code','Theme','Definition','Include when','Exclude when','Segs','Docs'],
+    list.map(c=>{const sg=segsOfCode(c.id);return [c.name,c.theme||'',c.def,c.inc,c.exc,sg.length,nDocs(sg)]}),list,
+    w=>{const r=w-110-90-80;return {0:{cellWidth:110,fontStyle:'bold',textColor:[17,17,17]},1:{cellWidth:90},2:{cellWidth:r*.36},3:{cellWidth:r*.32},4:{cellWidth:r*.32},5:{cellWidth:40,halign:'right'},6:{cellWidth:40,halign:'right'}}});
+}
+function themeTable(doc,y,list){
+  return pdfTable(doc,y,['Theme','Definition','Include when','Exclude when','Codes','Segs','Docs'],
+    list.map(t=>{const cs=codesIn(t),sg=segsOfTheme(t);return [t.name,t.def,t.inc,t.exc,cs.map(c=>c.name).join('\n'),sg.length,nDocs(sg)]}),list,
+    w=>{const r=w-110-130-80;return {0:{cellWidth:110,fontStyle:'bold',textColor:[17,17,17]},1:{cellWidth:r*.36},2:{cellWidth:r*.32},3:{cellWidth:r*.32},4:{cellWidth:130},5:{cellWidth:40,halign:'right'},6:{cellWidth:40,halign:'right'}}});
+}
+function pdfSection(doc,title){doc.addPage();doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(17);doc.text(pclean(title),PM,PM+8);return PM+30}
+function pdfReport(doc){
+  const {W,H}=pdfDims(doc),T=sortedThemes('az'),un=unthemed();
+  // cover
+  doc.setFillColor(17,17,17);doc.rect(0,0,W,6,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(110);doc.text('THEMATIC ANALYSIS',PM,PM+20);
+  doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(17);doc.text(doc.splitTextToSize(pclean(S.name),W-2*PM),PM,PM+56);
+  let y=PM+84;
+  y=pdfText(doc,`Prepared with Thematis on ${today()}.`,y,{size:10,color:110,gap:14});
+  y=pdfText(doc,`${plural(S.docs.length,'document')} were coded with ${plural(S.codes.length,'code')} across ${plural(S.segs.length,'coded segment')}. The codes were grouped into ${plural(T.length,'candidate theme')}${un.length?`, with ${plural(un.length,'code')} not yet in a theme`:''}. Each code and theme has a definition with inclusion and exclusion criteria.`,y,{size:11.5,color:40,gap:16});
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(17);doc.text('Data sources',PM,y);y+=8;
+  y=pdfTable(doc,y,['Document','Data type','Words','Coded segments','Codes used'],S.docs.map(d=>{const sg=segsOfDoc(d.id);return [d.name,TYPES[d.type]?.label||'',words(d.text),sg.length,new Set(sg.map(s=>s.codeId)).size]}),null,
+    w=>({0:{cellWidth:w*.4,fontStyle:'bold',textColor:[17,17,17]},1:{cellWidth:w*.3},2:{cellWidth:w*.1,halign:'right'},3:{cellWidth:w*.1,halign:'right'},4:{cellWidth:w*.1,halign:'right'}}));
+  if(T.length){doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(17);if(y>H-90){doc.addPage();y=PM+10}doc.text('Themes at a glance',PM,y);y+=8;
+    y=pdfTable(doc,y,['Theme','Definition','Codes'],T.map(t=>[t.name,t.def,codesIn(t).map(c=>c.name).join(', ')]),T,w=>({0:{cellWidth:150,fontStyle:'bold',textColor:[17,17,17]},1:{cellWidth:(w-150)*.6},2:{cellWidth:(w-150)*.4}}));}
+  // each theme with evidence
+  if(T.length){
+    y=pdfSection(doc,'Themes and their evidence');
+    T.forEach(t=>{
+      if(y>H-150){doc.addPage();y=PM+10}
+      doc.setFillColor(...rgbOf(t));doc.rect(PM,y-11,8,14,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(17);doc.text(pclean(t.name),PM+16,y);y+=18;
+      y=pdfText(doc,t.def||'No definition yet.',y,{size:10.5,color:40,gap:4});
+      y=pdfText(doc,`Include when: ${t.inc||'-'}`,y,{size:9.5,color:80,gap:2});
+      y=pdfText(doc,`Exclude when: ${t.exc||'-'}`,y,{size:9.5,color:80,gap:8});
+      const cs=codesIn(t);
+      if(cs.length){y=pdfTable(doc,y,['Code','Example quotes','Source'],cs.map(c=>{const sg=segsOfCode(c.id).slice(0,2);return [c.name,sg.map(s=>`"${clip(excerpt(s).replace(/\s*\n+\s*/g,' '),320)}"`).join('\n\n')||'No coded segments yet',sg.map(s=>docById(s.docId)?.name||'').join('\n\n')]}),cs.map(()=>t),
+        w=>({0:{cellWidth:150,fontStyle:'bold',textColor:[17,17,17]},1:{cellWidth:w-150-150,fontStyle:'italic'},2:{cellWidth:150}}))}
+      else y+=10;
+    });
+    if(un.length){if(y>H-80){doc.addPage();y=PM+10}y=pdfText(doc,`Codes not yet in a theme: ${un.map(c=>c.name).join(', ')}.`,y,{size:10,color:80})}
+  }
+  // books
+  if(T.length){y=pdfSection(doc,'Theme book');themeTable(doc,y,T)}
+  y=pdfSection(doc,'Codebook');codeTable(doc,y,sortCodes('az'));
+}
+function pdfPageNumbers(doc){const {W,H}=pdfDims(doc),n=doc.internal.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(150);doc.text(pclean(`${S.name}  ·  Page ${i} of ${n}`),W-PM,H-20,{align:'right'})}}
+async function makePDF(k,btn){
+  const orig=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Preparing…'}
+  try{
+    const doc=await pdfDoc();let name;
+    if(k==='codebook'){const y=pdfTitle(doc,`Codebook: ${S.name}`,`${plural(S.codes.length,'code')} · ${plural(S.segs.length,'coded segment')} · ${plural(S.docs.length,'document')} · ${today()} · Thematis`);codeTable(doc,y,sortCodes($('#bk-s')?.value||'az'));name=`${slug()}-codebook.pdf`}
+    else if(k==='themebook'){const T=sortedThemes($('#tb-s')?.value||'az');const y=pdfTitle(doc,`Theme book: ${S.name}`,`${plural(T.length,'theme')} · ${plural(S.codes.length-unthemed().length,'code')} in themes · ${today()} · Thematis`);themeTable(doc,y,T);name=`${slug()}-theme-book.pdf`}
+    else{pdfReport(doc);name=`${slug()}-thematic-analysis.pdf`}
+    pdfPageNumbers(doc);
+    if(!(await offerFile(name,doc.output('arraybuffer'))))toast('Downloads aren’t available in this view. The CSV and text versions can be copied instead.',true);
+  }catch(e){console.error(e);toast('The PDF maker didn’t load. Check your connection and try again, or download the CSV or text version.',true)}
+  finally{if(btn){btn.disabled=false;btn.textContent=orig}}
+}
+function showExportText(name,text){
+  const d=$('#dlg-x');if(!d.open)d.showModal();
+  $('#x-menu').hidden=true;$('#x-text').hidden=false;
+  $('#x-text-h').textContent=`Downloads aren’t available here. Copy the contents of ${name} and paste them into a file with that name.`;
+  $('#x-ta').value=text;$('#x-ta').scrollTop=0;
+}
+
+/* ---------- Code sets: export and import codes with definitions and criteria ---------- */
+function codesetJSON(){
+  const used=new Set(S.codes.map(c=>c.theme).filter(Boolean));
+  return JSON.stringify({app:'Thematis',type:'codeset',version:1,exported:new Date().toISOString(),project:S.name,
+    codes:sortCodes('az').map(c=>({name:c.name,definition:c.def,include:c.inc,exclude:c.exc,color:c.color,theme:c.theme||''})),
+    themes:themeList().filter(t=>used.has(t.name)).map(t=>({name:t.name,definition:t.def,include:t.inc,exclude:t.exc,color:t.color}))},null,1);
+}
+let IMP=null; // {file, codes:[{name,def,inc,exc,color,theme}], themes:[...]}
+const normName=s=>String(s||'').trim().replace(/\s+/g,' ');
+function codesFromRows(rows){
+  if(rows.length<2)throw new Error('The file has no rows of codes under a header row.');
+  const hd=rows[0].map(x=>String(x||'').trim().toLowerCase());
+  const col=re=>hd.findIndex(x=>re.test(x));
+  const iN=col(/^(code|codes|code name|name|label)$/),iD=col(/defin|descri|meaning/),iI=col(/incl/),iE=col(/excl/),iT=col(/^(theme|candidate theme|category)$/);
+  if(iN<0)throw new Error('No “Code” column found. The first row needs headings such as Code, Definition, Include when, Exclude when.');
+  return rows.slice(1).map(r=>({name:normName(r[iN]),def:iD<0?'':String(r[iD]||'').trim(),inc:iI<0?'':String(r[iI]||'').trim(),exc:iE<0?'':String(r[iE]||'').trim(),theme:iT<0?'':normName(r[iT])})).filter(c=>c.name);
+}
+function codesFromJSON(o){
+  const pick=(x)=>({name:normName(x.name),def:String(x.definition??x.def??'').trim(),inc:String(x.include??x.inc??'').trim(),exc:String(x.exclude??x.exc??'').trim(),color:x.color,theme:normName(x.theme||'')});
+  if(o&&Array.isArray(o.codes)){
+    const themes=(o.themes||[]).map(t=>({name:normName(t.name),def:String(t.definition??t.def??'').trim(),inc:String(t.include??t.inc??'').trim(),exc:String(t.exclude??t.exc??'').trim(),color:t.color})).filter(t=>t.name);
+    return {codes:o.codes.map(pick).filter(c=>c.name),themes};
+  }
+  throw new Error('This JSON file has no codes in it. Choose a code set or a project file saved from Thematis.');
+}
+async function readCodesFile(f){
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  if(ext==='json'){let o;try{o=JSON.parse(await f.text())}catch(e){throw new Error(`${f.name} isn’t valid JSON.`)}return codesFromJSON(o)}
+  if(ext==='csv'||ext==='tsv'||ext==='txt'){const t=(await f.text()).replace(/^﻿/,'');return {codes:codesFromRows(parseDelim(t,ext==='tsv'||(ext==='txt'&&t.includes('\t'))?'\t':',')),themes:[]}}
+  if(['xlsx','xls','ods'].includes(ext)){
+    if(!window.XLSX)throw new Error('The Excel reader did not load. Save the sheet as .csv and import that.');
+    const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});
+    const rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''}).filter(r=>r.some(x=>String(x).trim()));
+    return {codes:codesFromRows(rows),themes:[]};
+  }
+  throw new Error(`${f.name} isn’t a supported format. Use a Thematis code set (.json), a project file, or a codebook as .csv or .xlsx.`);
+}
+async function startImport(f){
+  try{
+    const r=await readCodesFile(f);
+    const seen=new Set();r.codes=r.codes.filter(c=>{const k=c.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+    if(!r.codes.length)throw new Error(`No codes found in ${f.name}.`);
+    IMP={file:f.name,...r,pick:new Set(r.codes.map((_,i)=>i))};
+    renderImport();$('#dlg-imp').showModal();
+  }catch(e){toast(e.message,true)}
+}
+function renderImport(){
+  const ex=n=>S.codes.find(c=>c.name.toLowerCase()===n.toLowerCase());
+  const mode=$('input[name=impmode]:checked')?.value||'skip';
+  const withThemes=$('#imp-themes').checked;
+  const nThemes=new Set(IMP.codes.map(c=>c.theme).filter(Boolean)).size;
+  $('#imp-file').textContent=IMP.file;
+  const dup=IMP.codes.filter(c=>ex(c.name)).length;
+  $('#imp-sum').textContent=`${plural(IMP.codes.length,'code')} found${dup?` · ${dup} already in this project`:''}${nThemes?` · ${plural(nThemes,'theme')}`:''}`;
+  $('#imp-dupopt').hidden=!dup;$('#imp-themeopt').hidden=!nThemes;
+  $('#imp-list').innerHTML=IMP.codes.map((c,i)=>{const e=ex(c.name),miss=!c.def||!c.inc||!c.exc;
+    const st=e?(mode==='update'?'<span class="ist up">Updates existing</span>':'<span class="ist skip">Already here, skipped</span>'):'<span class="ist new">New</span>';
+    return `<label class="irow${e&&mode==='skip'?' off':''}"><input type="checkbox" data-imp="${i}"${IMP.pick.has(i)?' checked':''}${e&&mode==='skip'?' disabled':''}><span class="imp-n"><b>${esc(c.name)}</b>${withThemes&&c.theme?`<span class="ith">${esc(c.theme)}</span>`:''}<span class="idef">${esc(clip(c.def||'No definition in the file',150))}</span>${miss?'<span class="imiss">Some criteria are missing. Add them later with Edit.</span>':''}</span>${st}</label>`}).join('');
+  const n=importable().length;
+  $('#imp-go').textContent=n?`Import ${plural(n,'code')}`:'Nothing to import';$('#imp-go').disabled=!n;
+}
+function importable(){
+  const mode=$('input[name=impmode]:checked')?.value||'skip';
+  return IMP.codes.filter((c,i)=>IMP.pick.has(i)&&(mode==='update'||!S.codes.some(x=>x.name.toLowerCase()===c.name.toLowerCase())));
+}
+function doImport(){
+  const list=importable();if(!list.length)return;
+  const mode=$('input[name=impmode]:checked')?.value||'skip',withThemes=$('#imp-themes').checked&&!$('#imp-themeopt').hidden;
+  const used=Array(NCOL).fill(0);S.codes.forEach(x=>{if(typeof x.color==='number')used[x.color%NCOL]++});
+  const nextCol=()=>{const i=used.indexOf(Math.min(...used));used[i]++;return i};
+  const okCol=v=>(typeof v==='number'&&v>=0)?v%NCOL:(typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))?v.toLowerCase():null;
+  let added=0,updated=0;const t0=Date.now();const before=new Set(themeList().map(t=>t.name));
+  list.forEach((c,i)=>{
+    const ex=S.codes.find(x=>x.name.toLowerCase()===c.name.toLowerCase());
+    const theme=withThemes?c.theme:'';
+    if(ex){Object.assign(ex,{def:c.def||ex.def,inc:c.inc||ex.inc,exc:c.exc||ex.exc});if(theme)ex.theme=theme;updated++}
+    else{let col=okCol(c.color);if(col===null)col=nextCol();S.codes.push({id:uid('c'),name:c.name,theme,def:c.def,inc:c.inc,exc:c.exc,color:col,created:t0+i,imported:true});added++}
+  });
+  if(withThemes){themeList();(IMP.themes||[]).forEach(t=>{const th=S.themes.find(x=>x.name===t.name);if(th&&!before.has(th.name)){th.def=t.def;th.inc=t.inc;th.exc=t.exc;const c=okCol(t.color);if(c!==null)th.color=c}})}
+  customColors();
+  $('#dlg-imp').close();IMP=null;save();render();
+  toast(`Imported ${plural(added,'code')}${updated?`, updated ${updated}`:''}. Select text in a document to apply them.`);
+}
+$('#codes-in').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)await startImport(f)});
+$('#dlg-imp').addEventListener('change',e=>{
+  const i=e.target.dataset.imp;if(i!=null){e.target.checked?IMP.pick.add(+i):IMP.pick.delete(+i)}
+  renderImport();
+});
+$('#imp-all').addEventListener('click',()=>{const all=IMP.pick.size<IMP.codes.length;IMP.pick=new Set(all?IMP.codes.map((_,i)=>i):[]);renderImport()});
+$('#imp-go').addEventListener('click',doImport);
+
+/* ---------- View and edit a project file ---------- */
+let fileId=null;
+function openFile(id){
+  const d=docById(id);if(!d)return;fileId=id;
+  $('#df-title').textContent=d.name;$('#df-name').value=d.name;$('#df-type').innerHTML=typeOptions(d.type);$('#df-text').value=d.text;
+  const n=segsOfDoc(id).length;$('#df-meta').textContent='';
+  const w=$('#df-warn');w.hidden=!n;w.textContent=n?`This file has ${plural(n,'coded passage')}. They stay attached when you edit elsewhere in the text; a passage whose own words you change loses its code.`:'';
+  $('#df-err').textContent='';const del=$('#df-del');del.removeAttribute('data-armed');del.textContent='Remove file';
+  $('#dlg-file').showModal();$('#df-text').scrollTop=0;
+}
+function remapSegs(d,txt){ // keep each coded passage on the same words in the edited text
+  let lost=0;
+  segsOfDoc(d.id).forEach(s=>{
+    const q=d.text.slice(s.start,s.end);let best=-1,from=0,i;
+    while((i=txt.indexOf(q,from))>=0){if(best<0||Math.abs(i-s.start)<Math.abs(best-s.start))best=i;from=i+1}
+    if(best<0){S.segs=S.segs.filter(x=>x!==s);lost++}else{s.start=best;s.end=best+q.length}
+  });
+  return lost;
+}
+$('#file-form').addEventListener('submit',e=>{
+  e.preventDefault();const d=docById(fileId);if(!d)return;
+  const name=$('#df-name').value.trim(),txt=norm($('#df-text').value);
+  if(!name){$('#df-err').textContent='Give the file a name.';$('#df-name').focus();return}
+  if(!txt){$('#df-err').textContent='The file is empty. Add text, or remove the file instead.';$('#df-text').focus();return}
+  let lost=0;if(txt!==d.text)lost=remapSegs(d,txt);
+  d.name=name;d.type=$('#df-type').value;d.text=txt;
+  $('#dlg-file').close();save();render();
+  toast(lost?`Updated “${name}”. ${plural(lost,'coded passage')} no longer matched and lost its code.`:`Updated “${name}”`,!!lost);
+});
+$('#df-del').addEventListener('click',e=>arm(e.currentTarget,'Click again to remove',()=>{const d=docById(fileId);if(!d)return;const n=segsOfDoc(d.id).length;S.docs=S.docs.filter(x=>x.id!==d.id);S.segs=S.segs.filter(s=>s.docId!==d.id);if(S.active===d.id)S.active=S.docs[0]?.id||null;$('#dlg-file').close();save();render();toast(`Removed “${d.name}”${n?` and ${plural(n,'coded passage')}`:''}`)}));
+
+/* ---------- Event wiring ---------- */
+// Landing
+const fileIn=$('#file-in');
+let fileFrom='landing';
+$('#l-upload').addEventListener('click',()=>{leaveSample();enterApp('data')});
+fileIn.addEventListener('change',async()=>{
+  const fromLanding=fileFrom==='landing'&&!$('#landing').hidden;
+  if(fromLanding)leaveSample();
+  const n=await importFiles(fileIn.files);fileIn.value='';
+  if(n===-1)return;
+  if(fromLanding){if(n>0)enterApp('data')}else render();
+});
+['dragenter','dragover'].forEach(ev=>{$('#l-optA').addEventListener(ev,e=>{e.preventDefault();e.currentTarget.classList.add('drag')});$('#drop').addEventListener(ev,e=>{e.preventDefault();e.currentTarget.classList.add('drag')})});
+['dragleave','drop'].forEach(ev=>{$('#l-optA').addEventListener(ev,e=>{e.preventDefault();e.currentTarget.classList.remove('drag')});$('#drop').addEventListener(ev,e=>{e.preventDefault();e.currentTarget.classList.remove('drag')})});
+$('#l-optA').addEventListener('drop',async e=>{leaveSample();const n=await importFiles(e.dataTransfer.files);if(n>0)enterApp('data')});
+$('#drop').addEventListener('drop',async e=>{const n=await importFiles(e.dataTransfer.files);if(n!==-1)render()});
+$('#drop').addEventListener('click',()=>{fileFrom='data'});
+$('#l-sample').addEventListener('click',()=>{loadSample();enterApp('data')});
+$('#l-open').addEventListener('click',()=>$('#json-in').click());
+$('#l-continue').addEventListener('click',()=>enterApp(S.segs.length||S.codes.length?'code':'data'));
+$('#l-new').addEventListener('click',e=>arm(e.currentTarget,dirty?'Not exported. Click again to discard it':'Click again to start fresh',()=>{S=blank();dirty=false;focusCode=null;H.obj=null;renderLanding();toast('Started a new project')}));
+$('#json-in').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)await openProjectFile(f)});
+
+// Masthead
+$('#m-home').addEventListener('click',()=>{
+  const own=S.sample?preSample:S;
+  const has=own&&(own.docs.length||own.codes.length);
+  if(!has&&!S.sample){S=blank();H.obj=null;dirty=false;leaveApp();return}
+  const T=own?(own.themes||[]).length:0;
+  $('#so-body').innerHTML=has
+    ?`This removes <b>${esc(own.name)}</b> from this page: ${(p=>p.length>1?p.slice(0,-1).join(', ')+' and '+p[p.length-1]:p[0])([own.docs.length&&plural(own.docs.length,'file'),own.codes.length&&plural(own.codes.length,'code'),T&&plural(T,'theme')].filter(Boolean))}.${dirty?' It has changes that are not in a project file yet.':''} Save the project file first if you want to come back to it.`
+    :'This closes the example study and takes you back to the start.';
+  $('#dlg-over').showModal();
+});
+$('#so-save').addEventListener('click',async e=>{
+  const cur=S;if(S.sample&&preSample)S=preSample;
+  try{await doExport('proj:json',e.currentTarget)}finally{S=cur}
+  renderSaved();
+});
+$('#so-go').addEventListener('click',()=>{S=blank();preSample=null;focusCode=null;H.obj=null;dirty=false;$('#dlg-over').close();leaveApp();toast('Started over')});
+$('#m-export').addEventListener('click',()=>{const d=$('#dlg-x');renderExportList($('#x-menu'));$('#x-menu').hidden=false;$('#x-text').hidden=true;d.showModal()});
+$('#x-back').addEventListener('click',()=>{$('#x-menu').hidden=false;$('#x-text').hidden=true});
+$('#x-copy').addEventListener('click',()=>{const ta=$('#x-ta');const done=()=>toast('Copied');
+  try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.focus();ta.select();toast('Press Ctrl+C or ⌘C to copy the selected text')})}catch(e){ta.focus();ta.select();toast('Press Ctrl+C or ⌘C to copy the selected text')}});
+
+// Data view
+$('#study-name').addEventListener('input',e=>{S.name=e.target.value.trim()||'Untitled project';save()});
+$('#p-add').addEventListener('click',()=>{
+  const t=$('#p-text').value,n=$('#p-name').value.trim();
+  if(!t.trim()){$('#p-err').textContent='Paste some text first.';$('#p-text').focus();return}
+  $('#p-err').textContent='';leaveSample();
+  const d=addDoc(n||`Document ${S.docs.length+1}`,$('#p-type').value,t);S.sample=false;
+  $('#p-text').value='';$('#p-name').value='';save();render();toast(`Saved “${d.name}” to the project`);$('#p-name').focus();
+});
+$('#c-themes').addEventListener('click',()=>{if(S.codes.length)go('themes')});
+$('#d-code').addEventListener('click',()=>{if(S.docs.length){S.active=S.docs[0].id;go('code')}});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.type){const d=docById(t.dataset.type);if(d){d.type=t.value;save();renderMast()}}
+  if(t.dataset.rename){const d=docById(t.dataset.rename);if(d){d.name=t.value.trim()||d.name;t.value=d.name;save()}}
+});
+
+// Global clicks
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-go]');if(!t)return;
+  const ds=t.dataset;
+  if(ds.go){go(ds.go);return}
+  if(ds.open){S.active=ds.open;go('code');return}
+  if(ds.deldoc){arm(t,'Confirm remove',()=>{const d=docById(ds.deldoc);S.docs=S.docs.filter(x=>x.id!==ds.deldoc);S.segs=S.segs.filter(s=>s.docId!==ds.deldoc);if(S.active===ds.deldoc)S.active=S.docs[0]?.id||null;save();render();toast(`Removed “${d.name}” and its coded segments`)});return}
+  if(ds.doc){closePop(false);S.active=ds.doc;save();renderCode();$('#reader').scrollTop=0;if(narrow.matches||innerWidth<=1100)$('#reader').scrollIntoView({block:'start'});return}
+  if(ds.focus){focusCode=focusCode===ds.focus?null:ds.focus;renderCodeList();renderReader();if(focusCode){const el=$(`#rd-body [data-c~="${focusCode}"]`);if(el)el.scrollIntoView({block:'center',behavior:'smooth'})}return}
+  if(ds.edit){openCodeDialog({mode:'edit',id:ds.edit});return}
+  if(ds.inbook){openBook(ds.inbook);return}
+  if(ds.show){$('#dlg-book').close();focusCode=ds.show;const s=segsOfCode(ds.show)[0];if(s)S.active=s.docId;go('code');setTimeout(()=>{const el=$(`#rd-body [data-c~="${ds.show}"]`);if(el)el.scrollIntoView({block:'center'})},30);return}
+  if(ds.delcode){arm(t,'Confirm delete',()=>{const c=codeById(ds.delcode);const n=segsOfCode(ds.delcode).length;S.codes=S.codes.filter(x=>x.id!==ds.delcode);S.segs=S.segs.filter(s=>s.codeId!==ds.delcode);if(focusCode===ds.delcode)focusCode=null;save();render();toast(`Deleted “${c.name}” and ${plural(n,'coded segment')}`)});return}
+  if(ds.unseg){
+    if(t.dataset.sure){removeSeg(ds.unseg);return}
+    const keep=t.innerHTML;t.dataset.sure='1';t.classList.add('sure');t.innerHTML='Remove?';t.setAttribute('aria-label','Click again to remove this code from the passage');
+    setTimeout(()=>{if(t.isConnected&&t.dataset.sure){delete t.dataset.sure;t.classList.remove('sure');t.innerHTML=keep}},3500);return}
+  if(ds.goseg){const s=S.segs.find(x=>x.id===ds.goseg);const el=$(`#rd-body [data-s~="${ds.goseg}"]`);if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2500)}return}
+  if(ds.apply){applyCode(ds.apply);return}
+  if(ds.addhere){const s=S.segs.find(x=>x.id===ds.addhere);if(s){closePop(false);openApply({docId:s.docId,start:s.start,end:s.end})}return}
+  if(ds.popclose!==undefined){closePop();return}
+  if(ds.export){doExport(ds.export,t);return}
+  if(ds.untheme){hideTip();setCodeTheme(ds.untheme,'');return}
+  if(ds.tdel){arm(t,'Click again to delete',()=>deleteTheme(ds.tdel));return}
+  if(ds.tedit){openThemeDialog({mode:'edit',id:ds.tedit});return}
+  if(ds.act==='own'){leaveSample();go(S.docs.length?'code':'data');toast(S.docs.length?`Back to “${S.name}”`:'Sample closed. Add your own data.');return}
+  if(ds.close!==undefined){t.closest('dialog')?.close();return}
+  if(t.id==='pop-new'){const q=$('#pop-search').value.trim();openCodeDialog({mode:'new',name:q,range:P});return}
+  if(t.id==='cc-new'){openCodeDialog({mode:'new'});return}
+  if(ds.viewdoc){openFile(ds.viewdoc);return}
+  if(ds.impcodes){$('#codes-in').click();return}
+  if(t.id==='cc-book'||t.id==='th-book'){openBook();return}
+  if(t.id==='th-tbook'){openThemeBook();return}
+  if(t.id==='f-del'&&dlgCtx.kind==='theme'){arm(t,'Confirm: delete theme',()=>{const id=dlgCtx.id;$('#dlg-code').close();deleteTheme(id)});return}
+  if(t.id==='f-del'){arm(t,'Confirm: delete code and its segments',()=>{const id=dlgCtx.id;const c=codeById(id);const n=segsOfCode(id).length;S.codes=S.codes.filter(x=>x.id!==id);S.segs=S.segs.filter(s=>s.codeId!==id);if(focusCode===id)focusCode=null;$('#dlg-code').close();closePop(false);save();render();toast(`Deleted “${c.name}” and ${plural(n,'coded segment')}`)});return}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='pop-search')renderPopList(e.target.value);
+  if(e.target.id==='cc-search')renderCodeList();
+  if(e.target.id==='bk-q')renderBookModal();
+  if(e.target.id==='tb-q')renderThemeBook();
+});
+document.addEventListener('change',e=>{
+  if(e.target.name==='bkf'||e.target.id==='bk-s')renderBookModal();
+  if(e.target.id==='tb-s')renderThemeBook();
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.id==='pop-search'&&e.key==='Enter'){e.preventDefault();const first=$('#pop-list .prow:not([disabled])');
+    if(first)first.click();else if(!$('#pop-new').hidden)$('#pop-new').click()}
+  if(e.target.id==='pop-search'&&e.key==='ArrowDown'){e.preventDefault();$('#pop-list .prow:not([disabled])')?.focus()}
+  if(e.key==='Escape'&&pop.open&&!document.querySelector('dialog[open]')){closePop();}
+});
+$('#dlg-code').addEventListener('close',()=>{if(pop.open&&pop.mode==='apply'&&fine.matches&&!narrow.matches)$('#pop-search')?.focus({preventScroll:true})});
+
+// Code tooltips in the popover
+$('#pop').addEventListener('mouseover',e=>{const r=e.target.closest('[data-tip]');if(r&&r!==tipFor)showTip(r)});
+$('#pop').addEventListener('mouseout',e=>{const r=e.target.closest('[data-tip]');if(r&&!r.contains(e.relatedTarget))hideTip()});
+$('#pop').addEventListener('focusin',e=>{const r=e.target.closest('[data-tip]');if(r)showTip(r);else hideTip()});
+$('#pop').addEventListener('focusout',e=>{if(!$('#pop').contains(e.relatedTarget))hideTip()});
+
+// Selection handling
+document.addEventListener('pointerdown',e=>{
+  if(!pop.open||e.target.closest('#pop')||e.target.closest('dialog'))return;
+  closePop(!e.target.closest('#rd-body'));
+});
+document.addEventListener('pointerup',e=>{if(view!=='code'||e.target.closest('#pop')||e.target.closest('dialog'))return;setTimeout(checkSel,10)});
+document.addEventListener('keyup',e=>{if(view==='code'&&e.shiftKey&&!e.target.closest('input,textarea,#pop'))checkSel()});
+let selT=null;
+document.addEventListener('selectionchange',()=>{if(fine.matches||view!=='code')return;clearTimeout(selT);selT=setTimeout(checkSel,550)});
+document.addEventListener('click',e=>{
+  if(view!=='code')return;const span=e.target.closest('#rd-body .hl');if(!span)return;
+  const sel=getSelection();if(sel&&!sel.isCollapsed)return;
+  if(pop.open&&pop.mode==='apply')return;
+  openInfo(span);
+});
+addEventListener('scroll',()=>{if(pop.open)place()},true);
+addEventListener('resize',()=>{if(pop.open)place()});
+
+// Start
+renderLanding();
+})();
+</script>
+</body></html>
