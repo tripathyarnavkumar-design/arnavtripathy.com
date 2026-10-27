@@ -12,7 +12,7 @@ design:
 research:
 - name: Thematis
   description: Carry out thematic analysis of qualitative data. Upload or paste interview transcripts, open-ended survey responses or field notes, code passages with defined inclusion and exclusion criteria, group codes into themes, and export the codebook, theme book and a full analysis report.
-  url: thematis/
+  url: https://thematis.pages.dev/
   thumbnail: /media/thematis.png
   thumbnail_position: ''
   thumbnail_zoom: 100%
