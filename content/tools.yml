@@ -4,7 +4,7 @@ intro: These are tools I have built for the design and research community, and t
 design:
 - name: Graphyzo
   description: Turn any table into the right chart. Upload or paste your data, pick from 115+ visualization techniques, style every element and export for web, print or publication.
-  url: graphyzo/
+  url: https://graphyzo.pages.dev/
   thumbnail: /media/graphyzo.png
   thumbnail_position: ''
   thumbnail_zoom: 100%

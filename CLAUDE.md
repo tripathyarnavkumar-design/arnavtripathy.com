@@ -9,7 +9,7 @@ This is Arnav Kumar Tripathy's personal website. It's a static site built by `bu
   - Links and media paths must go through `{{ base }}` or the `url` filter, so the site also works under a sub-path.
   - Macros are imported `with context`.
 - **Project pages.** Each project page is generated as `design-<slug>.html` from `content/projects/<slug>.md`.
-- **Web apps.** `apps/<name>/` is copied unchanged into `_site/<name>/` (e.g. Graphyzo at `/graphyzo/`; `apps/vizify/` and `apps/dataviz-now/` only redirect there from the tool's old names). It is built elsewhere as one self-contained `index.html`; replace that file to update the app.
+- **Web apps.** The tools live in their own GitHub repos and are published by Cloudflare Pages at standalone addresses, so shared links never show this site: Thematis (repo `Thematis`, https://thematis.pages.dev/) and Graphyzo (repo `Graphyzo`, https://graphyzo.pages.dev/). Update a tool in its own repo, never here. `apps/<name>/` is copied unchanged into `_site/<name>/` and now only holds redirect pages, so old links (`/thematis/`, `/graphyzo/`, and Graphyzo's old names `/vizify/`, `/dataviz-now/`) forward to the standalone addresses. The Tools page links (`content/tools.yml`) point to the standalone addresses.
 - **Categories.** Project categories are defined in `CATEGORIES` in `build.py`, and their colours are in `assets/styles.css` (`--t-*`).
 
 ## Design system
