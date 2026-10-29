@@ -663,7 +663,7 @@ html.is-loading body{ overflow:hidden; }
 /* 404 page */
 .page-404 .rows{ padding-bottom:clamp(var(--s8), 8vw, 112px); }
 .notfound-links a span{ transition:transform .2s var(--ease), color var(--t-fast) ease; }
-@media (hover:hover) and (pointer:fine){ .notfound-links a:hover span{ transform:translateX(3px); color:var(--teal); } }
+@media (hover:hover) and (pointer:fine){ .notfound-links a:hover span{ transform:translate(2px, -2px); color:var(--teal); } }
 
 /* Tools page */
 .page-tools .rows{ padding-bottom:clamp(var(--s8), 8vw, 112px); }
