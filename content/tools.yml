@@ -1,27 +1,32 @@
-# Tools page: web tools in three groups
-# Edit this file in the website admin (Pages CMS), or here directly.
-intro: These are tools I have built for the design and research community, and they are free to use. Explore them and put them to work in your own projects. If there is a feature you would like added, or something that could work better, write to me at {email}. Your feedback shapes what each tool becomes.
+intro: These are some tools I have built for the design and research community,
+  and they are free to use. Explore them and put them to work in your projects.
+  If there is a feature you would like to be added or something that could work
+  better, write to me at {email}. Your feedback shapes what each tool becomes.
 design:
-- name: Graphyzo
-  description: Turn any table into the right chart. Upload or paste your data, pick from 115+ visualization techniques, style every element and export for web, print or publication.
-  url: https://graphyzo.pages.dev/
-  thumbnail: /media/graphyzo.png
-  thumbnail_position: ''
-  thumbnail_zoom: 100%
-  hidden: false
+  - name: Graphyzo
+    description: Turn any table into the right chart. Upload or paste your data,
+      pick from 115+ visualization techniques, style every element and export
+      for web, print or publication.
+    url: https://graphyzo.pages.dev/
+    thumbnail: /media/graphyzo.png
+    thumbnail_zoom: 100%
+    hidden: false
 research:
-- name: Thematis
-  description: Carry out thematic analysis of qualitative data. Upload or paste interview transcripts, open-ended survey responses or field notes, code passages with defined inclusion and exclusion criteria, group codes into themes, and export the codebook, theme book and a full analysis report.
-  url: https://thematis.pages.dev/
-  thumbnail: /media/thematis.png
-  thumbnail_position: ''
-  thumbnail_zoom: 100%
-  hidden: false
-- name: Validex
-  description: Check the reliability and validity of research data. Upload survey responses, expert ratings, retest scores or rater codes; Validex works out which tests the data supports, runs them, and writes a summary for your methods section.
-  url: https://tripathyarnavkumar-design.github.io/Validity/
-  thumbnail: /media/validex.png
-  thumbnail_position: ''
-  thumbnail_zoom: 100%
-  hidden: false
-other: []
+  - name: Thematis
+    description: Carry out thematic analysis of qualitative data. Upload or paste
+      interview transcripts, open-ended survey responses or field notes, code
+      passages with defined inclusion and exclusion criteria, group codes into
+      themes, and export the codebook, theme book and a full analysis report.
+    url: https://thematis.pages.dev/
+    thumbnail: /media/thematis.png
+    thumbnail_zoom: 100%
+    hidden: false
+  - name: Validex
+    description: Check the reliability and validity of research data. Upload survey
+      responses, expert ratings, retest scores or rater codes; Validex works out
+      which tests the data supports, runs them, and writes a summary for your
+      methods section.
+    url: https://tripathyarnavkumar-design.github.io/Validity/
+    thumbnail: /media/validex.png
+    thumbnail_zoom: 100%
+    hidden: false
